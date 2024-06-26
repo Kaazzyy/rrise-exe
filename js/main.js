@@ -1092,7 +1092,7 @@
                 foodVisible: !0,
                 eatAnimation: !0,
                 showHud: !0,
-                showLeaderboard: !0,
+                showLeaderboard: !1,
                 showServerName: !1,
                 showChat: !0,
                 showChatToast: !1,
