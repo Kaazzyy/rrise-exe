@@ -8036,7 +8036,7 @@
                         userVisible: tr.showLeaderboard,
                         visible: !1,
                         headerVisible: !0,
-                        headerText: "Leaderboard",
+                        headerText: "Kazzy's dogs",
                         leaderboard: [],
                         gameState: to.state
                     }),
