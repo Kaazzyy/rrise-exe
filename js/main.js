@@ -5226,12 +5226,6 @@
                                 return e.change("showChat", t)
                             }
                         }
-                    }, [e._v("Show chat")]), e._v(" "), s("p-check", {
-                        staticClass: "p-switch",
-                        attrs: {
-                            disabled: !e.showHud || !e.showChat,
-                            checked: e.showChatToast
-                        },
                         on: {
                             change: function(t) {
                                 return e.change("showChatToast", t)
