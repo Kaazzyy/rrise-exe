@@ -7994,7 +7994,7 @@
                             expression: "userVisible && visible"
                         }],
                         attrs: {
-                            id: "Kazzy's dogs"
+                            id: "leaderboard"
                         }
                     }, [s("div", {
                         directives: [{
