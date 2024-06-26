@@ -1093,7 +1093,7 @@
                 eatAnimation: !0,
                 showHud: !0,
                 showLeaderboard: !0,
-                showServerName: !1,
+                showServerName: !0,
                 showChat: !0,
                 showChatToast: !1,
                 minimapEnabled: !0,
@@ -5222,7 +5222,7 @@
                                 return e.change("showServerName", t)
                             }
                         }
-                    }, [e._v("Leaderboard: Server name")]), e._v(" "), s("p-check", {
+                    }, [e._v("Leaderboard: Server Name")]), e._v(" "), s("p-check", {
                         staticClass: "p-switch",
                         attrs: {
                             disabled: !e.showHud,
