@@ -5516,7 +5516,6 @@
                     eatAnimation: b.eatAnimation,
                     showHud: b.showHud,
                     showLeaderboard: b.showLeaderboard,
-                    showServerName: b.showServerName,
                     showChat: b.showChat,
                     showChatToast: b.showChatToast,
                     minimapEnabled: b.minimapEnabled,
@@ -7995,7 +7994,7 @@
                             expression: "userVisible && visible"
                         }],
                         attrs: {
-                            id: "leaderboard"
+                            id: "Kazzy's dogs"
                         }
                     }, [s("div", {
                         directives: [{
