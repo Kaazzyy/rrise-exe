@@ -7660,7 +7660,7 @@
                         attrs: {
                             id: "hud"
                         }
-                    }, [t("stats"), this._v(" "), t("chatbox"), this._v(" "), t("Kazzy's dogs"), this._v(" "), t("minimap"), this._v(" "), t("cautions")], 1)
+                    }, [t("stats"), this._v(" "), t("chatbox"), this._v(" "), t("leaderboard"), this._v(" "), t("minimap"), this._v(" "), t("cautions")], 1)
                 };
             eY._withStripped = !0;
             var e6 = function() {
