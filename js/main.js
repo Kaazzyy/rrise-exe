@@ -1092,7 +1092,7 @@
                 foodVisible: !0,
                 eatAnimation: !0,
                 showHud: !0,
-                showLeaderboard: !1,
+                showLeaderboard: !0,
                 showServerName: !1,
                 showChat: !0,
                 showChatToast: !1,
@@ -4898,7 +4898,7 @@
                             type: "range",
                             min: "0",
                             max: "10000",
-                            step: "10"
+                            step: "20"
                         },
                         domProps: {
                             value: e.drawDelay
@@ -5196,6 +5196,41 @@
                         on: {
                             change: function(t) {
                                 return e.change("showHud", t)
+                            }
+                        }
+                    }, [e._v("HUD")])], 1), e._v(" "), s("div", {
+                        staticClass: "options"
+                    }, [s("p-check", {
+                        staticClass: "p-switch",
+                        attrs: {
+                            disabled: !e.showHud,
+                            checked: e.showLeaderboard
+                        },
+                        on: {
+                            change: function(t) {
+                                return e.change("showLeaderboard", t)
+                            }
+                        }
+                    }, [e._v("Show leaderboard")]), e._v(" "), s("p-check", {
+                        staticClass: "p-switch",
+                        attrs: {
+                            disabled: !e.showHud,
+                            checked: e.showServerName
+                        },
+                        on: {
+                            change: function(t) {
+                                return e.change("showServerName", t)
+                            }
+                        }
+                    }, [e._v("Leaderboard: Server name")]), e._v(" "), s("p-check", {
+                        staticClass: "p-switch",
+                        attrs: {
+                            disabled: !e.showHud,
+                            checked: e.showChat
+                        },
+                        on: {
+                            change: function(t) {
+                                return e.change("showChat", t)
                             }
                         }
                     }, [e._v("Show chat")]), e._v(" "), s("p-check", {
@@ -7638,7 +7673,7 @@
                     staticClass: "server-cautions"
                 }, i(this.serverInfo, i => e("div", [s(t(i))])), 0), s(" "), e("div", {
                     staticClass: "cautions"
-                }, [!this.stopped && this.showMouseFrozen ? e("div", [s("MOUSE FROZEN TO CLIP?")]) : a(), s(" "), !this.stopped && this.showMovementStopped ? e("div", [s(`brick tactic [TAB ${this.showMovementStopped}]`)]) : a(), s(" "), !this.stopped && this.showLinesplitting ? e("div", [s(`CLIPPING [TAB ${this.showLinesplitting}]`)]) : a()])])
+                }, [!this.stopped && this.showMouseFrozen ? e("div", [s("MOUSE FROZEN")]) : a(), s(" "), !this.stopped && this.showMovementStopped ? e("div", [s(`MOVEMENT STOPPED [TAB ${this.showMovementStopped}]`)]) : a(), s(" "), !this.stopped && this.showLinesplitting ? e("div", [s(`LINESPLITTING [TAB ${this.showLinesplitting}]`)]) : a()])])
             };
             e6._withStripped = !0;
             var ez = s(1),
@@ -8001,7 +8036,7 @@
                         userVisible: tr.showLeaderboard,
                         visible: !1,
                         headerVisible: !0,
-                        headerText: "Kazzy's dogs",
+                        headerText: "Leaderboard",
                         leaderboard: [],
                         gameState: to.state
                     }),
@@ -8012,7 +8047,7 @@
                                 this.headerVisible = !0;
                                 var s = this.gameState.selectedServer.region || "";
                                 s && (s += " "), this.headerText = s + this.gameState.selectedServer.name
-                            } else this.headerVisible = !0, this.headerText = "Kazzy's dogs"
+                            } else this.headerVisible = !0, this.headerText = "Leaderboard"
                         },
                         leftClickLabel() {
                             let e = event.target.dataset.pid;
