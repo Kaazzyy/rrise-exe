@@ -804,6 +804,13 @@
                     this.shouldAutoRespawn(t) ? t ? (s.autoRespawning = !0, s.ticksSinceDeath = 0) : (y.autoRespawning = !0, this.ticksSinceDeath = 0) : this.deathTimeout = setTimeout(this.triggerDeathDelay.bind(this, t), 900), s.updateOutlines()
                 }
                 parseLeaderboard(e) {
+                    let t = [];
+                    for (;;) {
+                        let s = e.readUInt16LE();
+                        if (0 == s) {
+                            this.events.$emit("leaderboard-update", t);
+                            return
+                        }
                         let i = this.playerManager.getPlayer(s);
                         if (!i) continue;
                         let a = {
@@ -5226,6 +5233,12 @@
                                 return e.change("showChat", t)
                             }
                         }
+                    }, [e._v("Show chat")]), e._v(" "), s("p-check", {
+                        staticClass: "p-switch",
+                        attrs: {
+                            disabled: !e.showHud || !e.showChat,
+                            checked: e.showChatToast
+                        },
                         on: {
                             change: function(t) {
                                 return e.change("showChatToast", t)
