@@ -5222,7 +5222,7 @@
                                 return e.change("showServerName", t)
                             }
                         }
-                    }, [e._v("Leaderboard: Server name")]), e._v(" "), s("p-check", {
+                    }, [e._v("Leaderboard: Kazzy's dogs")]), e._v(" "), s("p-check", {
                         staticClass: "p-switch",
                         attrs: {
                             disabled: !e.showHud,
