@@ -5211,17 +5211,6 @@
                                 return e.change("showLeaderboard", t)
                             }
                         }
-                    }, [e._v("Show leaderboard")]), e._v(" "), s("p-check", {
-                        staticClass: "p-switch",
-                        attrs: {
-                            disabled: !e.showHud,
-                            checked: e.showServerName
-                        },
-                        on: {
-                            change: function(t) {
-                                return e.change("showServerName", t)
-                            }
-                        }
                    }, [e._v("Leaderboard: Server Name")]), e._v(" "), s("p-check", {
                         staticClass: "p-switch",
                         attrs: {
