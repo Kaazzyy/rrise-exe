@@ -1093,7 +1093,7 @@
                 eatAnimation: !0,
                 showHud: !0,
                 showLeaderboard: !0,
-                showServerName: !1,
+                showServerName: !0,
                 showChat: !0,
                 showChatToast: !1,
                 minimapEnabled: !0,
