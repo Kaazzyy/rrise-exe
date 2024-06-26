@@ -5198,19 +5198,6 @@
                                 return e.change("showHud", t)
                             }
                         }
-                    }, [e._v("HUD")])], 1), e._v(" "), s("div", {
-                        staticClass: "options"
-                    }, [s("p-check", {
-                        staticClass: "p-switch",
-                        attrs: {
-                            disabled: !e.showHud,
-                            checked: e.showLeaderboard
-                        },
-                        on: {
-                            change: function(t) {
-                                return e.change("showLeaderboard", t)
-                            }
-                        }
                    }, [e._v("Leaderboard: Server Name")]), e._v(" "), s("p-check", {
                         staticClass: "p-switch",
                         attrs: {
