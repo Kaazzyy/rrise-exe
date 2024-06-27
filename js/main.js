@@ -20,6 +20,14 @@
             isLockedToName:false,
             url:'https://i.postimg.cc/x82447k4/hat5.png',
             forceSkin:'https://skins.vanis.io/s/LC1msC'
+
+            name:'host',
+            skinUrl:'https://skins.vanis.io/s/Kwpwz8',
+            isLockedToColor:false,
+            isLockedToName:false,
+            url:'https://i.postimg.cc/L5JKws0Z/dogekit-stand.png',
+            forceSkin:'https://skins.vanis.io/s/Kwpwz8'
+
         }
     ]
     
@@ -7161,7 +7169,7 @@
                         this.playerList = t.map(e => ({
                             name: e.perk_name || e.discord_name,
                             perk_color_picked: "#" + (e.perk_color || "ffffff"),
-                            badge: e.perk_badges || 0,
+                            badge: e.perk_badges || 1,
                             xp: e.season_xp,
                             isMe: e.me
                         })), eA.events.$on("every-second", this.setSeasonEndTime), this.setSeasonEndTime()
