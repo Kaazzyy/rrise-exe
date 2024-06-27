@@ -14,20 +14,12 @@
     
     CellOverlayManager.list = [
         {
-            name:'sugner',
-            skinUrl:'https://skins.vanis.io/s/LC1msC',
-            isLockedToColor:false,
-            isLockedToName:false,
-            url:'https://i.postimg.cc/x82447k4/hat5.png',
-            forceSkin:'https://skins.vanis.io/s/LC1msC'
-
             name:'host',
             skinUrl:'https://skins.vanis.io/s/Kwpwz8',
             isLockedToColor:false,
             isLockedToName:false,
-            url:'https://i.postimg.cc/L5JKws0Z/dogekit-stand.png',
+            url:'https://i.postimg.cc/L5JKws0Z/dogekit-stand.png'
             forceSkin:'https://skins.vanis.io/s/Kwpwz8'
-
         }
     ]
     
