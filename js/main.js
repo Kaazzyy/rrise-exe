@@ -7161,7 +7161,7 @@
                         this.playerList = t.map(e => ({
                             name: e.perk_name || e.discord_name,
                             perk_color_picked: "#" + (e.perk_color || "ffffff"),
-                            badge: e.perk_badges || 0,
+                            badge: e.perk_badges || 1,
                             xp: e.season_xp,
                             isMe: e.me
                         })), eA.events.$on("every-second", this.setSeasonEndTime), this.setSeasonEndTime()
