@@ -18,8 +18,9 @@
             skinUrl:'https://skins.vanis.io/s/Kwpwz8',
             isLockedToColor:false,
             isLockedToName:false,
-            url:'https://i.postimg.cc/L5JKws0Z/dogekit-stand.png'
-            forceSkin:'https://skins.vanis.io/s/Kwpwz8'
+            url:'https://i.postimg.cc/L5JKws0Z/dogekit-stand.png',
+            forceSkin: 'https://skins.vanis.io/s/Kwpwz8'
+            
         }
     ]
     
