@@ -8035,7 +8035,7 @@
                     data: () => ({
                         userVisible: tr.showLeaderboard,
                         visible: !1,
-                        headerVisible: !0,
+                        headerVisible: !1,
                         headerText: "Kazzy's dogs",
                         leaderboard: [],
                         gameState: to.state
