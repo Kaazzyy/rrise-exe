@@ -8004,7 +8004,7 @@
                             value: e.headerVisible,
                             expression: "headerVisible"
                         }],
-                        staticClass: "Leaderboard-title"
+                        staticClass: "leaderboard-title"
                     }, [e._v(e._s(e.headerText))]), e._v(" "), s("div", e._l(e.leaderboard, function(t, i) {
                         return s("div", {
                             key: i,
@@ -8035,8 +8035,8 @@
                     data: () => ({
                         userVisible: tr.showLeaderboard,
                         visible: !1,
-                        headerVisible: !1,
-                        headerText: "Kazzy's dogs",
+                        headerVisible: !0,
+                        headerText: "Leaderboard",
                         leaderboard: [],
                         gameState: to.state
                     }),
