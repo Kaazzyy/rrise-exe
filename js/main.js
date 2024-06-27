@@ -5023,7 +5023,7 @@
                         attrs: {
                             type: "range",
                             min: "1",
-                            max: "15",
+                            max: "30",
                             step: "1"
                         },
                         domProps: {
