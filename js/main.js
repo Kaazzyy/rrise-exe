@@ -4434,7 +4434,7 @@
                     Tournament: 1,
                     FFA: 2,
                     Instant: 3,
-                    Gigasplit: 4,
+                    Giganigga: 4,
                     Megasplit: 5,
                     Crazy: 6,
                     "Self-Feed": 7,
