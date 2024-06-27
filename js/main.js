@@ -7997,7 +7997,7 @@
                         attrs: {
                             id: "leaderboard"
                         }
-}, [s("div", {
+                    }, [s("div", {
                         directives: [{
                             name: "show",
                             rawName: "v-show",
@@ -8047,7 +8047,7 @@
                                 this.headerVisible = !0;
                                 var s = this.gameState.selectedServer.region || "";
                                 s && (s += " "), this.headerText = s + this.gameState.selectedServer.name
-                            } else this.headerVisible = !0, this.headerText = "Leaderboard"
+                            } else this.headerVisible = !0, this.headerText = "Kazzy's dogs"
                         },
                         leftClickLabel() {
                             let e = event.target.dataset.pid;
