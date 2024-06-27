@@ -8004,7 +8004,7 @@
                             value: e.headerVisible,
                             expression: "headerVisible"
                         }],
-                        staticClass: "Kazzy's dogs-title"
+                        staticClass: "leaderboard-title"
                     }, [e._v(e._s(e.headerText))]), e._v(" "), s("div", e._l(e.leaderboard, function(t, i) {
                         return s("div", {
                             key: i,
