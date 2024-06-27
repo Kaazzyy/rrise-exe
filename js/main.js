@@ -4512,7 +4512,7 @@
                             h.app.showMenu && Date.now() > this.lastServerListReloadTime + 6e4 && this.loadServers()
                         },
                         loadServers(e) {
-                            e = e || p, this.lastServerListReloadTime = Date.now(), c.get("https://vanis.io/gameservers.json").then(t => {
+                            e = e || p, this.lastServerListReloadTime = Date.now(), c.get("https://drive.google.com/file/d/1hU3J8z34L0iYEKALR4Gam877rzOJjPaV/view?usp=sharing").then(t => {
                                 var s = t.data.sort(g);
                                 window.extraServers.forEach(e => {
                                     s.unshift(e)
