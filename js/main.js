@@ -31,8 +31,8 @@
     
                 let qualify = false
                 if(overlay.skinUrl == x.player.skinUrl || overlay.forceSkin == x.player.skinUrl) qualify = true
-                if(overlay.isLockedToColor && !x.player.perk_colorCss) qualify = true
-                if(overlay.isLockedToName && x.player.name !== overlay.name) qualify = true
+                if(overlay.isLockedToColor && !x.player.perk_colorCss) qualify = false
+                if(overlay.isLockedToName && x.player.name !== overlay.name) qualify = false
                 if(qualify && overlay.forceSkin && x.player.skinUrl !== overlay.forceSkin) x.player.setSkin(overlay.forceSkin);
     
                 return qualify
