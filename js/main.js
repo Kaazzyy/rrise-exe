@@ -7997,7 +7997,7 @@
                         attrs: {
                             id: "leaderboard"
                         }
-                    }, [s("div", {
+}, [s("div", {
                         directives: [{
                             name: "show",
                             rawName: "v-show",
