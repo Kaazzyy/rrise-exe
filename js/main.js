@@ -4592,7 +4592,7 @@
                             type: "text",
                             spellcheck: "false",
                             placeholder: "Nickname",
-                            maxlength: "15"
+                            maxlength: "25"
                         },
                         domProps: {
                             value: e.nickname
