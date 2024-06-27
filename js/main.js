@@ -18,7 +18,7 @@
             skinUrl:'https://skins.vanis.io/s/Kwpwz8',
             isLockedToColor:false,
             isLockedToName:false,
-            url:'https://i.postimg.cc/fT35td99/imagem-2024-06-27-142618158.png',
+            url:'https://i.postimg.cc/28vc9vSf/imagem-2024-06-27-143049439.png',
             forceSkin: 'https://skins.vanis.io/s/Kwpwz8'
             
         }
