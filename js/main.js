@@ -31,8 +31,8 @@
     
                 let qualify = false
                 if(overlay.skinUrl == x.player.skinUrl || overlay.forceSkin == x.player.skinUrl) qualify = true
-                if(overlay.isLockedToColor && !x.player.perk_colorCss) qualify = false
-                if(overlay.isLockedToName && x.player.name !== overlay.name) qualify = false
+                if(overlay.isLockedToColor && !x.player.perk_colorCss) qualify = true
+                if(overlay.isLockedToName && x.player.name !== overlay.name) qualify = true
                 if(qualify && overlay.forceSkin && x.player.skinUrl !== overlay.forceSkin) x.player.setSkin(overlay.forceSkin);
     
                 return qualify
@@ -7161,7 +7161,7 @@
                         this.playerList = t.map(e => ({
                             name: e.perk_name || e.discord_name,
                             perk_color_picked: "#" + (e.perk_color || "ffffff"),
-                            badge: e.perk_badges || 1,
+                            badge: e.perk_badges || 0,
                             xp: e.season_xp,
                             isMe: e.me
                         })), eA.events.$on("every-second", this.setSeasonEndTime), this.setSeasonEndTime()
