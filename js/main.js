@@ -3247,7 +3247,7 @@
                     let v = c.join("|");
                     h.setItem(o(), v, () => {
                         n.events.$emit("replay-added");
-                        let e = "Replay saved!";
+                        let e = "Nigga u clippig?";
                         1 === l.showReplaySaved ? n.events.$emit("chat-message", e) : r.toast.fire({
                             type: "info",
                             title: e,
