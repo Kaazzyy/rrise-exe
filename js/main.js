@@ -7877,7 +7877,7 @@
                             autocomplete: "off",
                             maxlength: "1000",
                             tabindex: "-1",
-                            placeholder: "Type your message here"
+                            placeholder: "Yap here"
                         },
                         domProps: {
                             value: e.inputText
