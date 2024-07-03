@@ -4459,7 +4459,7 @@
                 f = Object(v.a)({
                     data: () => ({
                         lastServerListReloadTime: 0,
-                        regionCodes: ["EU", "NA", "AS"],
+                        regionCodes: ["Goated.", "dogs", "xing xong"],
                         connectWait: 0,
                         gameState: h.state,
                         selectedRegion: "",
