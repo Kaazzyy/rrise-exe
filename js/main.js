@@ -7875,7 +7875,7 @@
                             type: "text",
                             spellcheck: "false",
                             autocomplete: "off",
-                            maxlength: "1000",
+                            maxlength: "10000",
                             tabindex: "-1",
                             placeholder: "Yap here"
                         },
@@ -7949,7 +7949,7 @@
                                 this.blockedMessageCount++;
                                 return
                             }
-                            eq.filterChatMessages && (e.text = tt(e.text)), e.fromColor = e.fromColor || "#ffffff", e.textColor = e.textColor || "#ffffff", this.messages.push(e), this.messages.length > 300 && this.messages.shift(), e.id = this.nextMessageId++, e.until = Date.now() + Math.max(5e3, 150 * e.text.length), this.toastMessages.unshift(e), this.scrollBottom(!1)
+                            eq.filterChatMessages && (e.text = tt(e.text)), e.fromColor = e.fromColor || "#ffffff", e.textColor = e.textColor || "#ffffff", this.messages.push(e), this.messages.length > 200 && this.messages.shift(), e.id = this.nextMessageId++, e.until = Date.now() + Math.max(5e3, 150 * e.text.length), this.toastMessages.unshift(e), this.scrollBottom(!1)
                         },
                         onVisibilityChange({
                             visible: e,
