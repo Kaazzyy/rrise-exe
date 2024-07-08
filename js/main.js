@@ -3971,9 +3971,10 @@
                     let n = s.fromSize(2);
                     n.writeUInt8(17), n.writeUInt8(e), a.connection.send(n, a.dual.focused), a.splitCount += e, a.splitCount <= 2 ? a.moveWaitUntil = performance.now() + 300 : (a.moveWaitUntil = 0, a.splitCount = 0)
                 }
-                triggerbot(e) {
-                    let e = get.targetPid;
+                triggerbot() {
+                    let e = a.targetPid;
                     if (e) {
+                        delete a.targetPid;
                         let t = a.playerManager.getPlayer(e);
                         t && t.setOutline(0, 0, !0), a.setText("")
                     } else a.targetPid = null, a.setText("Click a player to lock triggerbot")
