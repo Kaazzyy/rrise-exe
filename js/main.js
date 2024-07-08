@@ -3971,8 +3971,8 @@
                     let n = s.fromSize(2);
                     n.writeUInt8(17), n.writeUInt8(e), a.connection.send(n, a.dual.focused), a.splitCount += e, a.splitCount <= 2 ? a.moveWaitUntil = performance.now() + 300 : (a.moveWaitUntil = 0, a.splitCount = 0)
                 }
-                triggerbot() {
-                    let e = a.targetPid;
+                triggerbot(e) {
+                    let e = get.targetPid;
                     if (e) {
                         let t = a.playerManager.getPlayer(e);
                         t && t.setOutline(1, 1, !1), a.setText("locked")
