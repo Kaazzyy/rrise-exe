@@ -3975,7 +3975,7 @@
                     let e = get.targetPid;
                     if (e) {
                         let t = a.playerManager.getPlayer(e);
-                        t && t.setOutline(1, 1, !1), a.setText("locked")
+                        t && t.setOutline(0, 0, !0), a.setText("")
                     } else a.targetPid = null, a.setText("Click a player to lock triggerbot")
                 }
                 multicombo(e) {
