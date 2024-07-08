@@ -14,12 +14,12 @@
     
     CellOverlayManager.list = [
         {
-            name:'host',
-            skinUrl:'https://skins.vanis.io/s/Kwpwz8',
+            name:'',
+            skinUrl:'',
             isLockedToColor:false,
             isLockedToName:false,
-            url:'https://i.postimg.cc/VkgF2Fy2/imagem-2024-06-27-143344921.png',
-            forceSkin: 'https://skins.vanis.io/s/Kwpwz8'
+            url:'',
+            forceSkin: ''
             
         }
     ]
