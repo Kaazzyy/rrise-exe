@@ -1,7 +1,7 @@
 ! function e(root) {
     if ("?vanilla" === location.search) return;
     {
-        let t = "https://vanis.io/rise";
+        let t = "https://vanis.io/bombaclat";
         location.href !== t && (location.href = t)
     }
     document.title = "Vanis.io - Kazzy da GOAT", window.customModal = (e, t) => {
