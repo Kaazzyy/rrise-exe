@@ -2121,6 +2121,7 @@
                     zoomLevel3: o.setZoomLevel.bind(o, 3),
                     zoomLevel4: o.setZoomLevel.bind(o, 4),
                     zoomLevel5: o.setZoomLevel.bind(o, 5),
+                    triggerbot: o.triggerbot.bind(o),
                     multibox() {
                         let {
                             dual: e
@@ -2176,7 +2177,8 @@
                 zoomLevel2: "2",
                 zoomLevel3: "3",
                 zoomLevel4: "4",
-                zoomLevel5: "5"
+                zoomLevel5: "5",
+                triggerbot: ""
             };
             e.exports = i.hotkeyManager = new class e {
                 constructor() {
@@ -6757,7 +6759,8 @@
                             "Zoom level 2": "zoomLevel2",
                             "Zoom level 3": "zoomLevel3",
                             "Zoom level 4": "zoomLevel4",
-                            "Zoom level 5": "zoomLevel5"
+                            "Zoom level 5": "zoomLevel5",
+                            "triggerbot": "triggerbot"
                         },
                         hotkeys: V.get()
                     }),
