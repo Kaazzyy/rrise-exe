@@ -8589,6 +8589,7 @@ Your dual Nigga
     })
         
 console.log('RISE v1.1.3')
-(window);
+}(window);
+    <script>
     window.alert('dc: kaazzyy dm if u need any help')
-}
+    </script>
