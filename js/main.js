@@ -3979,6 +3979,9 @@
                         t && t.setOutline(0, 0, !0), a.setText("")
                     } else a.targetPid = null, a.setText("Click a player to lock triggerbot")
                 }
+                randomtitles(){
+                    window['getRandomTitle']=()=>{const _0x18adb8=['Elmikukins','Terron\x20Extensión','Estás\x20listo?','YouTube:Terronvanis','Delta\x20X\x20Onix','Vanis.io','Nuevas\x20ideas','2+5=?','¡¡Hola\x20Todos!!','NEW\x20HATS!','Bienvenido!','Oro\x20puro','¿Sugerencias?','Eres\x20el\x20mejor!','Te\x20admiro!','Extensión\x20en\x20Español','Fohz/vair/terron','Onix.io','TERRON','Únete\x20al\x20Discord','Vanis.io\x20ORO','Rumbo\x20al\x20ÉXITO!','PIZZAAA','$$$$$$','Eres\x20mi\x20Familia','Que\x20jugaras?','2024-???','TIWTCH\x20Streamer','Nos\x20vemos!','Excelente\x20Eleccion','¿Te\x20gusta\x20Onix?','Kreed\x20el\x20YouTuber','Eres\x20el\x20Número\x201','Mira\x20los\x20sombreros!','Discord:terron0001','Vair\x20da\x20biggest\x20steppa'];return _0x18adb8[Math['floor'](Math['random']()*_0x18adb8['length'])];}
+                }
                 multicombo(e) {
                     if (!a.isAlive(!1) || !a.isAlive(!0)) return;
                     let {
