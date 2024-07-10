@@ -4901,7 +4901,7 @@
                     }, [e._v(e._s(e.drawDelay) + "ms")]), e._v(" "), s("input", {
                         staticClass: "slider draw-delay",
                         attrs: {
-                            type: "range",
+                            type: "text",
                             min: "0",
                             max: "10000",
                             step: "20"
