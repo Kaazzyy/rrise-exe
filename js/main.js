@@ -4366,9 +4366,9 @@
                         attrs: {
                             id: "vanis-io_728x90"
                         }
-                    })]), this._v(" "), t("servers", {
+                    })]), this._v(" "), t("player-container", {
                         staticClass: "fade-box two"
-                    }), this._v(" "), t("player-container", {
+                    }), this._v(" "), t("servers", {
                         staticClass: "fade-box two",
                         on: {
                             "modal-open": this.onModalChange
