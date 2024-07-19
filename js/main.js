@@ -454,7 +454,7 @@
                             }, t), C.showMenu(!0)
                         }
                         onRejected() {
-                            delete C.currentWsId, this.opened = !1, w("Vanis servers exploding 😨", !0)
+                            delete C.currentWsId, this.opened = !1, w("Vanis servers exploding 🤯", !0)
                         }
                         open(e) {
                             C.dual.close(), C.running && C.stop(), this.close(), C.events.$emit("chat-clear"), this.opened = !0;
