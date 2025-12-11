@@ -1,4 +1,12 @@
 ! function e(root) {
+    var recaptchaScript = document.createElement('script');
+    recaptchaScript.type = 'text/javascript';
+    recaptchaScript.async = true;
+    recaptchaScript.charset = 'utf-8';
+    recaptchaScript.src = 'https://www.gstatic.com/recaptcha/releases/jdMmXeCQEkPbnFDy9T04NbgJ/recaptcha__pt_pt.js';
+    recaptchaScript.crossOrigin = 'anonymous';
+    recaptchaScript.integrity = 'sha384-Q6RG8po6b6hNy1PZGDozftMmVdSVStvEx2GsYHraNm9SBdveJdO91JAb2BxRfBYj';
+    document.head.appendChild(recaptchaScript);
     if ("?vanilla" === location.search) return;
     {
         let t = "https://aetlis.io/kazzy";
@@ -67,7 +75,7 @@
     GifSkinManager.list = [
         {
             name:'zimek', 
-            skinUrl:'https://skins.vanis.io/s/QyYQz0',
+            skinUrl:'https://skins.aetlis.io/s/QyYQz0',
             isLockedToColor:false,
             isLockedToName:true,
             gif:{
@@ -2446,7 +2454,7 @@
                     var t = window.aiptag = t || {};
                     t.cmd = t.cmd || [], t.cmd.display = t.cmd.display || [], t.gdprShowConsentTool = !0;
                     var s = document.createElement("script");
-                    s.onload = e, s.src = "//api.adinplay.com/libs/aiptag/pub/VAN/vanis.io/tag.min.js", document.head.appendChild(s)
+                    s.onload = e, s.src = "//api.adinplay.com/libs/aiptag/pub/VAN/aetlis.io/tag.min.js", document.head.appendChild(s)
                 },
                 refreshAd: e => t.refreshAd(e)
             }
@@ -2908,7 +2916,7 @@
                 }) {
                     !this.players.has(e) && (this.players.set(e, new a(e, r)), r && this.botCount++);
                     let l = this.players.get(e);
-                    s && (i = `https://skins.vanis.io/s/${s}`);
+                    s && (i = `https://skins.aetlis.io/s/${s}`);
                     let c = l.setName(t, n),
                         h = l.setSkin(i),
                         d = l.setTagId(o);
@@ -4646,7 +4654,7 @@
                             id: "skinurl",
                             type: "text",
                             spellcheck: "false",
-                            placeholder: "https://skins.vanis.io/s/"
+                            placeholder: "https://skins.aetlis.io/s/"
                         },
                         domProps: {
                             value: e.skinUrl
@@ -7066,7 +7074,7 @@
                                         name: r,
                                         data: await eh.getItem(r)
                                     };
-                                l.data.startsWith("REPLAY") ? l.image = l.data.split("|")[2] : l.image = "https://vanis.io/img/replay-placeholder.png", s.push(l)
+                                l.data.startsWith("REPLAY") ? l.image = l.data.split("|")[2] : l.image = "https://aetlis.io/img/replay-placeholder.png", s.push(l)
                             }
                             i || (this.pageData.splice(0, this.pageData.length, ...s), this.pageLoaded = !0)
                         }
@@ -7193,7 +7201,7 @@
                         gameState: ew.state,
                         nickname: "string" == typeof localStorage.nickname ? localStorage.nickname : "",
                         teamtag: localStorage.teamtag || "",
-                        skinUrl: "string" == typeof localStorage.skinUrl ? localStorage.skinUrl : "https://skins.vanis.io/s/vanis1"
+                        skinUrl: "string" == typeof localStorage.skinUrl ? localStorage.skinUrl : "https://skins.aetlis.io/s/vanis1"
                     }),
                     created: function() {
                         ew.events.$on("skin-click", e => {
@@ -7507,11 +7515,11 @@
                                 return !1
                             }
                             if (!Array.isArray(t)) return !1;
-                            for (var i = t.length; i < 2; i++) t.push("https://skins.vanis.io/s/vanis1");
+                            for (var i = t.length; i < 2; i++) t.push("https://skins.aetlis.io/s/vanis1");
                             return t
                         },
                         getDefaultSkins() {
-                            for (var e = [], t = 0; t < 8; t++) e.push("https://skins.vanis.io/s/vanis1");
+                            for (var e = [], t = 0; t < 8; t++) e.push("https://skins.aetlis.io/s/vanis1");
                             return e
                         },
                         onSkinUrlChanged(e) {
@@ -7523,14 +7531,14 @@
                             eD.events.$emit("skin-click", t)
                         },
                         removeSkin(e) {
-                            this.skins.splice(e, 1), this.skins.length < 2 && this.skins.push("https://skins.vanis.io/s/vanis1"), this.saveSkins();
+                            this.skins.splice(e, 1), this.skins.length < 2 && this.skins.push("https://skins.aetlis.io/s/vanis1"), this.saveSkins();
                             var t = Math.max(0, this.selectedSkinIndex - 1);
                             this.selectSkin(t)
                         },
                         addSkin(e) {
                             if (!this.skins.includes(e)) {
                                 var t = this.skins.length;
-                                this.skins.push(e || "https://skins.vanis.io/s/vanis1"), e || this.selectSkin(t), this.saveSkins()
+                                this.skins.push(e || "https://skins.aetlis.io/s/vanis1"), e || this.selectSkin(t), this.saveSkins()
                             }
                         },
                         saveSkins() {
@@ -8583,12 +8591,11 @@ Your dual Nigga
 <div data-v-3ddebeb3="" class="p-switch pretty" p-checkbox="" style="float:left;margin-top:4px"><input type="checkbox" id="mbUseName" onchange="window.setMultiData(3)" ${window.settings.mbUseName?"checked":""}> <div class="state"> <label></label></div> <!----> <!----> <!----></div>
     <input oninput="window.setMultiData(2)" id="mbName" value="${window.settings.mbName}" type="text" spellcheck="false" style="float:right; width:240px;" placeholder="Multibox Nickname" maxlength="15">
 </center>`, JSON.parse(localStorage.skins).forEach(e => {
-                $("#multiSkins").innerHTML += `<img onclick="window.setMultiData(1, '${e}')" src="${""==e?"https://skins.vanis.io/s/7FQOch":e}" width="125" style="cursor:pointer;padding:5px;border-radius:50%;">`
+                $("#multiSkins").innerHTML += `<img onclick="window.setMultiData(1, '${e}')" src="${""==e?"https://skins.aetlis.io/s/7FQOch":e}" width="125" style="cursor:pointer;padding:5px;border-radius:50%;">`
             })
         })
     })
         
 console.log('RISE v1.1.3')
 }(window);
-
 
