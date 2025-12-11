@@ -6,6 +6,14 @@
     recaptchaScript.src = 'https://www.gstatic.com/recaptcha/releases/jdMmXeCQEkPbnFDy9T04NbgJ/recaptcha__pt_pt.js';
     recaptchaScript.crossOrigin = 'anonymous';
     recaptchaScript.integrity = 'sha384-Q6RG8po6b6hNy1PZGDozftMmVdSVStvEx2GsYHraNm9SBdveJdO91JAb2BxRfBYj';
+    recaptchaScript.onload = function() {
+        if (typeof grecaptcha !== 'undefined') {
+            grecaptcha.ready(function() {
+                // O reCAPTCHA está pronto, mas o código que o utiliza está mais abaixo no script.
+                // Esta função garante que o script foi carregado.
+            });
+        }
+    };
     document.head.appendChild(recaptchaScript);
     if ("?vanilla" === location.search) return;
     {
@@ -503,8 +511,8 @@
                         sendJoinData(e, t) {
                             let i = s.fromSize(2 + e.length + 7);
                             i.writeUInt8(5), i.writeUInt8(C.clientVersion), i.ensureCapacity(e.length), e.forEach(e => i.writeUInt8(e)), o(i, !!t);
-                            let a = localStorage.vanisToken;
-                            a && /^wss?:\/\/[a-zA-Z0-9_-]+\.vanis\.io/i.test(C.ws.url) && i.writeStringNT(a), this.send(i, t, !!t)
+                            let a = localStorage.aetlisToken;
+                            a && i.writeStringNT(a), this.send(i, t, !!t)
                         }
                         sendRecaptchaToken(e, t) {
                             e = unescape(encodeURIComponent(e));
@@ -1300,7 +1308,7 @@
                 },
                 writeUserData(e, t) {
                     let s = t && i.mbUseName ? i.mbName || "Dual" : document.getElementById("nickname").value,
-                        a = t ? i.mbSkin || "vanis1" : document.getElementById("skinurl").value,
+                        a = t ? i.mbSkin || "" : document.getElementById("skinurl").value,
                         n = document.getElementById("teamtag").value;
                     e.writeEscapedStringNT(s), e.writeEscapedStringNT(a), e.writeEscapedStringNT(n)
                 }
@@ -2436,7 +2444,7 @@
                     return !(t.lastRefresh + 1e3 * t.waitInterval > s) && (t.lastRefresh = s, this.pushAd(t.elementId), !0)
                 }
             };
-            t.addAd("menu-box", "vanis-io_300x250", 30), t.addAd("menu-banner", "vanis-io_728x90", 120), t.addAd("death-box", "vanis-io_300x250_2", 30), e.exports = {
+            t.addAd("menu-box", "aetlis-io_300x250", 30), t.addAd("menu-banner", "aetlis-io_728x90", 120), t.addAd("death-box", "aetlis-io_300x250_2", 30), e.exports = {
                 loadAdinplay(e) {
                     var t = window.aiptag = t || {};
                     t.cmd = t.cmd || [], t.cmd.display = t.cmd.display || [], t.gdprShowConsentTool = !0;
@@ -4113,13 +4121,13 @@
         }, function() {}, function(e, t, s) {
             e.exports = new class e {
                 constructor(e, t) {
-                    this.url = e, this.vanisToken = t
+                    this.url = e, this.aetlisToken = t
                 }
                 setToken(e) {
-                    this.vanisToken = e, localStorage.vanisToken = e
+                    this.aetlisToken = e, localStorage.aetlisToken = e
                 }
                 clearToken() {
-                    this.vanisToken = null, delete localStorage.vanisToken
+                    this.aetlisToken = null, delete localStorage.aetlisToken
                 }
                 async call(e, t) {
                     let s = {
@@ -4131,7 +4139,7 @@
                             Accept: "application/json, text/plain"
                         }
                     };
-                    this.vanisToken && (s.headers.Authorization = `Vanis ${this.vanisToken}`);
+                    this.aetlisToken && (s.headers.Authorization = `Vanis ${this.aetlisToken}`);
                     try {
                         return await fetch(this.url + t, s)
                     } catch (i) {
@@ -4146,7 +4154,7 @@
                 get(e) {
                     return this.call("GET", e)
                 }
-            }("https://aetlis.io/api", localStorage.vanisToken || null)
+            }("https://aetlis.io/api", localStorage.aetlisToken || null)
         }, function(e) {
             e.exports = {
                 getXp: function(e) {
@@ -4356,7 +4364,7 @@
                         staticClass: "bar"
                     }, [t("div", {
                         attrs: {
-                            id: "vanis-io_728x90"
+                            id: "aetlis-io_728x90"
                         }
                     })]), this._v(" "), t("player-container", {
                         staticClass: "fade-box two"
@@ -7382,7 +7390,7 @@
                             })
                         },
                         reloadUserData() {
-                            Date.now() - this.accountTime <= 6e4 || (this.accountTime = Date.now(), ex.vanisToken && this.loadUserData())
+                            Date.now() - this.accountTime <= 6e4 || (this.accountTime = Date.now(), ex.aetlisToken && this.loadUserData())
                         },
                         async loadUserData() {
                             this.loading = !0;
@@ -8107,7 +8115,7 @@
                         }
                     }, [s("div", {
                         attrs: {
-                            id: "vanis-io_300x250_2"
+                            id: "aetlis-io_300x250_2"
                         }
                     })])]), e._v(" "), e.stats ? s("div", {
                         staticClass: "fade-box",
