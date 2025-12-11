@@ -446,10 +446,8 @@
                             if (1003 === e.code) t = 1500, w("Server restarted cuz I cooked 🚬", !1);
                             else {
                                 t = 3500 + ~~(100 * Math.random());
-                                let s = "Nigga server is full go play terasplit 😂";
                                 if(e.reason){
-                                    (s += ` (${e.reason})`), w(s, !0)
-                                    if(e.reason.startsWith('Nigga is too old for this game: dc: kaazzyy'))GAME.clientVersion++;
+                                    w(e.reason, !0)
                                 }
                             }
                             setTimeout(() => {
