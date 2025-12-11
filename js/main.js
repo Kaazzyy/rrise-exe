@@ -1,7 +1,7 @@
 ! function e(root) {
     if ("?vanilla" === location.search) return;
     {
-        let t = "https://vanis.io/bombaclat";
+        let t = "https://aetlis.io/kazzy";
         location.href !== t && (location.href = t)
     }
     document.title = "Vanis.io - Kazzy da GOAT", window.customModal = (e, t) => {
@@ -8593,4 +8593,5 @@ Your dual Nigga
         
 console.log('RISE v1.1.3')
 }(window);
+
 
