@@ -4,7 +4,7 @@
         let t = "https://aetlis.io/kazzy";
         location.href !== t && (location.href = t)
     }
-    document.title = "Vanis.io - Kazzy da GOAT", window.customModal = (e, t) => {
+    document.title = "Aetlis.io - Kazzy da GOAT", window.customModal = (e, t) => {
         document.getElementsByClassName("fa-clipboard-list")[0].click(), setTimeout(() => {
             document.getElementsByClassName("content fade-box")[0].getElementsByTagName("div")[0].innerHTML = e, t && setTimeout(t, 50)
         }, 50)
@@ -8593,5 +8593,4 @@ Your dual Nigga
         
 console.log('RISE v1.1.3')
 }(window);
-
 
