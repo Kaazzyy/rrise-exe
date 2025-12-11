@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         test
+// @name         KazzyNiggaXXXtentacion
 // @version      1.1
-// @description  Vanis Multibox Client
+// @description  testing
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-end
