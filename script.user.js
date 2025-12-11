@@ -3,7 +3,7 @@
 // @version      1.1
 // @description  Vanis Multibox Client
 // @author       Kazzy
-// @match        *://vanis.io/*
+// @match        *://aetlis.io/*
 // @run-at       document-end
 // ==/UserScript==
 
