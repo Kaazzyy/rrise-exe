@@ -8412,7 +8412,7 @@
                                 }
                                 let {
                                     client: e
-                            } = window, t = document.getElementById("image-captcha-container"); if (!t) { t = document.createElement('div'); t.id = 'image-captcha-container'; document.body.appendChild(t); }
+                            } = window, t = document.getElementById("image-captcha-container"); if (!t) { t = document.createElement('div'); t.id = 'image-captcha-container'; t.style.zIndex = '999999'; document.body.appendChild(t); }
                                 this.captchaId = grecaptcha.render(t, {
                                     sitekey: "6LfN7J4aAAAAAPN5k5E2fltSX2PADEyYq6j1WFMi",
                                     callback: e.onCaptchaToken.bind(e)
@@ -8428,7 +8428,7 @@
                                 grecaptcha.reset(this.captchaId);
                                 return
                             }
-                            this.captchaId = grecaptcha.render(document.getElementById("image-captcha-container"), {
+                            this.captchaId = grecaptcha.render((() => { let t = document.getElementById("image-captcha-container"); if (!t) { t = document.createElement("div"); t.id = "image-captcha-container"; t.style.zIndex = "999999"; document.body.appendChild(t); } return t; })(), {
                                 sitekey: "6LfN7J4aAAAAAPN5k5E2fltSX2PADEyYq6j1WFMi",
                                 callback: this.onCaptchaToken.bind(this)
                             })
