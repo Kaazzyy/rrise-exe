@@ -8434,15 +8434,12 @@
                             })
                         },
                         onCaptchaToken(e) {
-                            if (!this.multibox && tB.currentWsId !== this.wsId) {
-                                this.show = !1;
-                                return
-                            }
+                            
                             if (!e) {
                                 this.renderCaptcha();
                                 return
                             }
-                            tB.connection.sendRecaptchaToken(e, !!this.multibox), this.show = !1
+                            tB.connection.sendRecaptchaToken(e, false), this.show = false
                         }
                     }
                 },
