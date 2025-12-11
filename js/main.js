@@ -965,7 +965,7 @@
                                 let {
                                     selectedServer: _
                                 } = y;
-                                _ && /Welcome to Vanis\.io,.+\!/.test(b.text) && (b.text = `Connected to ${_.region} ${_.name}`), this.events.$emit("chat-message", b.text);
+                                _ && /Welcome to aetlis\.io,.+\!/.test(b.text) && (b.text = `Connected to ${_.region} ${_.name}`), this.events.$emit("chat-message", b.text);
                                 return
                             }
                             let S = this.playerManager.getPlayer(b.pid);
@@ -1630,7 +1630,7 @@
                                 var a = new Blob([e.data], {
                                     type: "text/plain;charset=utf-8"
                                 });
-                                i.saveAs(a, s + ".vanis")
+                                i.saveAs(a, s + ".aetlis")
                             }
                         })
                     },
@@ -4506,11 +4506,11 @@
                                 name: e.name,
                                 slots: e.maxPlayers || e.slots,
                                 checkInUrl: e.checkInUrl
-                            }, t = e, h.connection.open(t.url), setTimeout(() => this.connectWait--, 3200))
+                            }, t = e, h.connection.open(t.url), setTimeout(() => this.connectWait--, 10000))
                         },
                         checkBadSkinUrl() {
                             var e = document.getElementById("skinurl").value;
-                            e && /^https:\/\/[a-z0-9_-]+.vanis\.io\/[./a-z0-9_-]+$/i.test(e)
+                            e && /^https:\/\/[a-z0-9_-]+.aetlis\.io\/[./a-z0-9_-]+$/i.test(e)
                         },
                         reloadServers() {
                             h.app.showMenu && Date.now() > this.lastServerListReloadTime + 6e4 && this.loadServers()
@@ -6798,7 +6798,7 @@
                         },
                         attrs: {
                             type: "file",
-                            accept: ".vanis",
+                            accept: ".aetlis",
                             multiple: ""
                         },
                         on: {
@@ -6886,7 +6886,7 @@
                     })])])]) : e._e(), e._v(" "), s("span", {
                         staticClass: "replay-list-bulk"
                     }, [s("input", {
-                        staticClass: "vanis-button",
+                        staticClass: "aetlis-button",
                         attrs: {
                             type: "button",
                             disabled: !e.keysLoaded,
@@ -6898,7 +6898,7 @@
                             }
                         }
                     }), e._v(" "), s("input", {
-                        staticClass: "vanis-button",
+                        staticClass: "aetlis-button",
                         attrs: {
                             type: "button",
                             disabled: !e.keysLoaded || e.keysEmpty,
@@ -6910,7 +6910,7 @@
                             }
                         }
                     }), e._v(" "), s("input", {
-                        staticClass: "vanis-button",
+                        staticClass: "aetlis-button",
                         attrs: {
                             type: "button",
                             disabled: !e.keysLoaded || e.keysEmpty,
@@ -6997,7 +6997,7 @@
                                         i = t.length,
                                         a = t.map(async e => {
                                             var t, a;
-                                            await eh.setItem(e.name.replace(/\.vanis$/, ""), await (t = e, new Promise((e, s) => {
+                                            await eh.setItem(e.name.replace(/\.aetlis$/, ""), await (t = e, new Promise((e, s) => {
                                                 var i = new FileReader;
                                                 i.onload = t => e(t.target.result), i.onerror = s, i.readAsText(t)
                                             }))), this.setBulkOp(!0, "Importing replays (" + ++s + " / " + i + ")")
@@ -7022,7 +7022,7 @@
                                 for (var a = 0, n = 0; a < e; a += 200, n++) {
                                     for (var o = new ea, r = a; r < a + 200 && r < e; r++) {
                                         var l = this.replayKeys[r];
-                                        o.file(l + ".vanis", await eh.getItem(l))
+                                        o.file(l + ".aetlis", await eh.getItem(l))
                                     }
                                     var c = await o.generateAsync({
                                             type: "blob"
@@ -7383,7 +7383,7 @@
                     methods: {
                         listenForToken() {
                             window.addEventListener("message", e => {
-                                var t = e.data.vanis_token;
+                                var t = e.data.aetlis_token;
                                 t && (this.onLoggedIn(t), e.source.postMessage("loggedIn", e.origin))
                             })
                         },
@@ -8593,5 +8593,4 @@ Your dual Nigga
         
 console.log('RISE v1.1.3')
 }(window);
-
 
