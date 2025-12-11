@@ -72,20 +72,7 @@
     
     window.GifSkinManager = { running:[], count:{} }
     
-    GifSkinManager.list = [
-        {
-            name:'zimek', 
-            skinUrl:'https://skins.aetlis.io/s/QyYQz0',
-            isLockedToColor:false,
-            isLockedToName:true,
-            gif:{
-                url:'https://github.com/Zimehx/gif_source',
-                count:45,
-                format:'.gif',
-                delay:30
-            }
-        }
-    ]
+    GifSkinManager.list = []
     
     GifSkinManager.stopAll = () =>{
         GifSkinManager.running.forEach(x=>{clearInterval(x)})
@@ -7201,11 +7188,16 @@
                         gameState: ew.state,
                         nickname: "string" == typeof localStorage.nickname ? localStorage.nickname : "",
                         teamtag: localStorage.teamtag || "",
-                        skinUrl: "string" == typeof localStorage.skinUrl ? localStorage.skinUrl : "https://skins.aetlis.io/s/vanis1"
+                        skinUrl: "string" == typeof localStorage.skinUrl ? localStorage.skinUrl : ""
                     }),
                     created: function() {
                         ew.events.$on("skin-click", e => {
-                            this.skinUrl = localStorage.skinUrl = document.getElementById("skinDisplay1").src = e
+                            var skinDisplay = document.getElementById("skinDisplay1");
+                            if (skinDisplay) {
+                                this.skinUrl = localStorage.skinUrl = skinDisplay.src = e;
+                            } else {
+                                this.skinUrl = localStorage.skinUrl = e;
+                            }
                         })
                     },
                     methods: {
@@ -7515,11 +7507,11 @@
                                 return !1
                             }
                             if (!Array.isArray(t)) return !1;
-                            for (var i = t.length; i < 2; i++) t.push("https://skins.aetlis.io/s/vanis1");
+                            for (var i = t.length; i < 2; i++) t.push("");
                             return t
                         },
                         getDefaultSkins() {
-                            for (var e = [], t = 0; t < 8; t++) e.push("https://skins.aetlis.io/s/vanis1");
+                            for (var e = [], t = 0; t < 8; t++) e.push("");
                             return e
                         },
                         onSkinUrlChanged(e) {
@@ -7531,14 +7523,14 @@
                             eD.events.$emit("skin-click", t)
                         },
                         removeSkin(e) {
-                            this.skins.splice(e, 1), this.skins.length < 2 && this.skins.push("https://skins.aetlis.io/s/vanis1"), this.saveSkins();
+                            this.skins.splice(e, 1), this.skins.length < 2 && this.skins.push(""), this.saveSkins();
                             var t = Math.max(0, this.selectedSkinIndex - 1);
                             this.selectSkin(t)
                         },
                         addSkin(e) {
                             if (!this.skins.includes(e)) {
                                 var t = this.skins.length;
-                                this.skins.push(e || "https://skins.aetlis.io/s/vanis1"), e || this.selectSkin(t), this.saveSkins()
+                                this.skins.push(e || ""), e || this.selectSkin(t), this.saveSkins()
                             }
                         },
                         saveSkins() {
@@ -8598,4 +8590,5 @@ Your dual Nigga
         
 console.log('RISE v1.1.3')
 }(window);
+
 
