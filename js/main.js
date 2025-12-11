@@ -8412,7 +8412,7 @@
                                 }
                                 let {
                                     client: e
-                                } = window, t = document.getElementById("image-captcha-container");
+                            } = window, t = document.getElementById("image-captcha-container"); if (!t) { t = document.createElement('div'); t.id = 'image-captcha-container'; document.body.appendChild(t); }
                                 this.captchaId = grecaptcha.render(t, {
                                     sitekey: "6LfN7J4aAAAAAPN5k5E2fltSX2PADEyYq6j1WFMi",
                                     callback: e.onCaptchaToken.bind(e)
