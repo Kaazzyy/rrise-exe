@@ -15,7 +15,7 @@
              window.location.replace(uiURL);
          }
      })();
-		const launcherURL = "https://kaazzyy.github.io/rrise-exe/index.html";
+		const launcherURL = "https://kaazzyy.github.io/Eclipse/index.html";
 
 		if (location.hostname === "aetlis.io") {
     		
@@ -8006,4 +8006,5 @@ window.SwalAlerts.toast.fire({
         
 console.log('RISE v1.1.3') 
 }(window);
+
 
