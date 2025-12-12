@@ -9,7 +9,7 @@
 
 (async () => {
     'use strict';
-    const base = 'https://raw.githubusercontent.com/kaazzyy/rrise-exe/main';
+    const base = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main';
 
     async function injectScriptFromUrl(url){
         try{
