@@ -1,14 +1,7 @@
-// ==UserScript==
-// @name         KazzyNiggaXXXtentacion
-// @version      1.2
-// @description  Safely inject vendor.js and main.js from GitHub without replacing the page document
-// @author       Kazzy
-// @match        *://aetlis.io/*
-// @run-at       document-end
-// ==/UserScript==
-
+// loader.js — no vendor version
 (async () => {
     'use strict';
+
     const base = 'https://raw.githubusercontent.com/kaazzyy/rrise-exe/main';
 
     async function injectScriptFromUrl(url){
@@ -32,9 +25,8 @@
     }
 
     if (document.readyState === 'loading') {
-        await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
+        await new Promise(res => document.addEventListener('DOMContentLoaded', res));
     }
 
     await injectScriptFromUrl(`${base}/js/main.js`);
-
 })();
