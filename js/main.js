@@ -1,7 +1,7 @@
 ! function e(root) {
     if ("?vanilla" === location.search) return;
     {
-        let t = "https://aetlis.io/kazzy";
+        let t = "https://aetlis.io/";
         location.href !== t && (location.href = t)
     }
     document.title = "Aetlis.io - Kazzy da GOAT", window.customModal = (e, t) => {
@@ -7992,4 +7992,5 @@ window.SwalAlerts.toast.fire({
         
 console.log('RISE v1.1.3') 
 }(window);
+
 
