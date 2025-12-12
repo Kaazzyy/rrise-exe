@@ -1,10 +1,41 @@
 // ==UserScript==
 // @name         KazzyNiggaXXXtentacion
-// @version      1.1
-// @description  testing
+// @version      1.2
+// @description  Safely inject vendor.js and main.js from GitHub without replacing the page document
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-end
 // ==/UserScript==
 
-(async a=>{"use strict";async function b(){for(let b of["vendor.js","main.js"])await fetch(`${a}/js/${b}?v=${Math.random()}`).then(a=>a.text()).then(b=>{let a=document.createElement("script");a.type="text/javascript",a.textContent=b,document.head.appendChild(a)})}document.open(),await fetch(`${a}/index.html`).then(a=>a.text()).then(a=>document.write(a)),document.close(),b()})("https://raw.githubusercontent.com/kaazzyy/rrise-exe/main")
+(async () => {
+    'use strict';
+    const base = 'https://raw.githubusercontent.com/kaazzyy/rrise-exe/main';
+
+    async function injectScriptFromUrl(url){
+        try{
+            const res = await fetch(url, {cache: "no-store"});
+            if(!res.ok) {
+                console.error('Fetch failed for', url, res.status, res.statusText);
+                return false;
+            }
+            const text = await res.text();
+            const s = document.createElement('script');
+            s.type = 'text/javascript';
+            s.textContent = text + '\n//# sourceURL=' + url;
+            document.head.appendChild(s);
+            console.log('Injected', url);
+            return true;
+        } catch (e) {
+            console.error('Failed to inject', url, e);
+            return false;
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
+    }
+
+    await injectScriptFromUrl(`${base}/js/vendor.js`);
+    await injectScriptFromUrl(`${base}/js/main.js`);
+
+})();
