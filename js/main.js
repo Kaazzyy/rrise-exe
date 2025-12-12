@@ -15,14 +15,21 @@
              window.location.replace(uiURL);
          }
      })();
-		const launcherURL = "https://kaazzyy.github.io/rrise-exe/index.html";
+	const launcherURL = "https://kaazzyy.github.io/rrise-exe/index.html";
 
+		// só redireciona se estiver no domínio original
 		if (location.hostname === "aetlis.io") {
-    		
-			if (!location.href.includes("index.html")) {
-        		location.href = launcherURL;
-    		}
-		}
+
+   		 // evita redirecionar quando o jogador clicou PLAY
+   		 if (!sessionStorage.getItem("kazzy_play")) {
+
+        	// evita loop
+        	if (!location.href.includes("index.html")) {
+            	location.href = launcherURL;
+        	}
+    	}
+	}
+
 
     class s {
         constructor(e, t) {
@@ -8006,5 +8013,6 @@ window.SwalAlerts.toast.fire({
         
 console.log('RISE v1.1.3') 
 }(window);
+
 
 
