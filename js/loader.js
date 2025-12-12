@@ -1,7 +1,7 @@
 // loader.js — standalone loader that can be included on a page for testing (does NOT replace document)
 (async () => {
     'use strict';
-    const base = 'https://raw.githubusercontent.com/kaazzyy/rrise-exe/main';
+    const base = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main';
 
     async function injectScriptFromUrl(url){
         try{
