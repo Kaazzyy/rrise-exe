@@ -8563,7 +8563,7 @@ Your dual
 <img id="skinDisplay1" width="120" style="margin-right:15px;border-radius:50%;" src="${localStorage.skinUrl}">
 
 </div>
-`,
+`
 
     })
         
