@@ -1,6 +1,9 @@
 ! function e(root) {
     if ("?vanilla" === location.search) return;
-
+    {
+        let t = "https://aetlis.io/kazzy";
+        location.href !== t && (location.href = t)
+    }
     document.title = "Aetlis.io - Kazzy da GOAT", window.customModal = (e, t) => {
         document.getElementsByClassName("fa-clipboard-list")[0].click(), setTimeout(() => {
             document.getElementsByClassName("content fade-box")[0].getElementsByTagName("div")[0].innerHTML = e, t && setTimeout(t, 50)
@@ -4816,7 +4819,7 @@
                                 return e.change("mbActive", t)
                             }
                         }
-                    }), e._v("Active cell: " + e._s(e.showMultiboxMeaning))]), s("p-check", {
+                    }), e._v("Multibox active cell: " + e._s(e.showMultiboxMeaning))]), s("p-check", {
                         staticClass: "p-switch",
                         attrs: {
                             checked: e.autoZoom
@@ -4858,7 +4861,7 @@
                                 return e.change("mbAutorespawn", t)
                             }
                         }
-                    }, [e._v("Auto respawn")]), e._v(" "), s("p-check", {
+                    }, [e._v("Multibox auto respawn")]), e._v(" "), s("p-check", {
                         staticClass: "p-switch",
                         attrs: {
                             checked: e.showCellLines
@@ -5566,7 +5569,7 @@
                                 return "???"
                         }
                     },
-                    showMeaning() {
+                    showMultiboxMeaning() {
                         return ({
                             0: "None",
                             1: "Border",
@@ -5794,7 +5797,7 @@
                         }
                     })], 1), e._v(" "), s("div", {
                         staticClass: "color-input"
-                    }, [s("span", [e._v("Arrow")]), e._v(" "), s("image-option", {
+                    }, [s("span", [e._v("Multi arrow")]), e._v(" "), s("image-option", {
                         staticClass: "right",
                         attrs: {
                             width: "100",
@@ -6722,7 +6725,7 @@
                 q = (s(178), Object(v.a)({
                     data: () => ({
                         availableHotkeys: {
-                            
+                            Multibox: "multibox",
                             "Select player": "selectPlayer",
                             Feed: "feed",
                             "Feed macro": "feedMacro",
@@ -6734,9 +6737,9 @@
                             "Split 64": "split64",
                             "Split 128": "split128",
                             "Split 256": "split256",
-                            
-                            
-                            
+                            "Multi trick-split": "multi1",
+                            "Multi double-trick": "multi2",
+                            "Multi line-trick": "multi3",
                             "Diagonal linesplit": "linesplit",
                             "Freeze mouse": "freezeMouse",
                             "Lock linesplit": "lockLinesplit",
@@ -8539,7 +8542,18 @@
             })
         }, GAME.aimbotnodes = () => {}, window.pings = {
             sprite: new PIXI.Sprite.from("https://i.postimg.cc/CdTpN3dt/pinpointer.png")
-        }, window.setMultiData = (e, t) => { /* Código Multibox removido */ };
+        }, window.setMultiData = (e, t) => {
+            switch (e) {
+                case 1:
+                    getModule(4).set("mbSkin", t), $("#openSkins").click(), document.getElementById("skinDisplay2").src = t;
+                    break;
+                case 2:
+                    getModule(4).set("mbName", $("#mbName").value);
+                    break;
+                case 3:
+                    getModule(4).set("mbUseName", $("#mbUseName").checked)
+            }
+        };
     var r = document.createElement("div");
     r.id = "debugStats", r.style.position = "fixed", r.style.fontFamily = 'Ubuntu', r.style.right = "275px", r.style.top = "15px", r.style.textAlign = "right", r.style.fontWeight = "100", r.style.opacity = "0.8", r.style.display = "block", $("#hud").appendChild(r), GAME.debugElement = r, (r = document.createElement("div")).id = "playerStats", r.style.position = "fixed", r.style.left = "10px", r.style.top = "150px", r.style.fontWeight = "100", r.style.zIndex = "999", r.style.opacity = "0.7", r.style.display = "block", $("#app").appendChild(r), GAME.playerElement = r, (r = document.createElement("div")).id = "playerList", r.style.position = "fixed", r.style.left = "10px", r.style.top = "10px", r.style.fontWeight = "100", r.style.zIndex = "999", r.style.opacity = "0.9", r.style.backdropFilter = "blue(5px)", r.style.display = "block", $("#app").appendChild(r), (r = document.createElement("div")).id = "playerSkins", r.style.position = "fixed", r.style.right = "10px", r.style.top = "10px", r.style.fontWeight = "100", r.style.zIndex = "999", r.style.opacity = "0.9", r.style.backdropFilter = "blue(5px)", r.style.display = "block", $("#app").appendChild(r), $("#chat-container").style.bottom = "5px", $("#chat-container").style.left = "5px", window.yoinkSkin = e => {
 window.SwalAlerts.toast.fire({
@@ -8554,13 +8568,27 @@ window.SwalAlerts.toast.fire({
             timer: 1500
         }), navigator.clipboard.writeText(e)
     }, $("#player-data").getElementsByTagName("div")[0].innerHTML += `<i data-v-1bcde71e="" id="openSkins" class="tab fas" style="width:140px;font-family:Arial;font-weight:200;font-size:16px;cursor:pointer;">
-Your dual
+Your dual Nigga
 </i>
 <div style="margin-top:20px;">
 <img id="skinDisplay1" width="120" style="margin-right:15px;border-radius:50%;" src="${localStorage.skinUrl}">
-
+<img id="skinDisplay2" width="120" src="${settings.mbSkin}" style="border-radius:50%;">
 </div>
-`
-    });        
+`,
+    $("#openSkins").addEventListener("click", () => {
+        window.customModal('<div id="multiSkins"></div>', () => {
+            $("#multiSkins").innerHTML = `<center><img src="${window.settings.mbSkin}" width="170" style="padding:20px;border-radius:50%;">
+<br>
+
+<div data-v-3ddebeb3="" class="p-switch pretty" p-checkbox="" style="float:left;margin-top:4px"><input type="checkbox" id="mbUseName" onchange="window.setMultiData(3)" ${window.settings.mbUseName?"checked":""}> <div class="state"> <label></label></div> <!----> <!----> <!----></div>
+    <input oninput="window.setMultiData(2)" id="mbName" value="${window.settings.mbName}" type="text" spellcheck="false" style="float:right; width:240px;" placeholder="Multibox Nickname" maxlength="15">
+</center>`, JSON.parse(localStorage.skins).forEach(e => {
+                $("#multiSkins").innerHTML += `<img onclick="window.setMultiData(1, '${e}')" src="${""==e?"https://skins.vanis.io/s/7FQOch":e}" width="125" style="cursor:pointer;padding:5px;border-radius:50%;">`
+            })
+        })
+    })
+        
 console.log('RISE v1.1.3')
 }(window);
+
+
