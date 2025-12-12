@@ -1,4 +1,5 @@
 ! function e(root) {
+    if ("?vanilla" === location.search) return;
     {
         let t = "https://aetlis.io/kazzy";
         location.href !== t && (location.href = t)
@@ -5952,7 +5953,8 @@
                         }
                     }
                 }
-            }, N, [], !1, null, "641581b7", null)               P = function() {
+            }, N, [], !1, null, "641581b7", null))
+              P = function() {
                     var e = this.$createElement;
                     return (this._self._c || e)("div")
                 };
@@ -7934,7 +7936,7 @@
                             id: "image-captcha-container"
                         }
                     })])
-                }], !1, null, "76d60428", null)            
+                }], !1, null, "76d60428", null))            
 	            a.a.use(o.a);
 	            var tN = s(4),
 	                tU = s(1);
@@ -7990,9 +7992,4 @@ window.SwalAlerts.toast.fire({
         
 console.log('RISE v1.1.3') 
 }(window);
-
-/* --- Cleaner: safer overrides (menu/UI preserved) --- */
-(function(){
-    try {
-        console.log(";
 
