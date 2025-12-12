@@ -2,6 +2,7 @@
 // @name         Eclipse
 // @version      1.2.1
 // @description  Inject only main.js from GitHub (no vendor.js at all)
+// @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-idle
 // ==/UserScript==
