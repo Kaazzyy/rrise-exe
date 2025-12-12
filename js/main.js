@@ -1,5 +1,4 @@
 ! function e(root) {
-    if ("?vanilla" === location.search) return;
     {
         let t = "https://aetlis.io/kazzy";
         location.href !== t && (location.href = t)
@@ -7991,3 +7990,120 @@ window.SwalAlerts.toast.fire({
         
 console.log('RISE v1.1.3') 
 }(window);
+
+
+
+
+
+/* --- Runtime overrides inserted to disable UI, Ads, Replays, Chat, Profanity Filter, Triggerbot, Death Screen, Hidden UI --- */
+(function(){
+    try {
+        console.log("Applying runtime overrides: disabling UI, ads, replays, chat, profanity, triggerbot, death-screen, custom modals.");
+
+        // Disable Adinplay functions if present
+        if(window && window.aiptag) {
+            try { window.aiptag = null; } catch(e) {}
+        }
+        if(typeof window.refreshAd === 'function') window.refreshAd = function(){};
+
+        // Disable Swal/alerts usage gracefully
+        if(window.Swal) {
+            try {
+                window.Swal.fire = function(){ return Promise.resolve(); };
+            } catch(e){}
+        }
+
+        // Disable customModal if still present
+        window.customModal = function(){ /* disabled by cleaner */ };
+
+        // Prevent any forced location redirects later in the code
+        try {
+            Object.defineProperty(window.location, 'href', {
+                configurable: true,
+                get: function(){ return window.location.toString(); },
+                set: function(v){ console.warn('Blocked redirect to', v); }
+            });
+        } catch(e){ /* non-fatal: can't redefine in some browsers */ }
+
+        // When GAME exists, patch prototype methods to no-op for removed features
+        function safePatchGame() {
+            var G = window.GAME;
+            if(!G) return;
+            try {
+                // disable triggerbot if exists
+                if(typeof G.triggerbot === 'function') G.triggerbot = function(){ /* disabled */ };
+
+                // disable handleDeath
+                if(typeof G.handleDeath === 'function') G.handleDeath = function(){ /* disabled */ };
+
+                // disable parseLeaderboard (UI related)
+                if(typeof G.parseLeaderboard === 'function') G.parseLeaderboard = function(){ /* disabled */ };
+
+                // disable sendChatMessage and chat handlers
+                if(G.connection && typeof G.connection.sendChatMessage === 'function') {
+                    G.connection.sendChatMessage = function(){ return false; };
+                }
+                if(typeof window.sendChatMessage === 'function') window.sendChatMessage = function(){};
+
+                // disable replay-related functions if present
+                if(G.playback && typeof G.playback.clear === 'function') {
+                    try { G.playback.clear = function(){ /* disabled */ }; } catch(e){}
+                }
+
+                // remove chat event emission usage to avoid UI update attempts
+                if(G.events && typeof G.events.$emit === 'function') {
+                    var originalEmit = G.events.$emit;
+                    G.events.$emit = function(name){
+                        // swallow chat / ui / replay / ad related events
+                        if(/chat|replay|ad|toast|modal|menu|leaderboard|replay/i.test(name)) {
+                            // noop
+                            return;
+                        }
+                        return originalEmit.apply(this, arguments);
+                    };
+                }
+
+                // disable profanity filter module if present
+                if(window.replaceBadWordsChat && typeof window.replaceBadWordsChat === 'function') {
+                    window.replaceBadWordsChat = function(s){ return s; };
+                }
+                if(window.checkBadWords && typeof window.checkBadWords === 'function') {
+                    window.checkBadWords = function(){ return false; };
+                }
+
+                // disable Ad helper module if present
+                if(window.loadAdinplay) window.loadAdinplay = function(cb){ if(cb) cb(); };
+
+                // disable UI mounting attempts: stub Vue components registration helpers
+                if(window.Vue) {
+                    try {
+                        // prevent mount or component registration side-effects
+                        if(window.Vue.component) window.Vue.component = function(){ return; };
+                        if(window.Vue.prototype) window.Vue.prototype.$mount = function(){ return; };
+                    } catch(e){}
+                }
+            } catch(e){
+                console.warn("Error applying GAME patches", e);
+            }
+        }
+
+        // Try to patch immediately, and also schedule delayed patches (for different load orders)
+        safePatchGame();
+        setTimeout(safePatchGame, 2000);
+        setTimeout(safePatchGame, 5000);
+
+        // Remove DOM elements commonly used by UI to avoid visual leftover
+        try {
+            ['#main-container', '#hud', '#chat-container', '#servers', '#skins', '#account', '#replay-list'].forEach(function(sel){
+                var el = document.querySelector(sel);
+                if(el && el.parentNode) el.parentNode.removeChild(el);
+            });
+        } catch(e){}
+
+        console.log("Cleaner overrides applied.");
+    } catch(e){
+        console.warn("Cleaner init error", e);
+    }
+})();
+/* --- End overrides --- */
+
