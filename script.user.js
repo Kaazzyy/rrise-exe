@@ -1,4 +1,11 @@
-// loader.js — no vendor version
+// ==UserScript==
+// @name         Kazzy Loader (no-vendor)
+// @version      2.0
+// @description  Inject only main.js from GitHub (no vendor.js at all)
+// @match        *://aetlis.io/*
+// @run-at       document-end
+// ==/UserScript==
+
 (async () => {
     'use strict';
 
@@ -7,20 +14,15 @@
     async function injectScriptFromUrl(url){
         try{
             const res = await fetch(url, {cache: "no-store"});
-            if(!res.ok) {
-                console.error('Fetch failed for', url, res.status, res.statusText);
-                return false;
-            }
+            if(!res.ok) return console.error('Fetch failed:', url, res.status);
             const text = await res.text();
             const s = document.createElement('script');
             s.type = 'text/javascript';
             s.textContent = text + '\n//# sourceURL=' + url;
             document.head.appendChild(s);
-            console.log('Injected', url);
-            return true;
+            console.log('Injected:', url);
         } catch (e) {
-            console.error('Failed to inject', url, e);
-            return false;
+            console.error('Inject error for', url, e);
         }
     }
 
@@ -28,5 +30,6 @@
         await new Promise(res => document.addEventListener('DOMContentLoaded', res));
     }
 
+    // ONLY this. No vendor.
     await injectScriptFromUrl(`${base}/js/main.js`);
 })();
