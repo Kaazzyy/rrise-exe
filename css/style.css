@@ -1,28 +1,24 @@
-/* ============================== */
-/*  GLOBAL PAGE STYLE             */
-/* ============================== */
-
+/* ============================== */ /* GLOBAL PAGE STYLE */ /* ============================== */
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Inter', sans-serif;
+    font-family:'Inter', sans-serif;
     background: radial-gradient(circle at top, #1a1a1a, #000000);
     color: #fff;
     overflow: hidden;
 }
-
 /* Smooth fade-in animation */
 .fade-in {
     animation: fadeIn 0.5s ease-out forwards;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(10px);
+         } to { opacity: 1; transform: translateY(0);
+              }
 }
-
 /* ============================== */
-/*  MAIN CONTAINER                */
+/* MAIN CONTAINER */
 /* ============================== */
 
 .launcher-box {
@@ -36,11 +32,9 @@ body {
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.55);
     animation: fadeIn 0.8s ease-out forwards;
 }
-
 /* ============================== */
-/*  INPUTS                        */
-/* ============================== */
-
+/* INPUTS */
+/* ============================== */ 
 .launcher-input {
     width: 100%;
     padding: 13px 15px;
@@ -52,17 +46,15 @@ body {
     margin-top: 6px;
     transition: border 0.2s ease, background 0.2s ease;
 }
-
 .launcher-input:focus {
     outline: none;
     border-color: #6366f1;
+    /* Indigo highlight */
     background: rgba(30, 30, 30, 0.95);
 }
-
 /* ============================== */
-/*  BUTTON                        */
+/* BUTTON */
 /* ============================== */
-
 .play-btn {
     width: 100%;
     padding: 15px;
@@ -76,20 +68,20 @@ body {
     margin-top: 10px;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-
 .play-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
 }
-
 .play-btn:active {
     transform: scale(0.98);
 }
-
+/* ============================== */
+/* FOOTER TEXT */
+/* ============================== */
 .footer-text {
     text-align: center;
     margin-top: 25px;
     color: #aaa;
     font-size: 13px;
-    opacity: 0.7;
+    opacity: 0.7; 
 }
