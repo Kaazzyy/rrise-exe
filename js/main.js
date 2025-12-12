@@ -7991,119 +7991,74 @@ window.SwalAlerts.toast.fire({
 console.log('RISE v1.1.3') 
 }(window);
 
-
-
-
-
-/* --- Runtime overrides inserted to disable UI, Ads, Replays, Chat, Profanity Filter, Triggerbot, Death Screen, Hidden UI --- */
+/* --- Cleaner: safer overrides (menu/UI preserved) --- */
 (function(){
     try {
-        console.log("Applying runtime overrides: disabling UI, ads, replays, chat, profanity, triggerbot, death-screen, custom modals.");
+        console.log("Applying safer runtime overrides: ads/chat/replay disabled but UI preserved.");
 
-        // Disable Adinplay functions if present
-        if(window && window.aiptag) {
-            try { window.aiptag = null; } catch(e) {}
+        // harmless ad stubs (keep)
+        if(window && window.aiptag) try { window.aiptag = null; } catch(e){}
+
+        if(typeof window.refreshAd === 'function') {
+            window.refreshAd = function(){};
         }
-        if(typeof window.refreshAd === 'function') window.refreshAd = function(){};
 
-        // Disable Swal/alerts usage gracefully
-        if(window.Swal) {
+        // keep Swal from breaking execution but still allow mounting
+        if(window.Swal){
             try {
-                window.Swal.fire = function(){ return Promise.resolve(); };
+                // only stub heavy popup functionality; keep Swal instance usable
+                var _origSwal = window.Swal.fire;
+                window.Swal.fire = function(opts){
+                    // if it's a toast or non-blocking we let it show, otherwise fallback to no-op
+                    if(opts && (opts.toast || opts.timer)) return Promise.resolve();
+                    return _origSwal ? _origSwal.apply(window.Swal, arguments) : Promise.resolve();
+                };
             } catch(e){}
         }
 
-        // Disable customModal if still present
-        window.customModal = function(){ /* disabled by cleaner */ };
+        // do NOT stub Vue.component nor Vue.prototype.$mount — allow Vue to mount UI
+        // if window.Vue exists, DO NOT override component/mount; just avoid registering extra components
+        // (so remove any code that does: Vue.component = function(){ return; }; )
 
-        // Prevent any forced location redirects later in the code
-        try {
-            Object.defineProperty(window.location, 'href', {
-                configurable: true,
-                get: function(){ return window.location.toString(); },
-                set: function(v){ console.warn('Blocked redirect to', v); }
-            });
-        } catch(e){ /* non-fatal: can't redefine in some browsers */ }
-
-        // When GAME exists, patch prototype methods to no-op for removed features
-        function safePatchGame() {
+        // Patching GAME safely: avoid breaking UI-critical methods, but disable some game-only features
+        function safePatchGame(){
             var G = window.GAME;
             if(!G) return;
             try {
-                // disable triggerbot if exists
                 if(typeof G.triggerbot === 'function') G.triggerbot = function(){ /* disabled */ };
-
-                // disable handleDeath
-                if(typeof G.handleDeath === 'function') G.handleDeath = function(){ /* disabled */ };
-
-                // disable parseLeaderboard (UI related)
-                if(typeof G.parseLeaderboard === 'function') G.parseLeaderboard = function(){ /* disabled */ };
-
-                // disable sendChatMessage and chat handlers
+                // keep handleDeath intact (do not replace) so UI death logic remains consistent
                 if(G.connection && typeof G.connection.sendChatMessage === 'function') {
-                    G.connection.sendChatMessage = function(){ return false; };
-                }
-                if(typeof window.sendChatMessage === 'function') window.sendChatMessage = function(){};
-
-                // disable replay-related functions if present
-                if(G.playback && typeof G.playback.clear === 'function') {
-                    try { G.playback.clear = function(){ /* disabled */ }; } catch(e){}
+                    // disable automated sending via the cleaner, but keep method present
+                    G.connection.sendChatMessage = function(msg){ console.warn('sendChatMessage blocked by cleaner'); return false; };
                 }
 
-                // remove chat event emission usage to avoid UI update attempts
-                if(G.events && typeof G.events.$emit === 'function') {
-                    var originalEmit = G.events.$emit;
+                // Do NOT replace events.$emit globally. Instead wrap to FILTER ONLY non-UI events:
+                if(G.events && typeof G.events.$emit === 'function'){
+                    var originalEmit = G.events.$emit.bind(G.events);
                     G.events.$emit = function(name){
-                        // swallow chat / ui / replay / ad related events
-                        if(/chat|replay|ad|toast|modal|menu|leaderboard|replay/i.test(name)) {
-                            // noop
+                        // swallow only purely ad/replay-creation events, but ALLOW menu/chat/leaderboard/ui events
+                        if(typeof name === 'string' && /^(ad:|replay:|modal-ad)/i.test(name)) {
                             return;
                         }
-                        return originalEmit.apply(this, arguments);
+                        return originalEmit.apply(G.events, arguments);
                     };
                 }
 
-                // disable profanity filter module if present
-                if(window.replaceBadWordsChat && typeof window.replaceBadWordsChat === 'function') {
-                    window.replaceBadWordsChat = function(s){ return s; };
-                }
-                if(window.checkBadWords && typeof window.checkBadWords === 'function') {
-                    window.checkBadWords = function(){ return false; };
-                }
-
-                // disable Ad helper module if present
-                if(window.loadAdinplay) window.loadAdinplay = function(cb){ if(cb) cb(); };
-
-                // disable UI mounting attempts: stub Vue components registration helpers
-                if(window.Vue) {
-                    try {
-                        // prevent mount or component registration side-effects
-                        if(window.Vue.component) window.Vue.component = function(){ return; };
-                        if(window.Vue.prototype) window.Vue.prototype.$mount = function(){ return; };
-                    } catch(e){}
-                }
             } catch(e){
-                console.warn("Error applying GAME patches", e);
+                console.warn("Safe patch error", e);
             }
         }
 
-        // Try to patch immediately, and also schedule delayed patches (for different load orders)
         safePatchGame();
-        setTimeout(safePatchGame, 2000);
-        setTimeout(safePatchGame, 5000);
+        // try again after load (but not too aggressive)
+        setTimeout(safePatchGame, 1500);
 
-        // Remove DOM elements commonly used by UI to avoid visual leftover
-        try {
-            ['#main-container', '#hud', '#chat-container', '#servers', '#skins', '#account', '#replay-list'].forEach(function(sel){
-                var el = document.querySelector(sel);
-                if(el && el.parentNode) el.parentNode.removeChild(el);
-            });
-        } catch(e){}
+        // DO NOT remove UI DOM nodes. (If earlier code removed them, re-create them is safer)
+        // If you previously removed nodes, avoid removing them here.
 
-        console.log("Cleaner overrides applied.");
+        console.log("Safer cleaner overrides applied (UI preserved).");
     } catch(e){
-        console.warn("Cleaner init error", e);
+        console.warn("Safer cleaner init error", e);
     }
 })();
-/* --- End overrides --- */
 
