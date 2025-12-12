@@ -3,7 +3,7 @@
 // @version      2.0
 // @description  Inject only main.js from GitHub (no vendor.js at all)
 // @match        *://aetlis.io/*
-// @run-at       document-end
+// @run-at       document-idle
 // ==/UserScript==
 
 (async () => {
