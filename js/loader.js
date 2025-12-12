@@ -27,6 +27,5 @@
         await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
     }
 
-    await injectScriptFromUrl(`${base}/js/vendor.js`);
     await injectScriptFromUrl(`${base}/js/main.js`);
 })();
