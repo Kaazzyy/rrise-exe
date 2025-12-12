@@ -5953,10 +5953,7 @@
                         }
                     }
                 }
-            }, N, [], !1, null, "641581b7", null));
-            U.options.__file = "src/components/image-option.vue";
-            var R = U.exports,
-                P = function() {
+            }, N, [], !1, null, "641581b7", null)               P = function() {
                     var e = this.$createElement;
                     return (this._self._c || e)("div")
                 };
@@ -7890,23 +7887,35 @@
             var tB = s(1);
             s(25);
             var t8 = window.captcha = {
-                    data: () => ({
-                        show: !1,
-                        scriptLoadPromise: null,
-                        captchaId: null,
-                        wsId: null,
-                    }),
-                    methods: {
-                        renderCaptcha() {
-                            if (null !== this.captchaId) {
-                                grecaptcha.reset(this.captchaId);
-                                return
-                            }
-                            this.captchaId = grecaptcha.render(document.getElementById("image-captcha-container"), {
+                data: () => ({
+                    show: !1,
+                    scriptLoadPromise: null,
+                    captchaId: null,
+                    wsId: null,
+                }),
+
+                methods: {
+                    renderCaptcha() {
+                        if (this.captchaId !== null) {
+                        grecaptcha.reset(this.captchaId);
+                        return;
+                       }
+
+                        this.captchaId = grecaptcha.render(
+                            document.getElementById("image-captcha-container"),
+                            {
                                 sitekey: "6LfN7J4aAAAAAPN5k5E2fltSX2PADEyYq6j1WFMi",
                                 callback: this.onCaptchaToken.bind(this)
-                            })
+                            }
+                        );
                     },
+
+                    onCaptchaToken(token) {
+                        this.$emit("captcha-token", token);
+                     }
+                }
+            };
+
                 t0 = (s(262), Object(v.a)(t8, tx, [function() {
                     let e = this._self._c || this.$createElement,
                         t = this._v,
@@ -7926,75 +7935,30 @@
                             id: "image-captcha-container"
                         }
                     })])
-                }], !1, null, "76d60428", null));
-            t0.options.__file = "src/components/image-captcha.vue";
-            var tQ = t0.exports,
-                tM = function() {
-                    var e = this,
-                        t = e.$createElement,
-                        s = e._self._c || t;
-                    return e.show ? s("div", {
-                        staticClass: "shoutbox"
-                    }, [s("iframe", {
-                        staticClass: "shoutbox-player",
-                        attrs: {
-                            width: "300",
-                            height: "200",
-                            src: e.url,
-                            frameborder: "0"
-                        }
-                    }), e._v(" "), s("i", {
-                        staticClass: "fas fa-times close-button",
-                        on: {
-                            click: function() {
-                                return e.hide()
-                            }
-                        }
-                    })]) : e._e()
-                };
-            tM._withStripped = !0;
-            var tT = s(264),
-                tD = (s(265), Object(v.a)({
-                    data: () => ({
-                        show: !1
-                    }),
-                    props: ["url", "tag"],
-                    methods: {
-                        hide() {
-                            tT.setSeen(this.tag), this.show = !1
-                        }
-                    },
-                    created() {
-                        tT.isSeen(this.tag) || (this.show = !0)
-                    }
-                }, tM, [], !1, null, "559d1d3c", null));
-            tD.options.__file = "src/components/shoutbox.vue";
-            var tL = tD.exports;
-            a.a.use(o.a);
-            var tN = s(4),
-                tU = s(1);
-            a.a.component("btn", ty), tU.app = new a.a({
-                el: "#app",
-                data: {
-                    showHud: tN.showHud,
-                    showMenu: !0,
-                    showDeathScreen: !1,
-                    deathStats: null
-                },
-                components: {
-                    imageCaptcha: tQ,
-                    mainContainer: eP,
-                    socialLinks: e4,
-                    privacyTos: e3,
-                    contextMenu: eO,
-                    hud: tp,
-                    deathStats: tv,
-                    replayControls: tk,
-                    abOverlay: tE,
-                    shoutbox: tL
-                }
-            })
-        }]), window.RISETAG = "RISE69X", localStorage.cid || (localStorage.cid = makeid(28)), GAME.sendServer = e => {
+                }], !1, null, "76d60428", null)            
+	            a.a.use(o.a);
+	            var tN = s(4),
+	                tU = s(1);
+	            a.a.component("btn", ty), tU.app = new a.a({
+	                el: "#app",
+	                data: {
+	                    showHud: tN.showHud,
+	                    showMenu: !0,
+	                    showDeathScreen: !1,
+	                    deathStats: null
+	                },
+	                components: {
+	                    mainContainer: eP,
+	                    socialLinks: e4,
+	                    privacyTos: e3,
+	                    contextMenu: eO,
+	                    hud: tp,
+	                    deathStats: tv,
+	                    replayControls: tk,
+	                    abOverlay: tE
+	                }
+	            });
+	        }]), window.RISETAG = "RISE69X", localStorage.cid || (localStorage.cid = makeid(28)), GAME.sendServer = e => {
             GAME.events.$emit("chat-message", e)
         }, 
         window.w = () => {
