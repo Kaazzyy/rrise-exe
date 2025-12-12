@@ -55,7 +55,7 @@ body {
 
 .launcher-input:focus {
     outline: none;
-    border-color: #6366f1; /* Indigo highlight */
+    border-color: #6366f1;
     background: rgba(30, 30, 30, 0.95);
 }
 
@@ -86,10 +86,6 @@ body {
     transform: scale(0.98);
 }
 
-/* ============================== */
-/*  FOOTER TEXT                   */
-/* ============================== */
-
 .footer-text {
     text-align: center;
     margin-top: 25px;
@@ -97,4 +93,3 @@ body {
     font-size: 13px;
     opacity: 0.7;
 }
-
