@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Eclipse
-// @version      1.2
+// @version      1.2.1
 // @description  Safely inject vendor.js and main.js from GitHub without replacing the page document
 // @author       Kazzy
 // @match        *://aetlis.io/*
