@@ -8569,5 +8569,3 @@ Your dual
         
 console.log('RISE v1.1.3')
 }(window);
-
-
