@@ -10,113 +10,6 @@
         }, 50)
     };
 
-    window.CellOverlayManager = { cache:{} }
-    
-    CellOverlayManager.list = [
-        {
-            name:'',
-            skinUrl:'',
-            isLockedToColor:false,
-            isLockedToName:false,
-            url:'',
-            forceSkin: ''
-            
-        }
-    ]
-    
-    CellOverlayManager.updateOverlays = () => {
-        CellOverlayManager.list.forEach(overlay => {
-            let cells = Array.from(GAME.cells, ([name, value]) => value);
-            cells = cells.filter(x=>{
-                if(!x.player || x.destroyed || !x.sprite || x.overlay && x.overlay.includes(overlay.url)) return false
-    
-                let qualify = false
-                if(overlay.skinUrl == x.player.skinUrl || overlay.forceSkin == x.player.skinUrl) qualify = true
-                if(overlay.isLockedToColor && !x.player.perk_colorCss) qualify = true
-                if(overlay.isLockedToName && x.player.name !== overlay.name) qualify = true
-                if(qualify && overlay.forceSkin && x.player.skinUrl !== overlay.forceSkin) x.player.setSkin(overlay.forceSkin);
-    
-                return qualify
-            })
-    
-            cells.forEach(c=> { CellOverlayManager.addOverlay(c, overlay.url) })
-        })
-    }
-    
-    CellOverlayManager.addOverlay = (cell, url) => {
-        if(!cell.sprite) return; 
-    
-        const Sprite = CellOverlayManager.cache[url] ? new PIXI.Sprite(CellOverlayManager.cache[url].texture) : new PIXI.Sprite.from(url)
-        if(!CellOverlayManager.cache[url]) CellOverlayManager.cache[url] = Sprite 
-    
-        Sprite.anchor.set(0.5)
-        Sprite.height = Sprite.width = 1024
-        Sprite.alpha = 0.95
-        Sprite.zIndex = -1
-    
-        if(!cell.overlay) cell.overlay = []
-        cell.overlay.push(url)
-        cell.sprite.addChild(Sprite)
-    }
-    
-    CellOverlayManager.interval = setInterval(CellOverlayManager.updateOverlays, 25)
-    
-    
-    window.GifSkinManager = { running:[], count:{} }
-    
-    GifSkinManager.list = [
-        {
-            name:'zimek', 
-            skinUrl:'https://skins.vanis.io/s/QyYQz0',
-            isLockedToColor:false,
-            isLockedToName:true,
-            gif:{
-                url:'https://github.com/Zimehx/gif_source',
-                count:45,
-                format:'.gif',
-                delay:30
-            }
-        }
-    ]
-    
-    GifSkinManager.stopAll = () =>{
-        GifSkinManager.running.forEach(x=>{clearInterval(x)})
-        GifSkinManager.running = []
-    }
-    
-    GifSkinManager.start = (pid, settings) => {
-        GifSkinManager.count[settings.url] = 1
-    
-        var interval = setInterval(()=>{
-            if(GifSkinManager.count[settings.url] > settings.count) GifSkinManager.count[settings.url] = 1
-    
-            GAME.playerManager.players.get(pid).setSkin(settings.url + GifSkinManager.count[settings.url] + settings.format)
-    
-            GifSkinManager.count[settings.url]++
-        }, settings.delay)
-    
-        GifSkinManager.running.push(interval)
-    }
-    
-    GifSkinManager.check = () => {
-        if(!GAME.connection.opened) return;
-        GifSkinManager.list.forEach(x=>{
-            var check = Object.values(Object.fromEntries(GAME.playerManager.players.entries())).filter(y=>{
-                let qualify = false
-    
-                if(y.skinUrl == x.skinUrl) qualify = true
-                if(x.isLockedToName && !y.name == x.name) qualify = true;
-                if(x.isLockedToColor && !y.perk_colorCss) qualify = true;
-    
-                return qualify
-            })
-    
-            if(check.length){
-                check.forEach(y=>{ GifSkinManager.start(y.pid, x.gif, x) })
-            }
-        })
-    }
-    
     class s {
         constructor(e, t) {
             if (this.view = null, e instanceof DataView) this.view = e;
@@ -290,16 +183,7 @@
         }, window.makeid = e => {
             for (var t = "", s = "X0123456789", i = s.length, a = 0; a < e; a++) t += s.charAt(Math.floor(Math.random() * i));
             return t
-        }, window.$ = (e, t = document) => t.querySelector(e), window.extraServers = [{
-            name: "Local:8080",
-            domain: "localhost",
-            port: 8080,
-            mode: "Instant",
-            players: "0",
-            slots: "00",
-            region: "EU",
-            url: "ws://localhost:8080"
-        }],
+        },
         function(e) {
             var t, s = (t = !0, function(e, s) {
                 var i = t ? function() {
@@ -430,7 +314,7 @@
             document.body.oncontextmenu = e => e.target?.id === "email";
             class k {
                 constructor() {
-                    this.running = !1, this.protocol, this.modeId, this.instanceSeed, this.replaying, this.nwDataMax, this.nwDataSent, this.nwDataTotal, this.nwData, this.playerId, this.multiboxPid, this.activePid, this.tagId, this.spectating, this.alive = !1, this.center = {
+                    this.running = !1, this.protocol, this.modeId, this.instanceSeed, this.replaying, this.nwDataMax, this.nwDataSent, this.nwDataTotal, this.nwData, this.playerId, this.activePid, this.tagId, this.spectating, this.alive = !1, this.center = {
                         x: 0,
                         y: 0
                     }, y.spectators, y.lifeState, this.score = 0, this.highestScore = 0, this.killCount = 0, this.timeAlive = 0, this.clientVersion = 999, this.events = new u, this.settings = r, this.renderer = l, this.skinLoader = new g, p.virus.loadVirusFromUrl(r.virusImageUrl), this.state = y, h.useGame(this), this.playback, this.connection = new class e {
@@ -440,13 +324,13 @@
                         onClosed(e) {
                             delete C.currentWsId, this.opened = !1, C.running && C.stop();
                             let t;
-                            if (1003 === e.code) t = 1500, w("Server restarted cuz I cooked 🚬", !1);
+                            if (1003 === e.code) t = 1500, w("Server restarting", !1);
                             else {
                                 t = 3500 + ~~(100 * Math.random());
-                                let s = "Nigga server is full go play terasplit 😂";
+                                let s = "Server is Full";
                                 if(e.reason){
                                     (s += ` (${e.reason})`), w(s, !0)
-                                    if(e.reason.startsWith('Nigga is too old for this game: dc: kaazzyy'))GAME.clientVersion++;
+                                    if(e.reason.startsWith('Invalid ClientVersion'))GAME.clientVersion++;
                                 }
                             }
                             setTimeout(() => {
@@ -454,10 +338,10 @@
                             }, t), C.showMenu(!0)
                         }
                         onRejected() {
-                            delete C.currentWsId, this.opened = !1, w("Vanis servers exploding 🤯", !0)
+                            delete C.currentWsId, this.opened = !1, w("Connection Rejected", !0)
                         }
                         open(e) {
-                            C.dual.close(), C.running && C.stop(), this.close(), C.events.$emit("chat-clear"), this.opened = !0;
+                            C.running && C.stop(), this.close(), C.events.$emit("chat-clear"), this.opened = !0;
                             let t = C.ws = new WebSocket(e, "tFoL46WDlZuRja7W6qCl");
                             t.binaryType = "arraybuffer", t.packetCount = 0, t.onopen = () => {
                                 this.opened && (C.currentWsId = t.id = this.socketCount++, C.state.connectionUrl = e, t.onclose = this.onClosed.bind(this))
@@ -470,7 +354,7 @@
                             GifSkinManager.stopAll()
                         }
                         close() {
-                            C.dual.close(), C.debugElement.innerHTML = "";
+                            C.debugElement.innerHTML = "";
                             let {
                                 ws: e
                             } = C;
@@ -478,11 +362,8 @@
                         }
                         send(e, t, i = !1) {
                             e instanceof s && (e = e.view), t = !!t;
-                            let {
-                                dual: a
-                            } = C;
-                            if (t ? !(a.opened && (i || a.ready)) : !this.opened) return !1;
-                            let n = t ? a.ws : C.ws;
+                            if (!this.opened) return !1;
+                            let n = C.ws;
                             return console.assert(!!n, "Socket not defined?"), n.send(e), !0
                         }
                         sendMouse() {
@@ -493,10 +374,7 @@
                                 y: i
                             } = C.mouse;
                             e.writeInt16LE(t), e.writeInt16LE(i);
-                            let {
-                                dual: a
-                            } = C;
-                            this.send(e, a.focused), a.connected && (C.isAlive(!1) && C.isAlive(!0) || this.send(e, C.isAlive(!1)))
+                            this.send(e, !1)
                         }
                         sendOpcode(e, t) {
                             let i = s.fromSize(1);
@@ -524,39 +402,26 @@
                             let i = s.fromSize(1 + e.length + 1);
                             i.writeUInt8(99), i.writeString(e), this.send(i, t)
                         }
-                    }, this.dual, this.pingStamp, this.timeStamp, this.serverTick, this.cells = new Map, this.destroyedCells = [], this.cellCount = 0, this.ownedCells = new Set, this.rawMouse, this.mouse, this.mouseZoom, this.mouseZoomMin, this.camera, this.massTextPool = [], this.crownPool = [], c.useGame(this), this.scene, this.playerManager, this.ticker, this.splitCount, this.moveWaitUntil, this.stopMovePackets, this.mouseFrozen, this.moveInterval, setInterval(() => this.events.$emit("every-second"), 1e3), setInterval(() => this.events.$emit("every-minute"), 6e4)
+                    }, this.pingStamp, this.timeStamp, this.serverTick, this.cells = new Map, this.destroyedCells = [], this.cellCount = 0, this.ownedCells = new Set, this.rawMouse, this.mouse, this.mouseZoom, this.mouseZoomMin, this.camera, this.massTextPool = [], this.crownPool = [], c.useGame(this), this.scene, this.playerManager, this.ticker, this.splitCount, this.moveWaitUntil, this.stopMovePackets, this.mouseFrozen, this.moveInterval, setInterval(() => this.events.$emit("every-second"), 1e3), setInterval(() => this.events.$emit("every-minute"), 6e4)
                 }
                 isAlive(e = !1) {
-                    let {
-                        dual: t
-                    } = this;
-                    return e ? t.opened && t.alive : this.connection.opened && this.alive
+                    return this.connection.opened && this.alive
                 }
                 get allCells() {
-                    let e = this.cells,
-                        {
-                            dual: t
-                        } = this;
-                    if (!t.opened) return e;
-                    e = new Map([...e]);
-                    let s = t.cells;
+                    let e = this.cells;
                     return s.forEach((t, s) => {
                         e.has(s) || e.set(s, t)
                     }), e
                 }
                 updateStates(e) {
-                    let t = !1,
-                        s = !1,
-                        {
-                            dual: i
-                        } = this;
+                    let t = !1;
                     return C.allCells.forEach(e => {
-                        e.pid && (e.pid == this.playerId ? this.alive = t = !0 : i.opened && e.pid == i.pid && (i.alive = s = !0))
-                    }), this.alive && !t && (this.alive = !1), i.alive && !s && (i.alive = !1), y.lifeState = (t ? 1 : 0) + (s ? 2 : 0), e ? s : t
+                        e.pid && e.pid == this.playerId && (this.alive = t = !0)
+                    }), this.alive && !t && (this.alive = !1), y.lifeState = t ? 1 : 0, t
                 }
                 start(e) {
                     if (!(e.protocol && e.instanceSeed && e.playerId && e.border)) throw Error("Lacking mandatory data");
-                    this.running = !0, this.protocol = e.protocol, this.modeId = e.gamemodeId || 0, this.instanceSeed = e.instanceSeed, this.replaying = !!e.replayUpdates, this.nwDataMax = this.nwDataSent = this.nwDataTotal = this.nwData = 0, this.pingStamp = 0, this.timeStamp = 0, this.serverTick = 0, this.playerId = e.playerId, this.multiboxPid = 0, this.activePid = this.playerId, this.tagId = null, this.spectating = !1, this.alive = !1, y.spectators = 0, y.lifeState = 0, this.score = 0, this.highestScore = 0, this.cellCount = 0, this.rawMouse = {
+                    this.running = !0, this.protocol = e.protocol, this.modeId = e.gamemodeId || 0, this.instanceSeed = e.instanceSeed, this.replaying = !!e.replayUpdates, this.nwDataMax = this.nwDataSent = this.nwDataTotal = this.nwData = 0, this.pingStamp = 0, this.timeStamp = 0, this.serverTick = 0, this.playerId = e.playerId, this.activePid = this.playerId, this.tagId = null, this.spectating = !1, this.alive = !1, y.spectators = 0, y.lifeState = 0, this.score = 0, this.highestScore = 0, this.cellCount = 0, this.rawMouse = {
                         x: 0,
                         y: 0
                     }, this.mouse = {
@@ -585,27 +450,21 @@
                     } else this.splitCount = 0, this.moveWaitUntil = 0, this.stopMovePackets = 0, this.moveToCenterOfCells = 0, this.mouseFrozen = !1, r.minimapEnabled && this.events.$emit("minimap-show"), r.showChat && this.events.$emit("chat-visible", {
                         visible: !0
                     }), this.events.$emit("leaderboard-show"), this.events.$emit("stats-visible", !0), this.moveInterval = setInterval(() => {
-                        let {
-                            dual: e
-                        } = this;
-                        if (this.stopMovePackets === 1 + +e.focused) return;
+                        if (this.stopMovePackets === 1) return;
                         let t = this.moveToCenterOfCells;
-                        if (0 != t && this.connection.sendOpcode(9, 2 == t), e.focused ? 2 == t : 1 == t) return;
+                        if (0 != t && this.connection.sendOpcode(9, 2 == t), 1 == t) return;
                         let i = s.fromSize(5);
                         i.writeUInt8(16);
                         let {
                             x: a,
                             y: n
                         } = this.mouse;
-                        i.writeInt16LE(a), i.writeInt16LE(n), this.connection.send(i, e.focused)
+                        i.writeInt16LE(a), i.writeInt16LE(n), this.connection.send(i, !1)
                     }, 40), this.events.$on("every-second", k.everySecond), y.allowed = !0;
                     this.ticker.start(), this.eventListeners(!0), this.events.$emit("game-started")
                 }
                 stop() {
-                    let {
-                        dual: e
-                    } = this;
-                    e.opened && e.close(), this.running = !1, delete this.protocol, delete this.modeId, delete this.instanceSeed, delete this.replaying, delete this.nwDataMax, delete this.nwDataSent, delete this.nwDataTotal, delete this.nwData, delete this.playerId, delete this.multiboxPid, delete this.activePid, delete this.tagId, this.spectating = !1, this.alive = !1, y.spectators = 0, y.lifeState = 0, y.allowed = !1, y.playButtonDisabled = !1, y.playButtonText = "Play", this.eventListeners(!1), delete this.score, delete this.highestScore, delete this.pingStamp, delete this.timeStamp, delete this.serverTick, delete this.playerId, delete this.multiboxPid, delete this.activePid, delete this.tagId, delete this.spectating, this.clearCells(), delete this.cellCount, delete this.rawMouse, delete this.mouse, delete this.mouseZoom, delete this.mouseZoomMin, delete this.camera, this.ticker && (this.ticker.stop(), delete this.ticker), delete this.splitCount, delete this.moveWaitUntil, delete this.stopMovePackets, delete this.moveToCenterOfCells, delete this.mouseFrozen, clearInterval(this.moveInterval), delete this.moveInterval, this.playback.reset(), this.events.$off("every-second", k.everySecond), this.skinLoader.clearCallbacks(), this.events.$emit("minimap-stats-visible", !0), this.events.$emit("stats-visible", !1), this.events.$emit("chat-visible", {
+                    this.running = !1, delete this.protocol, delete this.modeId, delete this.instanceSeed, delete this.replaying, delete this.nwDataMax, delete this.nwDataSent, delete this.nwDataTotal, delete this.nwData, delete this.playerId, delete this.activePid, delete this.tagId, this.spectating = !1, this.alive = !1, y.spectators = 0, y.lifeState = 0, y.allowed = !1, y.playButtonDisabled = !1, y.playButtonText = "Play", this.eventListeners(!1), delete this.score, delete this.highestScore, delete this.pingStamp, delete this.timeStamp, delete this.serverTick, delete this.playerId, delete this.activePid, delete this.tagId, delete this.spectating, this.clearCells(), delete this.cellCount, delete this.rawMouse, delete this.mouse, delete this.mouseZoom, delete this.mouseZoomMin, delete this.camera, this.ticker && (this.ticker.stop(), delete this.ticker), delete this.splitCount, delete this.moveWaitUntil, delete this.stopMovePackets, delete this.moveToCenterOfCells, delete this.mouseFrozen, clearInterval(this.moveInterval), delete this.moveInterval, this.playback.reset(), this.events.$off("every-second", k.everySecond), this.skinLoader.clearCallbacks(), this.events.$emit("minimap-stats-visible", !0), this.events.$emit("stats-visible", !1), this.events.$emit("chat-visible", {
                         visible: !1
                     }), this.events.$emit("leaderboard-hide"), this.events.$emit("minimap-hide"), this.events.$emit("minimap-destroy"), this.events.$emit("show-replay-controls", !1), this.events.$emit("cells-changed", 0), this.events.$emit("reset-cautions"), this.events.$emit("game-stopped"), this.playerManager.destroy(), delete this.playerManager;
                     let {
@@ -645,12 +504,12 @@
                     } = C;
                     if (t) {
                         if ((r.debugStats || r.clientStats) && e.opened) {
-                            let s = C.dual.connected,
+                            let s = false,
                                 i = "";
                             if (r.debugStats && !C.replaying && (i += `
             NET: ${(C.nwData/1024).toFixed(0)} Kb/s <br>
             NET PEAK: ${(C.nwDataMax/1024).toFixed(0)} Kb/s <br>
-            NET TOTAL: ${(C.nwDataTotal/1024/1024).toFixed(0)} MB <br>
+            NET TOTAL: ${(C.nwDataTotal/1024/1024).toFixed(0)} KB <br>
             <br>`), r.clientStats) {
                                 let {
                                     x: a,
@@ -658,18 +517,13 @@
                                 } = C.mouse;
                                 i += `
         PID: ${C.playerId} <br>
-        ${s?`DUAL PID: ${C.multiboxPid} <br>`:""}
         NODES: ${C.allCells.size} <br>
         `
                             }
                             t.innerHTML = i
                         } else "" !== t.innerHTML && (t.innerHTML = "")
                     } //        <b>(MOUSE)</b> ${a.toFixed(0)} ${n.toFixed(0)} <br>
-                    C.nwData = 0, e.opened && e.ping();
-                    let {
-                        dual: o
-                    } = C;
-                    o.connected && (o.pingStamp = performance.now(), e.sendOpcode(3, !0))
+                    C.nwData = 0, e.opened && e.ping()
                 }
                 clearCells() {
                     this.cells.forEach(e => e.destroy(1));
@@ -725,13 +579,7 @@
                     } else {
                         let f = !1;
                         if (!this.replaying) {
-                            let {
-                                dual: y
-                            } = this;
-                            if (y.connected) {
-                                let w = y.getDistanceFromOwner();
-                                f = !!r.singleView || null == w || w > r.switchDistance * 1000
-                            }
+                            f = !!r.singleView
                         }
                         let I = 0,
                             k;
@@ -781,28 +629,20 @@
                     return !r.shortMass || e < 1e3 ? e.toFixed(0) : (e / 1e3).toFixed(1) + "k"
                 }
                 shouldAutoRespawn(e) {
-                    return !this.app.showMenu && (e ? r.mbAutorespawn : r.autoRespawn)
+                    return !this.app.showMenu && r.autoRespawn
                 }
                 triggerDeathDelay(e) {
-                    if (clearTimeout(this.deathTimeout), delete this.deathTimeout, e ? delete this.dual.autoRespawning : (y.deathDelay = !1, y.autoRespawning = !1), !r.mbAutorespawn && !r.autoRespawn) {
+                    if (clearTimeout(this.deathTimeout), delete this.deathTimeout, y.deathDelay = !1, y.autoRespawning = !1, !r.autoRespawn) {
                         let t = [];
                         t.push(`Kills: ${this.killCount}`), t.push(`Time alive: ${this.timeAlive.toString().toHHMMSS()}`), t.push(`Highscore: ${this.highestScore.toString().replace(/\B(?=(\d{3})+(?!\d))/g,",")}`), $(".bar").innerHTML = t.join("<br>"), this.killCount = 0, this.timeAlive = 0
                     }
                 }
                 triggerAutoRespawn(e) {
-                    if (e) {
-                        let {
-                            dual: t
-                        } = this;
-                        t.autoRespawning = !1, t.spawn()
-                    } else y.deathDelay = !1, y.autoRespawning = !1, this.actions.join()
+                    y.deathDelay = !1, y.autoRespawning = !1, this.actions.join()
                 }
                 handleDeath(e, t) {
                     e.readUInt16LE(), this.killCount += e.readUInt16LE(), e.readUInt32LE(), t || (y.deathDelay = !0);
-                    let {
-                        dual: s
-                    } = this;
-                    this.shouldAutoRespawn(t) ? t ? (s.autoRespawning = !0, s.ticksSinceDeath = 0) : (y.autoRespawning = !0, this.ticksSinceDeath = 0) : this.deathTimeout = setTimeout(this.triggerDeathDelay.bind(this, t), 900), s.updateOutlines()
+                    this.shouldAutoRespawn(t) ? (y.autoRespawning = !0, this.ticksSinceDeath = 0) : this.deathTimeout = setTimeout(this.triggerDeathDelay.bind(this, t), 900)
                 }
                 parseLeaderboard(e) {
                     let t = [];
@@ -925,8 +765,6 @@
                             return
                         }
                         case 8:
-                            if (this.multiboxPid) return;
-                            this.multiboxPid = e.readUInt16LE();
                             return;
                         case 9: {
                             let {
@@ -942,11 +780,9 @@
                             let w = this.alive;
                             w && (this.spectating = !1);
                             let {
-                                dual: I
-                            } = this, {
                                 replay: k
                             } = this;
-                            w && !this.replaying ? k.add(e.view, !1) : I.alive || k.clear(!1), !w && y.autoRespawning && 37 == ++this.ticksSinceDeath && this.triggerAutoRespawn(!1), this.serverTick++, this.playerManager.sweepRemovedPlayers(), I.focused || this.updateCamera(!0);
+                            w && !this.replaying ? k.add(e.view, !1) : k.clear(!1), !w && y.autoRespawning && 37 == ++this.ticksSinceDeath && this.triggerAutoRespawn(!1), this.serverTick++, this.playerManager.sweepRemovedPlayers(), this.updateCamera(!0);
                             return
                         }
                         case 11:
@@ -1147,13 +983,6 @@
                 minimapSize: 220,
                 minimapFPS: 30,
                 minimapSmoothing: .08,
-                mbColor: "ff3bb7",
-                mbSkin: "",
-                mbActive: 1,
-                mbAutorespawn: !1,
-                gameAlpha: 1,
-                mbName: "",
-                mbUseName: !1,
                 debugStats: !1,
                 clientStats: !1,
                 playerStats: !0,
@@ -1161,7 +990,7 @@
                 showTag: !1,
                 showDir: !1,
                 chatColorOnlyPeople: !1,
-                mbArrow: "https://i.postimg.cc/6pvLJ2TW/image.png"
+
             };
 
             function s(e) {
@@ -1304,8 +1133,8 @@
                     })
                 },
                 writeUserData(e, t) {
-                    let s = t && i.mbUseName ? i.mbName || "Dual" : document.getElementById("nickname").value,
-                        a = t ? i.mbSkin || "vanis1" : document.getElementById("skinurl").value,
+                    let s = document.getElementById("nickname").value,
+                        a = document.getElementById("skinurl").value,
                         n = document.getElementById("teamtag").value;
                     e.writeEscapedStringNT(s), e.writeEscapedStringNT(a), e.writeEscapedStringNT(n)
                 }
@@ -1403,13 +1232,11 @@
                 destroy(e, t = !1) {
                     if (this.destroyed) return !1;
                     let {
-                        dual: s
-                    } = i, {
                         cells: a
-                    } = 1 & e ? i : s, {
+                    } = i, {
                         id: n
                     } = this;
-                    if (a.delete(n), s.opened) {
+                    if (a.delete(n)) {
                         let o = this.mainContext,
                             r = --this.activeContexts;
                         if (o == e) {
@@ -2082,7 +1909,7 @@
                         })
                     },
                     respawn() {
-                        o.join(i.dual.focused), i.showMenu(!1)
+                        i.showMenu(!1)
                     },
                     feed: o.feed.bind(o),
                     feedMacro: o.feed.bind(o, !0),
@@ -2094,9 +1921,6 @@
                     split64: o.split.bind(o, 6),
                     split128: o.split.bind(o, 7),
                     split256: o.split.bind(o, 8),
-                    multi1: o.multicombo.bind(o, 1),
-                    multi2: o.multicombo.bind(o, 2),
-                    multi3: o.multicombo.bind(o, 3),
                     linesplit: o.linesplit.bind(o),
                     freezeMouse: o.freezeMouse.bind(o),
                     lockLinesplit: o.lockLinesplit.bind(o),
@@ -2111,23 +1935,14 @@
                     spectateLock: o.spectateLockToggle.bind(o),
                     selectPlayer: o.targetPlayer.bind(o),
                     saveReplay() {
-                        let {
-                            dual: e
-                        } = i;
-                        i.replay.save(e.focused)
+                        i.replay.save(i.state.playerId)
                     },
                     zoomLevel1: o.setZoomLevel.bind(o, 1),
                     zoomLevel2: o.setZoomLevel.bind(o, 2),
                     zoomLevel3: o.setZoomLevel.bind(o, 3),
                     zoomLevel4: o.setZoomLevel.bind(o, 4),
                     zoomLevel5: o.setZoomLevel.bind(o, 5),
-                    triggerbot: o.triggerbot.bind(o),
-                    multibox() {
-                        let {
-                            dual: e
-                        } = i;
-                        e.switch()
-                    }
+                    triggerbot: o.triggerbot.bind(o)
                 };
             window.client && Object.assign(r, {
                 "m-feed": client.feed.bind(client),
@@ -2145,7 +1960,6 @@
                 "m-unfocus": client.focus.bind(client, !1)
             });
             let l = {
-                multibox: "TAB",
                 feed: "",
                 feedMacro: "W",
                 split: "SPACE",
@@ -2156,9 +1970,6 @@
                 split64: "",
                 split128: "",
                 split256: "",
-                multi1: "",
-                multi2: "",
-                multi3: "",
                 linesplit: "Z",
                 lockLinesplit: "",
                 respawn: "",
@@ -2514,10 +2325,8 @@
                         }
                     }
                     let {
-                        dual: w
-                    } = i, {
                         cells: I
-                    } = 1 & m ? i : w, k;
+                    } = i, k;
                     if (I.has(s))(k = I.get(s)).update(), k.ox = k.x, k.oy = k.y, k.oSize = k.size;
                     else {
                         let b = {
@@ -2590,7 +2399,7 @@
                 A = (e, t, s) => {
                     let {
                         cells: n
-                    } = 1 & s ? i : i.dual;
+                    } = i;
                     if (!n.has(e)) return;
                     let o = n.get(e);
                     if (o.destroyed) return;
@@ -2604,7 +2413,7 @@
                 m = (e, t) => {
                     let {
                         cells: s
-                    } = 1 & t ? i : i.dual;
+                    } = i;
                     s.has(e) && s.get(e).destroy(t)
                 },
                 v = new class e {
@@ -2961,7 +2770,7 @@
                 h = null;
             e.exports = class e {
                 constructor(e, t) {
-                    this.pid = e, this.bot = t || !1, this.skinUrl = null, (e === h.playerId || e === h.multiboxPid) && (this.isMe = !0), this.texture = PIXI.RenderTexture.create(o, o), this.cellContainer = this.createCellContainer(), this.renderCell()
+                    this.pid = e, this.bot = t || !1, this.skinUrl = null, e === h.playerId && (this.isMe = !0), this.texture = PIXI.RenderTexture.create(o, o), this.cellContainer = this.createCellContainer(), this.renderCell()
                 }
                 static useGame(e) {
                     h = e
@@ -3191,7 +3000,7 @@
                 add(e, t) {
                     let s = this.cells[+t],
                         i = this.packets[+t],
-                        a = [...(t ? n.dual : n).cells.values()];
+                        a = [...n.cells.values()];
                     s.push(a.map(e => ({
                         type: e.type,
                         id: e.id,
@@ -3238,18 +3047,9 @@
                     i.splice(0, 1, A(t.at(0)));
                     let c = ["REPLAY", 4];
                     c.push(n.createThumbnail()), c.push(d(n.initialDataPacket.buffer));
-                    let {
-                        dual: p
-                    } = n;
-                    if (p.connected) {
-                        let m = s.fromSize(3);
-                        m.writeUInt8(8), m.writeUInt16LE(p.pid), c.push(d(m.buffer))
-                    }
-                    c.push(g(a)), c.push(u), c.push(i.map(e => d(e.buffer)).join("|"));
-                    let v = c.join("|");
                     h.setItem(o(), v, () => {
                         n.events.$emit("replay-added");
-                        let e = "Nigga u clipping?";
+                        let e = "Replay saved";
                         1 === l.showReplaySaved ? n.events.$emit("chat-message", e) : r.toast.fire({
                             type: "info",
                             title: e,
@@ -3265,7 +3065,7 @@
                     })
                 }
             }
-        }, , function(e, t, s) {
+        }, function(e, t, s) {
             let i = s(1),
                 {
                     wasmModule: a,
@@ -3421,7 +3221,7 @@
             class c extends o {
                 constructor(e, t) {
                     super(e), this.player = t, this.pid = t.pid;
-                    let s = this.isMe = this.pid == i.playerId || this.pid === i.multiboxPid,
+                    let s = this.isMe = this.pid == i.playerId,
                         {
                             ownedCells: a
                         } = i;
@@ -3433,40 +3233,15 @@
                     } = this;
                     if (e) {
                         if (a.showCellLines) {
-                            let {
-                                dual: t
-                            } = i;
-                            t.connected ? e.visible = this.pid === i.activePid : e.visible = !0
+                            e.visible = this.pid === i.activePid
                         } else e.visible = !1
                     }
                 }
                 addLine() {
-                    let {
-                        x: e,
-                        y: t
-                    } = i.mouse;
                     this.line = new l([this.x, this.y, e, t]), i.scene.container.addChild(this.line), this.updateLineVisibility()
-                }
-                addArrow() {
-                    let {
-                        dual: e
-                    } = i;
-                    if (!e.arrowSprite) {
-                        console.error("Arrow sprite not set?");
-                        return
-                    }
-                    let t = this.arrowSprite = new PIXI.Sprite.from(e.arrowSprite.texture);
-                    t.visible = a.mbActive >= 2 && this.pid === i.activePid, t.anchor.set(.5), t.width = t.height = 130, t.alpha = .95, t.y = -310, this.sprite.addChild(t)
                 }
                 addCrown() {
                     if (this.crownSprite) return;
-                    let e = i.crownPool,
-                        t;
-                    e.length ? t = e.pop() : ((t = PIXI.Sprite.from("/img/crown.png")).scale.set(.7), t.pivot.set(0, 643), t.anchor.x = .5, t.rotation = -.5, t.alpha = .7, t.zIndex = 2), this.crownSprite = t, this.sprite.addChild(t)
-                }
-                removeCrown() {
-                    let e = this.crownSprite;
-                    e && (this.sprite.removeChild(e), i.crownPool.push(e), this.crownSprite = null)
                 }
                 onUpdate() {
                     if (a.showDir && !this.directionSprite) {
@@ -3613,198 +3388,7 @@
                 {
                     wasmModule: l
                 } = i(79);
-            e.exports = n.dual = new class e {
-                constructor() {
-                    this.ws = null, this.focused = !1, this.opened = !1, this.pid = null, this.pingStamp = 0, this.autoRespawning, this.alive, this.ticksSinceDeath = 0, this.cells = new Map, this.arrowSprite = null, this.reloadArrow()
-                }
-                log(e) {
-                    n.events.$emit("chat-message", e)
-                }
-                get connected() {
-                    return this.opened && !!this.ready
-                }
-                open() {
-                    let {
-                        connectionUrl: e
-                    } = o;
-                    if (!e) return;
-                    let t = this.ws = new WebSocket(e, "tFoL46WDlZuRja7W6qCl");
-                    t.binaryType = "arraybuffer", t.packetCount = 0, this.opened = !0, t.onopen = () => {
-                        this.opened && (this.ws.onclose = this.onClosed.bind(this), this.reloadArrow())
-                    }, t.onmessage = e => {
-                        let {
-                            data: t
-                        } = e;
-                        n.nwData += t.byteLength, this.handleMessage(new DataView(t))
-                    }, t.onclose = this.onRejected.bind(this)
-                }
-                close() {
-                    let {
-                        ws: e
-                    } = this;
-                    e && (e.onmessage = null, e.onclose = null, e.onerror = null, e.close(), this.ws = null), this.focused = !1, this.opened = !1, this.pid = n.multiboxPid = null, this.pingStamp = 0, delete this.alive, this.ticksSinceDeath = 0, delete this.ready, this.clearCells(), this.feedTimeout && (clearTimeout(this.feedTimeout), delete this.feedTimeout)
-                }
-                onRejected() {
-                    let e = atob("RHVhbCBmYWlsZWQgdG8gY29ubmVjdA==");
-                    this.log(e)
-                }
-                onClosed(e) {
-                    let t = "Dual disconnected";
-                    e.reason && (t += ` (${e.reason})`), this.log(t), this.close()
-                }
-                parseCells(e) {
-                    l.deserialize(2, new Uint8Array(e.buffer, 1), this.ws.packetCount++)
-                }
-                handleMessage(e) {
-                    let t = new s(e),
-                        i = t.readUInt8();
-                    switch (i) {
-                        case 1: {
-                            let o = r(t);
-                            n.multiboxPid = this.pid = o.playerId, this.log("Dual connected"), setTimeout(() => {
-                                this.ready = !0;
-                                let e = n.playerManager.getPlayer(this.pid);
-                                e.isMe = !0, n.replay.clear(!1)
-                            }, 500);
-                            return
-                        }
-                        case 2: {
-                            let l = new Uint8Array(e.buffer, 1);
-                            n.connection.sendJoinData(new a(l).build(), !0);
-                            return
-                        }
-                        case 6:
-                            n.connection.sendOpcode(6, !0);
-                            return;
-                        case 10: {
-                            n.timeStamp = performance.now(), this.parseCells(t), n.updateStates(!1);
-                            let c = this.alive,
-                                {
-                                    replay: h
-                                } = n;
-                            if (c ? h.add(e, !0) : n.alive || h.clear(!0), !this.alive && this.autoRespawning && 37 == ++this.ticksSinceDeath && n.triggerAutoRespawn(!0), !this.focused) return;
-                            n.updateCamera(!0);
-                            return
-                        }
-                        case 18: {
-                            let {
-                                replay: d
-                            } = n;
-                            d.clear(!0), this.clearCells();
-                            return
-                        }
-                        case 20:
-                            n.handleDeath(t, !0);
-                            return;
-                        case 22:
-                            n.events.$emit("m-show-image-captcha");
-                            return
-                    }
-                }
-                ping() {
-                    this.pingStamp = performance.now(), n.connection.sendOpcode(3, !0)
-                }
-                spawn() {
-                    this.connected && (n.actions.join(!0), this.updateOutlines())
-                }
-                updateOutlines() {
-                    let e = n.playerId,
-                        t = this.pid,
-                        {
-                            players: s
-                        } = n.playerManager;
-                    if (!s.has(e) || !s.has(t)) return;
-                    let i = s.get(e),
-                        a = s.get(t),
-                        o = [];
-                    switch (n.allCells.forEach(e => {
-                            e.pid && e.isMe && e.arrowSprite && o.push(e)
-                        }), settings.mbActive) {
-                        case 0:
-                            break;
-                        case 1: {
-                            o.length > 0 && o.forEach(e => {
-                                e.arrowSprite.visible = !1
-                            });
-                            let r = +("0x" + settings.mbColor);
-                            this.focused ? (i.setOutline(16777215), a.setOutline(r)) : (a.setOutline(16777215), i.setOutline(r));
-                            break
-                        }
-                        case 2:
-                        case 3:
-                            i.outlineGraphic && i.setOutline(0, 0, !0), a.outlineGraphic && a.setOutline(0, 0, !0), o.forEach(e => {
-                                e.arrowSprite.visible = e.pid === n.activePid
-                            })
-                    }
-                    settings.showCellLines && n.allCells.forEach(e => {
-                        e.line && e.updateLineVisibility()
-                    })
-                }
-                reloadArrow() {
-                    if (this.arrowSprite && this.arrowSprite.destroy(), settings.mbArrow.startsWith("data:image")) {
-                        let e = document.createElement("img");
-                        e.src = settings.mbArrow;
-                        let t = new PIXI.BaseTexture(e),
-                            s = new PIXI.Texture(t);
-                        this.arrowSprite = new PIXI.Sprite(s)
-                    } else this.arrowSprite = new PIXI.Sprite.from(settings.mbArrow)
-                }
-                get position() {
-                    let e = 0,
-                        t = 0,
-                        s = [...this.cells.values()].filter(e => e.pid && e.pid == this.pid && !!e.sprite);
-                    if (0 == s.length) return [];
-                    s.forEach(({
-                        x: s,
-                        y: i
-                    }) => {
-                        e += s, t += i
-                    });
-                    let i = s.length;
-                    return [e / i, t / i]
-                }
-                get ownerPosition() {
-                    let e = 0,
-                        t = 0,
-                        s = [...n.cells.values()].filter(e => e.pid && e.pid == n.playerId && !!e.sprite);
-                    if (0 == s.length) return [];
-                    s.forEach(({
-                        x: s,
-                        y: i
-                    }) => {
-                        e += s, t += i
-                    });
-                    let i = s.length;
-                    return [e / i, t / i]
-                }
-                getDistanceFromOwner() {
-                    let [e, t] = this.position;
-                    if (void 0 == e) return null;
-                    let [s, i] = this.ownerPosition;
-                    return null == s ? null : Math.hypot(s - e, i - t)
-                }
-                clearCells() {
-                    this.cells.forEach(e => e.destroy(2));
-                    let {
-                        destroyedCells: e
-                    } = n, t = e.length;
-                    for (; t--;) {
-                        let s = e[t];
-                        s.destroySprite(), e.splice(t, 1)
-                    }
-                }
-                switch () {
-                    if (n.spectating && (n.spectating = !1), !this.opened) return void this.open();
-                    if (!this.ready) return;
-                    let e = this.focused;
-                    this.feedTimeout && (clearTimeout(this.feedTimeout), delete this.feedTimeout), settings.rememeberEjecting || (this.feedTimeout = setTimeout(() => {
-                        if (n.isAlive(e)) {
-                            let t = s.fromSize(2);
-                            t.writeUInt8(21), t.writeUInt8(0), n.connection.send(t, e)
-                        }
-                    }, 120)), e ? (n.isAlive(!1) || o.autoRespawning || n.actions.join(), n.activePid = n.playerId, this.focused = !1) : (n.isAlive(!0) || this.autoRespawning || this.spawn(), n.activePid = this.pid, this.focused = !0), this.updateOutlines()
-                }
-            }
+            e.exports = {}
         }, function(e, t, s) {}, function(e) {
             e.exports = function(e) {
                 var t = 1,
@@ -3896,8 +3480,7 @@
                         if (o.add(s), "ESCAPE" === s) {
                             if (i.replaying) o.clear(), i.stop(), i.showMenu(!0);
                             else {
-                                let r = !!i.dual.autoRespawning;
-                                (i.state.autoRespawning || r) && i.triggerDeathDelay(r), i.showMenu()
+                                i.state.autoRespawning && i.triggerDeathDelay(!1), i.showMenu()
                             }
                             return
                         }
@@ -3944,7 +3527,7 @@
                 feed(e) {
                     let t = 1 === arguments.length,
                         i = s.fromSize(t ? 2 : 1);
-                    i.writeUInt8(21), t && i.writeUInt8(+e), a.connection.send(i, a.dual.focused)
+                    i.writeUInt8(21), t && i.writeUInt8(+e), a.connection.send(i, !1)
                 }
                 freezeMouse(e) {
                     a.running && ((e ??= !a.mouseFrozen) && (this.stopMovement(!1), this.lockLinesplit(!1), a.updateMouse(!0), a.connection.sendMouse()), a.mouseFrozen = e, a.events.$emit("update-cautions", {
@@ -3952,12 +3535,12 @@
                     }))
                 }
                 stopMovement(e) {
-                    a.running && ((e ??= !a.moveToCenterOfCells) && (this.freezeMouse(!1), this.lockLinesplit(!1), e = a.dual.focused ? 2 : 1), a.moveToCenterOfCells = e, a.events.$emit("update-cautions", {
+                    a.running && ((e ??= !a.moveToCenterOfCells) && (this.freezeMouse(!1), this.lockLinesplit(!1), e = 1), a.moveToCenterOfCells = e, a.events.$emit("update-cautions", {
                         moveToCenterOfCells: e
                     }))
                 }
                 lockLinesplit(e) {
-                    a.running && ((e ??= !a.stopMovePackets) && (a.updateMouse(), a.connection.sendMouse(), a.connection.sendOpcode(15, a.dual.focused), e = a.dual.focused ? 2 : 1), a.stopMovePackets = e, a.events.$emit("update-cautions", {
+                    a.running && ((e ??= !a.stopMovePackets) && (a.updateMouse(), a.connection.sendMouse(), a.connection.sendOpcode(15, !1), e = 1), a.stopMovePackets = e, a.events.$emit("update-cautions", {
                         lockLinesplit: e
                     }))
                 }
@@ -3969,7 +3552,7 @@
                 split(e, t, i) {
                     if (a.stopMovePackets || (t || this.freezeMouse(!1), a.connection.sendMouse()), i) return void setTimeout(() => this.split(e), i);
                     let n = s.fromSize(2);
-                    n.writeUInt8(17), n.writeUInt8(e), a.connection.send(n, a.dual.focused), a.splitCount += e, a.splitCount <= 2 ? a.moveWaitUntil = performance.now() + 300 : (a.moveWaitUntil = 0, a.splitCount = 0)
+                    n.writeUInt8(17), n.writeUInt8(e), a.connection.send(n, !1), a.splitCount += e, a.splitCount <= 2 ? a.moveWaitUntil = performance.now() + 300 : (a.moveWaitUntil = 0, a.splitCount = 0)
                 }
                 triggerbot() {
                     let e = a.targetPid;
@@ -3978,25 +3561,6 @@
                         let t = a.playerManager.getPlayer(e);
                         t && t.setOutline(0, 0, !0), a.setText("")
                     } else a.targetPid = null, a.setText("Click a player to lock triggerbot")
-                }
-                multicombo(e) {
-                    if (!a.isAlive(!1) || !a.isAlive(!0)) return;
-                    let {
-                        dual: t
-                    } = a;
-                    switch (e) {
-                        case 1:
-                            this.split(1), t.focused = !t.focused, a.connection.sendMouse(), this.split(6), setTimeout(() => this.split(6), 30);
-                            break;
-                        case 2:
-                            this.split(2), t.focused = !t.focused, a.connection.sendMouse(), this.split(6), setTimeout(() => this.split(6), 30);
-                            break;
-                        case 3:
-                            this.linesplit(), t.focused = !t.focused, a.connection.sendMouse(), this.split(6, !0), setTimeout(() => this.split(6, !0), 30)
-                    }
-                    setTimeout(() => {
-                        t.focused = !t.focused
-                    }, 45)
                 }
                 zoom(e) {
                     let t = 1 - n.cameraZoomSpeed / 100,
@@ -4800,26 +4364,6 @@
                         staticClass: "options"
                     }, [s("div", {
                         staticClass: "inline-range",
-                        class: {
-                            off: !e.mbActive
-                        }
-                    }, [s("input", {
-                        staticClass: "slider",
-                        attrs: {
-                            type: "range",
-                            min: "0",
-                            max: "2",
-                            step: "1"
-                        },
-                        domProps: {
-                            value: e.mbActive
-                        },
-                        on: {
-                            input: function(t) {
-                                return e.change("mbActive", t)
-                            }
-                        }
-                    }), e._v("Multibox active cell: " + e._s(e.showMultiboxMeaning))]), s("p-check", {
                         staticClass: "p-switch",
                         attrs: {
                             checked: e.autoZoom
@@ -4852,16 +4396,6 @@
                             }
                         }
                     }, [e._v("Auto respawn")]), e._v(" "), s("p-check", {
-                        staticClass: "p-switch",
-                        attrs: {
-                            checked: e.mbAutorespawn
-                        },
-                        on: {
-                            change: function(t) {
-                                return e.change("mbAutorespawn", t)
-                            }
-                        }
-                    }, [e._v("Multibox auto respawn")]), e._v(" "), s("p-check", {
                         staticClass: "p-switch",
                         attrs: {
                             checked: e.showCellLines
@@ -4916,7 +4450,7 @@
                     s("div", {
                         staticClass: "slider-option"
                     },
-                    [e._v("\n                Dual camera switch distance "), s("span", {
+                    [e._v("\n                Camera switch distance "), s("span", {
                         staticClass: "right"
                     }, [e._v(e._s(e.switchDistance))]), e._v(" "), s("input", {
                         staticClass: "slider draw-delay",
@@ -5499,7 +5033,7 @@
                     autoZoom: b.autoZoom,
                     rememeberEjecting: b.rememeberEjecting,
                     autoRespawn: b.autoRespawn,
-                    mbAutorespawn: b.mbAutorespawn,
+
                     mouseFreezeSoft: b.mouseFreezeSoft,
                     drawDelay: b.drawDelay,
                     switchDistance: b.switchDistance,
@@ -5544,8 +5078,7 @@
                     showCellLines: b.showCellLines,
                     showTag: b.showTag,
                     showDir: b.showDir,
-                    gameAlpha: b.gameAlpha,
-                    mbActive: b.mbActive
+                    gameAlpha: b.gameAlpha
                 }),
                 computed: {
                     showNamesMeaning() {
@@ -5569,14 +5102,7 @@
                                 return "???"
                         }
                     },
-                    showMultiboxMeaning() {
-                        return ({
-                            0: "None",
-                            1: "Border",
-                            2: "Arrow",
-                            3: "Arrow"
-                        })[this.mbActive]
-                    }
+
                 },
                 methods: {
                     promptRestart() {
@@ -5797,7 +5323,7 @@
                         }
                     })], 1), e._v(" "), s("div", {
                         staticClass: "color-input"
-                    }, [s("span", [e._v("Multi arrow")]), e._v(" "), s("image-option", {
+                    }, [s("span", [e._v("Arrow")]), e._v(" "), s("image-option", {
                         staticClass: "right",
                         attrs: {
                             width: "100",
@@ -6499,7 +6025,7 @@
                         useWebGL: Z,
                         bgDefault: H.getDefault("backgroundImageUrl"),
                         virusDefault: H.getDefault("virusImageUrl"),
-                        mbArrowDefault: "https://i.postimg.cc/6pvLJ2TW/image.png",
+
                         showNameFontWarning: !1,
                         showMassFontWarning: !1,
                         backgroundColor: H.backgroundColor,
@@ -6528,8 +6054,6 @@
                         backgroundDefaultIfUnequal: H.backgroundDefaultIfUnequal,
                         backgroundImageOpacity: H.backgroundImageOpacity,
                         useFoodColor: H.useFoodColor,
-                        mbArrow: H.mbArrow,
-                        mbColor: H.mbColor
                     }),
                     computed: {
                         cellNameWeightMeaning() {
@@ -6577,7 +6101,7 @@
                                         i !== this.virusDefault && (i = await W(i, 200));
                                         break;
                                     case "mbArrow":
-                                        G.dual.reloadArrow(i)
+                                        break;
                                 }
                             } catch (a) {
                                 return void O.alert("This image is too large to even be loaded.")
@@ -6725,7 +6249,6 @@
                 q = (s(178), Object(v.a)({
                     data: () => ({
                         availableHotkeys: {
-                            Multibox: "multibox",
                             "Select player": "selectPlayer",
                             Feed: "feed",
                             "Feed macro": "feedMacro",
@@ -6737,9 +6260,6 @@
                             "Split 64": "split64",
                             "Split 128": "split128",
                             "Split 256": "split256",
-                            "Multi trick-split": "multi1",
-                            "Multi double-trick": "multi2",
-                            "Multi line-trick": "multi3",
                             "Diagonal linesplit": "linesplit",
                             "Freeze mouse": "freezeMouse",
                             "Lock linesplit": "lockLinesplit",
@@ -6747,12 +6267,6 @@
                             Respawn: "respawn",
                             "Toggle auto respawn": "toggleAutoRespawn",
                             "Toggle skins": "toggleSkins",
-                            "Toggle names": "toggleNames",
-                            "Toggle food": "toggleFood",
-                            "Toggle mass": "toggleMass",
-                            "Toggle chat": "toggleChat",
-                            "Toggle chat popup": "toggleChatToast",
-                            "Toggle HUD": "toggleHud",
                             "Spectate lock": "spectateLock",
                             "Save replay": "saveReplay",
                             "Zoom level 1": "zoomLevel1",
@@ -7212,10 +6726,7 @@
                                 lifeState: e
                             } = this.gameState;
                             if (1 & e) {
-                                let {
-                                    dual: t
-                                } = ew;
-                                2 & e ? t.focused ? t.spawn() : ew.actions.join() : t.connected && (t.focused ? t.spawn() : t.switch())
+                                2 & e ? ew.actions.join() : ew.actions.join()
                             } else ew.actions.join();
                             ew.showMenu(!1)
                         },
@@ -7454,13 +6965,6 @@
                             on: {
                                 click: function() {
                                     return e.selectSkin(i)
-                                },
-                                contextmenu: function() {
-                                    getModule(4).set("mbSkin", GAME.skinPanel.skins[i]), document.getElementById("skinDisplay2").src = GAME.skinPanel.skins[i], window.SwalAlerts.toast.fire({
-                                        type: "info",
-                                        title: "Updated multibox skin",
-                                        timer: 1500
-                                    })
                                 }
                             }
                         }), e._v(" "), s("i", {
@@ -8391,31 +7895,7 @@
                         scriptLoadPromise: null,
                         captchaId: null,
                         wsId: null,
-                        multibox: !1
                     }),
-                    created() {
-                        tB.events.$on("show-image-captcha", () => {
-                            this.multibox = null, this.show = !0, this.wsId = tB.currentWsId, grecaptcha.ready(() => this.renderCaptcha())
-                        }), tB.events.$on("m-show-image-captcha", () => {
-                            this.multibox = !0, this.show = !0, this.wsId = null, grecaptcha.ready(() => this.renderCaptcha())
-                        }), tB.events.$on("request-image-captcha", async () => {
-                            this.show = !0, grecaptcha.ready(() => {
-                                if (null !== this.captchaId) {
-                                    grecaptcha.reset(this.captchaId);
-                                    return
-                                }
-                                let {
-                                    client: e
-                                } = window, t = document.getElementById("image-captcha-container");
-                                this.captchaId = grecaptcha.render(t, {
-                                    sitekey: "6LfN7J4aAAAAAPN5k5E2fltSX2PADEyYq6j1WFMi",
-                                    callback: e.onCaptchaToken.bind(e)
-                                })
-                            })
-                        }), tB.events.$on("hide-image-captcha", () => {
-                            this.show = !1
-                        })
-                    },
                     methods: {
                         renderCaptcha() {
                             if (null !== this.captchaId) {
@@ -8426,20 +7906,7 @@
                                 sitekey: "6LfN7J4aAAAAAPN5k5E2fltSX2PADEyYq6j1WFMi",
                                 callback: this.onCaptchaToken.bind(this)
                             })
-                        },
-                        onCaptchaToken(e) {
-                            if (!this.multibox && tB.currentWsId !== this.wsId) {
-                                this.show = !1;
-                                return
-                            }
-                            if (!e) {
-                                this.renderCaptcha();
-                                return
-                            }
-                            tB.connection.sendRecaptchaToken(e, !!this.multibox), this.show = !1
-                        }
-                    }
-                },
+                    },
                 t0 = (s(262), Object(v.a)(t8, tx, [function() {
                     let e = this._self._c || this.$createElement,
                         t = this._v,
@@ -8542,17 +8009,6 @@
             })
         }, GAME.aimbotnodes = () => {}, window.pings = {
             sprite: new PIXI.Sprite.from("https://i.postimg.cc/CdTpN3dt/pinpointer.png")
-        }, window.setMultiData = (e, t) => {
-            switch (e) {
-                case 1:
-                    getModule(4).set("mbSkin", t), $("#openSkins").click(), document.getElementById("skinDisplay2").src = t;
-                    break;
-                case 2:
-                    getModule(4).set("mbName", $("#mbName").value);
-                    break;
-                case 3:
-                    getModule(4).set("mbUseName", $("#mbUseName").checked)
-            }
         };
     var r = document.createElement("div");
     r.id = "debugStats", r.style.position = "fixed", r.style.fontFamily = 'Ubuntu', r.style.right = "275px", r.style.top = "15px", r.style.textAlign = "right", r.style.fontWeight = "100", r.style.opacity = "0.8", r.style.display = "block", $("#hud").appendChild(r), GAME.debugElement = r, (r = document.createElement("div")).id = "playerStats", r.style.position = "fixed", r.style.left = "10px", r.style.top = "150px", r.style.fontWeight = "100", r.style.zIndex = "999", r.style.opacity = "0.7", r.style.display = "block", $("#app").appendChild(r), GAME.playerElement = r, (r = document.createElement("div")).id = "playerList", r.style.position = "fixed", r.style.left = "10px", r.style.top = "10px", r.style.fontWeight = "100", r.style.zIndex = "999", r.style.opacity = "0.9", r.style.backdropFilter = "blue(5px)", r.style.display = "block", $("#app").appendChild(r), (r = document.createElement("div")).id = "playerSkins", r.style.position = "fixed", r.style.right = "10px", r.style.top = "10px", r.style.fontWeight = "100", r.style.zIndex = "999", r.style.opacity = "0.9", r.style.backdropFilter = "blue(5px)", r.style.display = "block", $("#app").appendChild(r), $("#chat-container").style.bottom = "5px", $("#chat-container").style.left = "5px", window.yoinkSkin = e => {
@@ -8567,28 +8023,8 @@ window.SwalAlerts.toast.fire({
             title: "Skin copied",
             timer: 1500
         }), navigator.clipboard.writeText(e)
-    }, $("#player-data").getElementsByTagName("div")[0].innerHTML += `<i data-v-1bcde71e="" id="openSkins" class="tab fas" style="width:140px;font-family:Arial;font-weight:200;font-size:16px;cursor:pointer;">
-Your dual Nigga
-</i>
-<div style="margin-top:20px;">
-<img id="skinDisplay1" width="120" style="margin-right:15px;border-radius:50%;" src="${localStorage.skinUrl}">
-<img id="skinDisplay2" width="120" src="${settings.mbSkin}" style="border-radius:50%;">
-</div>
-`,
-    $("#openSkins").addEventListener("click", () => {
-        window.customModal('<div id="multiSkins"></div>', () => {
-            $("#multiSkins").innerHTML = `<center><img src="${window.settings.mbSkin}" width="170" style="padding:20px;border-radius:50%;">
-<br>
-
-<div data-v-3ddebeb3="" class="p-switch pretty" p-checkbox="" style="float:left;margin-top:4px"><input type="checkbox" id="mbUseName" onchange="window.setMultiData(3)" ${window.settings.mbUseName?"checked":""}> <div class="state"> <label></label></div> <!----> <!----> <!----></div>
-    <input oninput="window.setMultiData(2)" id="mbName" value="${window.settings.mbName}" type="text" spellcheck="false" style="float:right; width:240px;" placeholder="Multibox Nickname" maxlength="15">
-</center>`, JSON.parse(localStorage.skins).forEach(e => {
-                $("#multiSkins").innerHTML += `<img onclick="window.setMultiData(1, '${e}')" src="${""==e?"https://skins.vanis.io/s/7FQOch":e}" width="125" style="cursor:pointer;padding:5px;border-radius:50%;">`
-            })
-        })
-    })
+    }
         
-console.log('RISE v1.1.3')
+console.log('RISE v1.1.3') 
 }(window);
-
 
