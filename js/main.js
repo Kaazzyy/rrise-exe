@@ -7234,12 +7234,12 @@
                             value: this.showFPS,
                             expression: "showFPS"
                         }]
-                    }, [this._v("rise.exe by Kazzy the nigga")]), this._v(" "), t("div", {
+                    }, [this._v("Eclipse by Kazzy")]), this._v(" "), t("div", {
                         directives: [{
                             name: "show",
                             rawName: "v-show",
                             value: !localStorage.hideSignature,
-                            expression: "riseSignature"
+                            expression: "EclipseSignature"
                         }]
                     }, [this._v("FPS: " + this._s(this.fps || "-"))]), this._v(" "), t("div", {
                         directives: [{
@@ -7973,7 +7973,7 @@
 	                    abOverlay: tE
 	                }
 	            });
-	        }]), window.RISETAG = "RISE69X", localStorage.cid || (localStorage.cid = makeid(28)), GAME.sendServer = e => {
+	        }]), window.ECPLISETAG = "ECPLISE69X", localStorage.cid || (localStorage.cid = makeid(28)), GAME.sendServer = e => {
             GAME.events.$emit("chat-message", e)
         }, 
         window.w = () => {
@@ -8004,7 +8004,8 @@ window.SwalAlerts.toast.fire({
         }), navigator.clipboard.writeText(e)
     }
         
-console.log('RISE v1.1.3') 
+console.log('Eclipse 1.2.1V') 
 }(window);
+
 
 
