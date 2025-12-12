@@ -1,6 +1,7 @@
-// loader.js — standalone loader that can be included on a page for testing (does NOT replace document)
+// loader.js — no vendor version
 (async () => {
     'use strict';
+
     const base = 'https://raw.githubusercontent.com/kaazzyy/rrise-exe/main';
 
     async function injectScriptFromUrl(url){
@@ -24,7 +25,7 @@
     }
 
     if (document.readyState === 'loading') {
-        await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
+        await new Promise(res => document.addEventListener('DOMContentLoaded', res));
     }
 
     await injectScriptFromUrl(`${base}/js/main.js`);
