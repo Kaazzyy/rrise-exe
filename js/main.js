@@ -450,7 +450,7 @@
                                 }
                             }
                             setTimeout(() => {
-                                this.opened || C.events.$emit("reconnect-server")
+                                this.opened || setTimeout(() => C.events.$emit("reconnect-server"), 5000)
                             }, t), C.showMenu(!0)
                         }
                         onRejected() {
@@ -1043,7 +1043,7 @@
                         case 27:
                             return;
                         case 22:
-                            if (!window.grecaptcha) return void alert("Captcha library is not loaded");
+                            if (GAME.account) return; if (!window.grecaptcha) return void alert("Captcha library is not loaded");
                             this.events.$emit("show-image-captcha");
                             return;
                         case 23:
@@ -8590,5 +8590,4 @@ Your dual Nigga
         
 console.log('RISE v1.1.3')
 }(window);
-
 
