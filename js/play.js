@@ -5,7 +5,6 @@ document.getElementById("playBtn").onclick = function () {
     localStorage.nickname = nick;
     localStorage.skinUrl = skin;
 
-    sessionStorage.setItem("kazzy_play", "1");
-
     window.location.href = "https://aetlis.io/";
 };
+
