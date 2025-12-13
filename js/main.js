@@ -1,21 +1,23 @@
 ! function e(root) {
     if ("?vanilla" === location.search) return;
-    {
-        let t = "https://aetlis.io/";
-        location.href !== t && (location.href = t)
+    
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('nickname')) {
+        const nickFromUrl = params.get('nickname');
+        localStorage.setItem('nickname', nickFromUrl);
+        
+        if(window.gameObj) window.gameObj.nickname = nickFromUrl;
     }
+    if (params.has('skin')) {
+        localStorage.setItem('skinUrl', params.get('skin'));
+    }
+
+
     document.title = "Aetlis.io - Kazzy da GOAT", window.customModal = (e, t) => {
         document.getElementsByClassName("fa-clipboard-list")[0].click(), setTimeout(() => {
             document.getElementsByClassName("content fade-box")[0].getElementsByTagName("div")[0].innerHTML = e, t && setTimeout(t, 50)
         }, 50)
     };
-    (function () {
-        const uiURL = "/index.html";
-            if (!window.location.pathname.endsWith("index.html")) {
-             window.location.replace(uiURL);
-         }
-     })();
-// Redirection logic removed to prevent infinite loop. The launcher (GitHub Pages) should handle the initial redirection.
 
     class s {
         constructor(e, t) {
@@ -7999,4 +8001,5 @@ window.SwalAlerts.toast.fire({
         
 console.log('Eclipse 1.2.1V') 
 }(window);
+
 
