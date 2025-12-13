@@ -21,9 +21,10 @@ async function injectScriptFromUrl(url) {
         const text = await res.text();
         const s = document.createElement('script');
         s.type = 'text/javascript';
+        // Adiciona sourceURL para facilitar o debug no console
         s.textContent = text + '\n//# sourceURL=' + url; 
         
-        // Injeção no HEAD para o Webpack/Vendor scripts
+        // Injeção no HEAD (padrão para Webpack/Vendor scripts)
         document.head.appendChild(s); 
         
         return true;
@@ -54,7 +55,6 @@ async function handlePlayClick() {
     console.log('[Eclipse] Cleaning up DOM and preparing canvas...');
 
     // Remove todos os filhos do BODY
-    // (A remoção agressiva ajuda a prevenir conflitos de elementos)
     document.body.innerHTML = '';
     
     // Cria o elemento <canvas> que é essencial para o jogo
