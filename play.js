@@ -6,7 +6,7 @@ function hideLauncherUI() {
     const launcherDiv = document.querySelector('.flex.items-center.justify-center.min-h-screen');
     if (launcherDiv) {
         launcherDiv.style.display = 'none';
-        document.body.style.background = ''; // Remove o fundo escuro/radial
+        document.body.style.background = ''; // Remove o fundo
     }
 }
 
@@ -15,23 +15,20 @@ async function injectScriptFromUrl(url) {
     try {
         const res = await fetch(url, { cache: "no-store" });
         if (!res.ok) {
-             console.error('Fetch failed for game file:', url, res.status, res.statusText);
+             console.error('[Eclipse] Fetch failed for game file:', url, res.status, res.statusText);
              return false;
         }
         const text = await res.text();
         const s = document.createElement('script');
         s.type = 'text/javascript';
-        // Adiciona sourceURL para facilitar o debug no console
         s.textContent = text + '\n//# sourceURL=' + url; 
         
-        // --- MUDANÇA AQUI ---
-        // Anexar ao BODY em vez do HEAD para garantir o timing de execução.
-        document.body.appendChild(s); 
-        // -------------------
-
+        // Injeção no HEAD para o Webpack/Vendor scripts
+        document.head.appendChild(s); 
+        
         return true;
     } catch (e) {
-        console.error('Injection error for', url, e);
+        console.error('[Eclipse] Injection error for', url, e);
         return false;
     }
 }
@@ -53,31 +50,29 @@ async function handlePlayClick() {
     // 2. Esconder a UI do launcher
     hideLauncherUI();
     
-    // --- NOVO CÓDIGO DE LIMPEZA DO DOM ---
+    // 3. Limpeza Agressiva do DOM e Criação do Canvas
     console.log('[Eclipse] Cleaning up DOM and preparing canvas...');
 
-    // Remove todos os filhos do BODY exceto scripts e outros elementos essenciais
-    while (document.body.firstChild) {
-        // Preserva o elemento que contém o script Tampermonkey se possível
-        if (document.body.firstChild.tagName === 'SCRIPT' || document.body.firstChild.id === 'tm-root') { 
-             document.body.removeChild(document.body.firstChild);
-        } else {
-             document.body.removeChild(document.body.firstChild);
-        }
-    }
+    // Remove todos os filhos do BODY
+    // (A remoção agressiva ajuda a prevenir conflitos de elementos)
+    document.body.innerHTML = '';
     
     // Cria o elemento <canvas> que é essencial para o jogo
     const canvas = document.createElement('canvas');
     canvas.id = 'canvas';
     document.body.appendChild(canvas);
     
-    // Aplica estilos básicos para a tela do jogo
+    // Aplica estilos básicos
     document.body.style.margin = '0';
     document.body.style.overflow = 'hidden';
-    // --- FIM NOVO CÓDIGO ---
 
-    // 3. Injetar scripts do jogo (Sequencialmente)
-    
+    // 4. Hook Webpack (Essencial para vendor.js)
+    console.log('[Eclipse] Setting up Webpack hook...');
+    if (!window.webpackJsonp) {
+        window.webpackJsonp = window.webpackJsonp || [];
+    }
+
+    // 5. Injetar scripts do jogo (Assumindo que estão em /js/vendor.js e /js/main.js)
     console.log('[Eclipse] Injecting vendor.js...');
     const vendorSuccess = await injectScriptFromUrl(`${RAW_BASE_URL}/js/vendor.js`); 
     
@@ -87,10 +82,10 @@ async function handlePlayClick() {
     if (vendorSuccess && mainSuccess) {
         console.log('[Eclipse] Game scripts injected successfully. Attempting to force startup...');
         
-        // Pequeno atraso para processamento
+        // Pequeno atraso para o navegador processar os scripts gigantes
         await new Promise(resolve => setTimeout(resolve, 50)); 
         
-        // Forçar inicialização (Mantendo o que funcionou melhor)
+        // Forçar inicialização (simular o final do carregamento)
         document.dispatchEvent(new Event('DOMContentLoaded'));
         console.log('[Eclipse] Dispatched DOMContentLoaded event.');
 
@@ -98,6 +93,7 @@ async function handlePlayClick() {
         console.error('[Eclipse] Failed to inject one or more game scripts. Check repository paths and 404 errors.');
     }
 }
+
 
 // Função principal de inicialização
 function initializeLauncher() {
@@ -119,9 +115,4 @@ function initializeLauncher() {
 
     console.log('[Eclipse] Event listener successfully attached to playBtn.');
 }
-
-// FIX DE TIMING: Usa setTimeout para garantir que o DOM esteja totalmente pronto após a injeção do HTML
 setTimeout(initializeLauncher, 100);
-
-
-
