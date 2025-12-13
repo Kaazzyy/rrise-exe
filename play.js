@@ -23,7 +23,12 @@ async function injectScriptFromUrl(url) {
         s.type = 'text/javascript';
         // Adiciona sourceURL para facilitar o debug no console
         s.textContent = text + '\n//# sourceURL=' + url; 
-        document.head.appendChild(s);
+        
+        // --- MUDANÇA AQUI ---
+        // Anexar ao BODY em vez do HEAD para garantir o timing de execução.
+        document.body.appendChild(s); 
+        // -------------------
+
         return true;
     } catch (e) {
         console.error('Injection error for', url, e);
@@ -83,3 +88,4 @@ function initializeLauncher() {
 
 // FIX DE TIMING: Usa setTimeout para garantir que o DOM esteja totalmente pronto após a injeção do HTML
 setTimeout(initializeLauncher, 100);
+
