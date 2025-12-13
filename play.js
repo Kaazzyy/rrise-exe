@@ -60,21 +60,49 @@ function initializeLauncher() {
         
         // 1. Esconder o Launcher
         hideLauncherUI();
-        
+    
+
         // 2. Injetar o Vendor primeiro (bibliotecas)
         const vendorSuccess = await injectScriptFromUrl(`${RAW_BASE_URL}/js/vendor.js`); 
         
-        // 3. Pequeno delay para garantir que o PIXI carregou antes do main.js
+        // 3. Injetar o Main.js e forçar a inicialização
         if (vendorSuccess) {
+            
+            // Pequeno delay para garantir que o PIXI (do vendor.js) está pronto
             setTimeout(async () => {
-                await injectScriptFromUrl(`${RAW_BASE_URL}/js/main.js`);
-                console.log('Game scripts injected.');
-            }, 100);
+                const mainJsText = await fetchContent(`${RAW_BASE_URL}/js/main.js`); 
+                if (mainJsText) {
+                    // Adicionamos um pequeno snippet de código para forçar o start do jogo
+                    const initializationCode = `
+                        console.log('[Eclipse] Running post-injection initialization.');
+                        // O Aetlis.io provavelmente tem uma função global de inicialização (e.g., window.startClient) 
+                        // ou um evento de DOM. Como o main.js é ofuscado, podemos apenas confiar que a injeção 
+                        // é suficiente, mas vamos forçar a variável global do nome.
+                        
+                        // Tenta definir o nome de usuário (varia conforme a versão do Aetlis.io/mod)
+                        if (window.client && window.client.setNickname) {
+                             window.client.setNickname(localStorage.nickname);
+                        } else if (window.setupGame) {
+                             // Tentativa de chamar uma função de start comum em mods
+                             window.setupGame(); 
+                        } else if (window.initGame) {
+                             window.initGame(); 
+                        }
+                        
+                        // Limpa o fundo para garantir que o jogo seja visto
+                        document.body.style.background = 'none'; 
+                    `;
+
+                    // Injeta o main.js mais o código de inicialização
+                    injectScriptText(mainJsText + initializationCode, `${RAW_BASE_URL}/js/main.js`);
+                    console.log('Game scripts and initialization code injected.');
+                } else {
+                    console.error('Failed to inject main.js');
+                }
+            }, 100); 
         } else {
             console.error('Failed to inject vendor.js');
         }
-    });
-}
 
 // Inicia o listener se o DOM já estiver pronto, ou espera
 if (document.readyState === 'loading') {
@@ -82,3 +110,4 @@ if (document.readyState === 'loading') {
 } else {
     initializeLauncher();
 }
+
