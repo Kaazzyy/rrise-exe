@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Eclipse
-// @version      1.2.1
+// @version      1.2.3
 // @description  Inject only main.js from GitHub (no vendor.js at all)
 // @author       Kazzy
 // @match        *kaazzyy.github.io/Eclipse/index.html*
