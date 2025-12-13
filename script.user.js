@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eclipse
-// @version      1.2.2
-// @description  Injects the main.js
+// @version      1.2.3
+// @description  Injects the mais.js
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-idle
@@ -31,7 +31,7 @@
     if (document.readyState === 'loading') {
         await new Promise(res => document.addEventListener('DOMContentLoaded', res));
     }
-
+    
     await injectScriptFromUrl(mainJsUrl);
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -40,12 +40,11 @@
 
     if (username || skinUrl) {
         console.log('Launcher data detected. Attempting to inject into UI...');
-
         function setInputValue(selector, value) {
             const input = document.querySelector(selector);
             if (input && value) {
                 input.value = value;
-
+                
                 input.dispatchEvent(new Event('input', { bubbles: true }));
                 input.dispatchEvent(new Event('change', { bubbles: true }));
                 console.log(`Value injected into ${selector}: ${value}`);
@@ -53,7 +52,7 @@
             }
             return false;
         }
-
+        
         setTimeout(() => {
             setInputValue('#nickname', username);
             setInputValue('#skin', skinUrl);
