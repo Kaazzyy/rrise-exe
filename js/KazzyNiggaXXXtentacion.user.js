@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Eclipse
-// @version      1.2.2
+// @version      1.3.0
 // @description  Inject custom UI and game files.
 // @author       Kazzy
 // @match        *://aetlis.io/*
@@ -10,7 +10,7 @@
 (async () => {
     'use strict';
     
-    // This is the base path for your raw files (index.html, play.js, vendor.js, main.js)
+    // This is the base path for your raw files
     const BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main'; 
     
     async function fetchContent(path) {
@@ -24,28 +24,36 @@
         }
     }
 
-    async function injectScript(text, path) {
+    // Function to inject script content after the document is closed
+    function injectScriptText(text, path) {
         const s = document.createElement('script');
         s.type = 'text/javascript';
         s.textContent = text + '\n//# sourceURL=' + path;
-        document.head.appendChild(s);
+        // Append to the BODY (or HEAD) of the new document
+        document.body.appendChild(s); 
     }
     
+    console.log('Fetching Launcher UI...');
+
     // 1. Overwrite the page content with your launcher's index.html
     const launcherHtml = await fetchContent('index.html');
     if (launcherHtml) {
         document.open();
         document.write(launcherHtml);
         document.close();
+        console.log('Launcher UI injected and document closed.');
+    } else {
+        return console.error('Failed to load index.html. Aborting Tampermonkey script.');
     }
     
-    // 2. Inject the play.js script (which contains the new 'Play' logic)
+    // 2. Inject the play.js script
+    // We fetch it and then use the dedicated function to append it to the body.
     const playJsContent = await fetchContent('play.js');
     if (playJsContent) {
-        await injectScript(playJsContent, `${BASE_URL}/play.js`);
+        injectScriptText(playJsContent, `${BASE_URL}/play.js`);
+        console.log('play.js injected.');
     }
     
-    // Set a global flag for the game logic (in main.js) to know the launcher is loaded
-    window.LauncherMode = true;
+    window.LauncherMode = true; // Flag for main.js if needed
 
 })();
