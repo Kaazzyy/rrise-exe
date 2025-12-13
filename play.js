@@ -1,3 +1,5 @@
+// play.js - Versão Final e Robusta
+
 // Este URL base DEVE ser o RAW URL do seu GitHub
 const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main'; 
 
@@ -115,4 +117,6 @@ function initializeLauncher() {
 
     console.log('[Eclipse] Event listener successfully attached to playBtn.');
 }
+
+// FIX DE TIMING: Usa setTimeout para garantir que o DOM esteja totalmente pronto após a injeção do HTML
 setTimeout(initializeLauncher, 100);
