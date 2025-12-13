@@ -3,7 +3,7 @@
 // @version      1.2.1
 // @description  Inject only main.js from GitHub (no vendor.js at all)
 // @author       Kazzy
-// @match        *://aetlis.io/*
+// @match        *kaazzyy.github.io/Eclipse/index.html*
 // @run-at       document-idle
 // ==/UserScript==
 
