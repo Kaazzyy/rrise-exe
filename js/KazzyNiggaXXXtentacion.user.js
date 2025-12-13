@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Eclipse
-// @version      1.3.3
+// @version      1.3.4
 // @description  Inject custom UI and game files.
 // @author       Kazzy
 // @match        *://aetlis.io/*
@@ -16,7 +16,10 @@
     async function fetchContent(path) {
         try {
             const res = await fetch(`${RAW_BASE_URL}/${path}`);
-            if (!res.ok) return console.error('[Eclipse] Fetch failed for:', path, res.status);
+            if (!res.ok) {
+                console.error(`[Eclipse] Fetch failed for: ${path} ${res.status}. CHECK YOUR GITHUB PATH!`);
+                return null;
+            }
             return await res.text();
         } catch (e) {
             console.error('[Eclipse] Fetch error for', path, e);
@@ -24,7 +27,6 @@
         }
     }
 
-    // Function to inject script content after the document is closed
     function injectScriptText(text, path) {
         const s = document.createElement('script');
         s.type = 'text/javascript';
@@ -46,8 +48,9 @@
     document.close();
     console.log('[Eclipse] Launcher UI injected.');
 
-    // 3. Fetch and inject play.js content directly (Resolves 404/Timing issues)
+    // 3. Fetch and inject play.js content directly
     const playJsContent = await fetchContent('play.js'); 
+    
     if (playJsContent) {
         // Wait 20ms to let the browser process the new HTML/DOM structure
         setTimeout(() => {
@@ -55,7 +58,7 @@
              console.log('[Eclipse] play.js injected via forced execution.');
         }, 20);
     } else {
-        console.error('[Eclipse] Failed to fetch play.js content.');
+        console.error('[Eclipse] Failed to fetch play.js content. Check path/availability.');
     }
     
     window.LauncherMode = true;
