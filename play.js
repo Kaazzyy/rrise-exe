@@ -1,5 +1,3 @@
-// play.js - Versão Final e Robusta
-
 // Este URL base DEVE ser o RAW URL do seu GitHub
 const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main'; 
 
@@ -53,18 +51,14 @@ async function handlePlayClick() {
     // 2. Esconder a UI do launcher
     hideLauncherUI();
     
-    // 3. Limpeza Agressiva do DOM e Criação do Canvas
-    console.log('[Eclipse] Cleaning up DOM and preparing canvas...');
+    // 3. Limpeza Suave do DOM
+    console.log('[Eclipse] Performing soft DOM cleanup...');
 
-    // Remove todos os filhos do BODY
-    document.body.innerHTML = '';
-    
-    // Cria o elemento <canvas> que é essencial para o jogo
-    const canvas = document.createElement('canvas');
-    canvas.id = 'canvas';
-    document.body.appendChild(canvas);
-    
-    // Aplica estilos básicos
+    // Remove apenas os elementos *visíveis* da UI do launcher
+    const launcherElements = document.querySelectorAll('#launcher-root, .flex.items-center.justify-center.min-h-screen');
+    launcherElements.forEach(el => el.remove());
+
+    // NOTA: O jogo cria o próprio canvas, não o criamos mais aqui.
     document.body.style.margin = '0';
     document.body.style.overflow = 'hidden';
 
@@ -87,9 +81,11 @@ async function handlePlayClick() {
         // Pequeno atraso para o navegador processar os scripts gigantes
         await new Promise(resolve => setTimeout(resolve, 50)); 
         
-        // Forçar inicialização (simular o final do carregamento)
-        document.dispatchEvent(new Event('DOMContentLoaded'));
-        console.log('[Eclipse] Dispatched DOMContentLoaded event.');
+        // Forçar inicialização (Hook final para jogos baseados em loop/animação)
+        window.requestAnimationFrame(() => {
+            document.dispatchEvent(new Event('DOMContentLoaded'));
+            console.log('[Eclipse] Dispatched DOMContentLoaded and RAF callback.');
+        });
 
     } else {
         console.error('[Eclipse] Failed to inject one or more game scripts. Check repository paths and 404 errors.');
@@ -108,15 +104,4 @@ function initializeLauncher() {
         return; 
     }
 
-    // Carregar dados salvos
-    if(localStorage.nickname && nickInput) nickInput.value = localStorage.nickname;
-    if(localStorage.skinUrl && skinInput) skinInput.value = localStorage.skinUrl;
-    
-    // Anexar evento de clique
-    playButton.addEventListener('click', handlePlayClick);
-
-    console.log('[Eclipse] Event listener successfully attached to playBtn.');
-}
-
-// FIX DE TIMING: Usa setTimeout para garantir que o DOM esteja totalmente pronto após a injeção do HTML
-setTimeout(initializeLauncher, 100);
+    // Carregar dados salv
