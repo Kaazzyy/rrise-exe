@@ -15,7 +15,16 @@
              window.location.replace(uiURL);
          }
      })();
-// Redirection logic removed to prevent infinite loop. The launcher (GitHub Pages) should handle the initial redirection.
+const launcherURL = "https://kaazzyy.github.io/Eclipse/index.html";
+
+			// START OF REDIRECTION FIX
+			const hasLauncherParams = new URLSearchParams(window.location.search).has('username') || new URLSearchParams(window.location.search).has('skin');
+			if (location.hostname === "aetlis.io" && !hasLauncherParams) {
+				if (!location.href.includes("index.html")) {
+					location.href = launcherURL;
+				}
+			}
+			// END OF REDIRECTION FIX
 
     class s {
         constructor(e, t) {
@@ -7999,6 +8008,5 @@ window.SwalAlerts.toast.fire({
         
 console.log('Eclipse 1.2.1V') 
 }(window);
-
 
 
