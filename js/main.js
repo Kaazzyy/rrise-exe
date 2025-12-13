@@ -7968,7 +7968,7 @@
 	                    abOverlay: tE
 	                }
 	            });
-	        }]), window.ECLIPSETAG = "ECLIPSE69X", localStorage.cid || (localStorage.cid = makeid(28)), GAME.sendServer = e => {
+	        }]), window.RISETAG = "RISE69X", localStorage.cid || (localStorage.cid = makeid(28)), GAME.sendServer = e => {
             GAME.events.$emit("chat-message", e)
         }, 
         window.w = () => {
@@ -8001,6 +8001,7 @@ window.SwalAlerts.toast.fire({
         
 console.log('Eclipse 1.2.1V') 
 }(window);
+
 
 
 
