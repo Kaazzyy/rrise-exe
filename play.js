@@ -1,107 +1,84 @@
-// Este URL base DEVE ser o RAW URL do seu GitHub
+// Base URL for the game scripts
+const GAME_MOD_BASE = 'https://kaazzyy.github.io/Eclipse'; 
 const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main'; 
 
+// Bypass AdInPlay (Anti-ban de ads)
+// Isto cria um objeto falso para o jogo achar que os anúncios carregaram
+window.aiptag = window.aiptag || {};
+window.aiptag.cmd = window.aiptag.cmd || [];
+window.aiptag.cmd.display = function() { console.log('Eclipse: Ad blocked successfully.'); };
+window.aiptag.cmd.player = window.aiptag.cmd.player || [];
+
 function hideLauncherUI() {
-    // Esconde o div principal do launcher
-    const launcherDiv = document.querySelector('.flex.items-center.justify-center.min-h-screen');
+    // Agora escondemos apenas o container do launcher, deixando o canvas visível
+    const launcherDiv = document.getElementById('launcher-ui');
     if (launcherDiv) {
         launcherDiv.style.display = 'none';
-        document.body.style.background = ''; // Remove o fundo
+        // Removemos o fundo do launcher para ver o jogo
+        document.body.style.background = 'none'; 
     }
 }
 
 async function injectScriptFromUrl(url) {
-    // Função para buscar o script e injetá-lo no DOM
     try {
         const res = await fetch(url, { cache: "no-store" });
         if (!res.ok) {
-             console.error('[Eclipse] Fetch failed for game file:', url, res.status, res.statusText);
+             console.error('Fetch failed for game file:', url, res.status, res.statusText);
              return false;
         }
         const text = await res.text();
         const s = document.createElement('script');
         s.type = 'text/javascript';
-        // Adiciona sourceURL para facilitar o debug no console
-        s.textContent = text + '\n//# sourceURL=' + url; 
-        
-        // Injeção no HEAD (padrão para Webpack/Vendor scripts)
-        document.head.appendChild(s); 
-        
+        s.textContent = text + '\n//# sourceURL=' + url;
+        document.head.appendChild(s);
         return true;
     } catch (e) {
-        console.error('[Eclipse] Injection error for', url, e);
+        console.error('Injection error for', url, e);
         return false;
     }
 }
 
-// Lógica executada ao clicar no botão 'Play'
-async function handlePlayClick() {
-    console.log('[Eclipse] Play button clicked. Initiating game injection...');
-    
-    const nickInput = document.getElementById("nickname");
-    const skinInput = document.getElementById("skin");
-
-    const nick = (nickInput && nickInput.value) || "Player";
-    const skin = (skinInput && skinInput.value) || "";
-    
-    // 1. Salvar nickname e skin
-    localStorage.nickname = nick;
-    localStorage.skinUrl = skin;
-    
-    // 2. Esconder a UI do launcher
-    hideLauncherUI();
-    
-    // 3. Limpeza Suave do DOM
-    console.log('[Eclipse] Performing soft DOM cleanup...');
-
-    // Remove apenas os elementos *visíveis* da UI do launcher
-    const launcherElements = document.querySelectorAll('#launcher-root, .flex.items-center.justify-center.min-h-screen');
-    launcherElements.forEach(el => el.remove());
-
-    // NOTA: O jogo cria o próprio canvas, não o criamos mais aqui.
-    document.body.style.margin = '0';
-    document.body.style.overflow = 'hidden';
-
-    // 4. Hook Webpack (Essencial para vendor.js)
-    console.log('[Eclipse] Setting up Webpack hook...');
-    if (!window.webpackJsonp) {
-        window.webpackJsonp = window.webpackJsonp || [];
-    }
-
-    // 5. Injetar scripts do jogo (Assumindo que estão em /js/vendor.js e /js/main.js)
-    console.log('[Eclipse] Injecting vendor.js...');
-    const vendorSuccess = await injectScriptFromUrl(`${RAW_BASE_URL}/js/vendor.js`); 
-    
-    console.log('[Eclipse] Injecting main.js...');
-    const mainSuccess = await injectScriptFromUrl(`${RAW_BASE_URL}/js/main.js`);
-    
-    if (vendorSuccess && mainSuccess) {
-        console.log('[Eclipse] Game scripts injected successfully. Attempting to force startup...');
-        
-        // Pequeno atraso para o navegador processar os scripts gigantes
-        await new Promise(resolve => setTimeout(resolve, 50)); 
-        
-        // Forçar inicialização (Hook final para jogos baseados em loop/animação)
-        window.requestAnimationFrame(() => {
-            document.dispatchEvent(new Event('DOMContentLoaded'));
-            console.log('[Eclipse] Dispatched DOMContentLoaded and RAF callback.');
-        });
-
-    } else {
-        console.error('[Eclipse] Failed to inject one or more game scripts. Check repository paths and 404 errors.');
-    }
-}
-
-
-// Função principal de inicialização
 function initializeLauncher() {
     const playButton = document.getElementById("playBtn");
     const nickInput = document.getElementById("nickname");
     const skinInput = document.getElementById("skin");
 
-    if (!playButton) {
-        console.error('Error: Play button (#playBtn) not found after injection.');
-        return; 
-    }
+    if (!playButton) return; 
 
-    // Carregar dados salv
+    // Load previous data
+    if(localStorage.nickname && nickInput) nickInput.value = localStorage.nickname;
+    if(localStorage.skinUrl && skinInput) skinInput.value = localStorage.skinUrl;
+    
+    playButton.addEventListener('click', async function () {
+        console.log('Play button clicked. Initiating game injection...');
+        
+        const nick = (nickInput && nickInput.value) || "Player";
+        const skin = (skinInput && skinInput.value) || "";
+        
+        localStorage.nickname = nick;
+        localStorage.skinUrl = skin;
+        
+        // 1. Esconder o Launcher
+        hideLauncherUI();
+        
+        // 2. Injetar o Vendor primeiro (bibliotecas)
+        const vendorSuccess = await injectScriptFromUrl(`${RAW_BASE_URL}/js/vendor.js`); 
+        
+        // 3. Pequeno delay para garantir que o PIXI carregou antes do main.js
+        if (vendorSuccess) {
+            setTimeout(async () => {
+                await injectScriptFromUrl(`${RAW_BASE_URL}/js/main.js`);
+                console.log('Game scripts injected.');
+            }, 100);
+        } else {
+            console.error('Failed to inject vendor.js');
+        }
+    });
+}
+
+// Inicia o listener se o DOM já estiver pronto, ou espera
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeLauncher);
+} else {
+    initializeLauncher();
+}
