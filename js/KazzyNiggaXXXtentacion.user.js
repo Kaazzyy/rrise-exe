@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eclipse
-// @version      1.3.4
-// @description  Inject custom UI and game files.
+// @version      1.3.5
+// @description  Inject custom UI and game files, neutralizing ad services.
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -26,14 +26,48 @@
             return null;
         }
     }
-
+    
+    // Função para injetar código JavaScript
     function injectScriptText(text, path) {
         const s = document.createElement('script');
         s.type = 'text/javascript';
         s.textContent = text + '\n//# sourceURL=' + path;
         document.body.appendChild(s); 
     }
-    
+
+    // --- NOVO CÓDIGO DE NEUTRALIZAÇÃO ---
+    // Injeta um script antes de tudo para desativar o Adinplay e outros hooks conhecidos
+    (function injectAntiHooks() {
+        const hookScript = document.createElement('script');
+        hookScript.textContent = `
+            console.log('[Eclipse] Injecting Anti-Adinplay hooks...');
+            
+            // 1. Neutraliza o Adinplay (método comum)
+            window.aiptag = {
+                cmd: {
+                    push: function() { console.log('[Eclipse] Adinplay push neutralized.'); }
+                },
+                adQueue: {
+                    push: function() { console.log('[Eclipse] Adinplay adQueue neutralized.'); }
+                },
+                adPlayers: {}
+            };
+            
+            // 2. Tenta bloquear a criação da tag (Adinplay/AETLIS)
+            const originalAppend = Node.prototype.appendChild;
+            Node.prototype.appendChild = function(child) {
+                if (child.tagName === 'SCRIPT' && (child.src || '').includes('adinplay.com')) {
+                    console.log('[Eclipse] BLOCKED: Ad script injection attempt.');
+                    return child; // Retorna, mas não anexa (desativa a injeção)
+                }
+                return originalAppend.apply(this, arguments);
+            };
+            
+        `;
+        document.head.appendChild(hookScript);
+    })();
+    // -------------------------------------
+
     console.log('[Eclipse] Fetching Launcher UI...');
 
     // 1. Fetch the launcher HTML
