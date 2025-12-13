@@ -53,7 +53,31 @@ async function handlePlayClick() {
     // 2. Esconder a UI do launcher
     hideLauncherUI();
     
-    // 3. Injetar scripts do jogo (Assumindo que estão em /js/vendor.js e /js/main.js)
+    // --- NOVO CÓDIGO DE LIMPEZA DO DOM ---
+    console.log('[Eclipse] Cleaning up DOM and preparing canvas...');
+
+    // Remove todos os filhos do BODY exceto scripts e outros elementos essenciais
+    while (document.body.firstChild) {
+        // Preserva o elemento que contém o script Tampermonkey se possível
+        if (document.body.firstChild.tagName === 'SCRIPT' || document.body.firstChild.id === 'tm-root') { 
+             document.body.removeChild(document.body.firstChild);
+        } else {
+             document.body.removeChild(document.body.firstChild);
+        }
+    }
+    
+    // Cria o elemento <canvas> que é essencial para o jogo
+    const canvas = document.createElement('canvas');
+    canvas.id = 'canvas';
+    document.body.appendChild(canvas);
+    
+    // Aplica estilos básicos para a tela do jogo
+    document.body.style.margin = '0';
+    document.body.style.overflow = 'hidden';
+    // --- FIM NOVO CÓDIGO ---
+
+    // 3. Injetar scripts do jogo (Sequencialmente)
+    
     console.log('[Eclipse] Injecting vendor.js...');
     const vendorSuccess = await injectScriptFromUrl(`${RAW_BASE_URL}/js/vendor.js`); 
     
@@ -63,26 +87,17 @@ async function handlePlayClick() {
     if (vendorSuccess && mainSuccess) {
         console.log('[Eclipse] Game scripts injected successfully. Attempting to force startup...');
         
-        // --- NOVO CÓDIGO AQUI ---
-        // Atraso extra para o navegador processar os scripts GIGANTES injetados
+        // Pequeno atraso para processamento
         await new Promise(resolve => setTimeout(resolve, 50)); 
         
-        // Tentar forçar o carregamento, caso ele dependa do load (como o antigo vanis fazia)
-        if (typeof window.onload === 'function') {
-             console.log('[Eclipse] Calling window.onload manually.');
-             window.onload();
-        } else {
-             // Tenta disparar o evento DOMContentLoaded, que muitos frameworks escutam
-             document.dispatchEvent(new Event('DOMContentLoaded'));
-             console.log('[Eclipse] Dispatched DOMContentLoaded event.');
-        }
-        // --- FIM NOVO CÓDIGO ---
+        // Forçar inicialização (Mantendo o que funcionou melhor)
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+        console.log('[Eclipse] Dispatched DOMContentLoaded event.');
 
     } else {
         console.error('[Eclipse] Failed to inject one or more game scripts. Check repository paths and 404 errors.');
     }
 }
-
 
 // Função principal de inicialização
 function initializeLauncher() {
@@ -107,5 +122,6 @@ function initializeLauncher() {
 
 // FIX DE TIMING: Usa setTimeout para garantir que o DOM esteja totalmente pronto após a injeção do HTML
 setTimeout(initializeLauncher, 100);
+
 
 
