@@ -4,7 +4,7 @@
 // @description  Inject custom UI and game files, neutralizing ad services.
 // @author       Kazzy
 // @match        *://aetlis.io/*
-// @run-at       document-start
+// @run-at       document-idle
 // ==/UserScript==
 
 (async () => {
