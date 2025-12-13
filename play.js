@@ -54,11 +54,30 @@ async function handlePlayClick() {
     hideLauncherUI();
     
     // 3. Injetar scripts do jogo (Assumindo que estão em /js/vendor.js e /js/main.js)
+    console.log('[Eclipse] Injecting vendor.js...');
     const vendorSuccess = await injectScriptFromUrl(`${RAW_BASE_URL}/js/vendor.js`); 
+    
+    console.log('[Eclipse] Injecting main.js...');
     const mainSuccess = await injectScriptFromUrl(`${RAW_BASE_URL}/js/main.js`);
     
     if (vendorSuccess && mainSuccess) {
-        console.log('[Eclipse] Game scripts injected successfully. Game should start.');
+        console.log('[Eclipse] Game scripts injected successfully. Attempting to force startup...');
+        
+        // --- NOVO CÓDIGO AQUI ---
+        // Atraso extra para o navegador processar os scripts GIGANTES injetados
+        await new Promise(resolve => setTimeout(resolve, 50)); 
+        
+        // Tentar forçar o carregamento, caso ele dependa do load (como o antigo vanis fazia)
+        if (typeof window.onload === 'function') {
+             console.log('[Eclipse] Calling window.onload manually.');
+             window.onload();
+        } else {
+             // Tenta disparar o evento DOMContentLoaded, que muitos frameworks escutam
+             document.dispatchEvent(new Event('DOMContentLoaded'));
+             console.log('[Eclipse] Dispatched DOMContentLoaded event.');
+        }
+        // --- FIM NOVO CÓDIGO ---
+
     } else {
         console.error('[Eclipse] Failed to inject one or more game scripts. Check repository paths and 404 errors.');
     }
@@ -88,4 +107,5 @@ function initializeLauncher() {
 
 // FIX DE TIMING: Usa setTimeout para garantir que o DOM esteja totalmente pronto após a injeção do HTML
 setTimeout(initializeLauncher, 100);
+
 
