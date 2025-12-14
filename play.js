@@ -55,6 +55,8 @@ function initializeLauncher() {
         const mainJsContent = await fetchContent('js/main.js'); 
         
         if (mainJsContent) {
+// ... (dentro do if (mainJsContent))
+
             // Este código é executado logo a seguir ao main.js e força a inicialização do jogo
             const initializationCode = `
                 console.log('[Eclipse] Inicialização pós-injeção: A forçar conexão.');
@@ -63,24 +65,33 @@ function initializeLauncher() {
                 window.Eclipse_Nickname = localStorage.nickname || "Eclipse Player";
                 window.Eclipse_Skin = localStorage.skinUrl || "";
 
-                // 1. Tenta definir o nome de usuário (necessário para a UI)
-                if (window.client && window.client.setNickname) {
+                // Força a variável de login principal do Aetlis.io se for conhecida
+                // Substitua a 'client' (exemplo) pela variável que o jogo usa para o seu objeto principal, se souberes.
+                // Se não souberes, mantemos 'client'.
+                if (window.client && typeof window.client.setNickname === 'function') {
                     window.client.setNickname(window.Eclipse_Nickname);
                 }
                 
-                // 2. Tenta forçar o início do jogo / ligação ao servidor.
+                // Tenta forçar o início do jogo / ligação ao servidor.
                 // Isto faz com que o painel UI (a imagem que mostraste) apareça.
-                if (window.client && window.client.connect) {
+                if (window.client && typeof window.client.connect === 'function') {
+                    // É a chamada mais provável para iniciar o jogo e mostrar a UI.
                     window.client.connect(); 
                 } else if (window.initGame) {
+                    // Segunda tentativa comum em mods
                     window.initGame();
+                } else {
+                    // Terceira tentativa (comum em jogos Pixi/HTML5)
+                    setTimeout(() => { 
+                         if (typeof window.startGame === 'function') window.startGame();
+                    }, 500);
                 }
 
                 // Limpeza final 
                 const launcher = document.getElementById('launcher-ui');
                 if(launcher) launcher.style.display = 'none';
             `;
-
+            
             // Injeta o main.js mais o código de inicialização agressiva
             injectScriptText(mainJsContent + initializationCode, `${RAW_BASE_URL}/js/main.js`, 'body');
             
@@ -97,3 +108,4 @@ if (document.readyState === 'loading') {
 } else {
     initializeLauncher();
 }
+
