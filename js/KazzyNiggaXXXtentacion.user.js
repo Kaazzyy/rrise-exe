@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Eclipse - FINAL FIX (AdBlock Bypass)
-// @version      1.6.0
-// @description  Aetlis.io Custom Launcher (Neutraliza AdBlock Detection e Fixa o Start)
+// @name         Eclipse - FINAL FIX (Inline Vendor)
+// @version      1.7.0
+// @description  Aetlis.io Custom Launcher (Força Vendor.js INLINE)
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -11,90 +11,89 @@
     'use strict';
     
     const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main';
-    const TS = `?t=${Date.now()}`; // Anti-cache
-
-    // --- 🚫 REMOÇÃO TOTAL DA DEPENDÊNCIA DE ADS E BYPASS DE DETEÇÃO ---
     
-    // 1. Mocking Básico (para impedir crash do carregamento)
-    // Se o jogo tentar chamar estas funções, elas não dão erro.
+    // --- 🚫 AdBlock Bypass: ESSENCIAL MANTER ---
     window.aiptag = window.aiptag || {};
     window.aiptag.cmd = window.aiptag.cmd || [];
     window.aiptag.cmd.push = function(fn) { try { fn(); } catch(e){} };
     window.aiptag.cmd.display = function() { console.log('[Eclipse] AdInPlay: Display mocked.'); };
-    
-    // 2. Variáveis de Detecção (Ataque à Segunda Linha de Defesa)
-    // O jogo procura por estas variáveis. Forçamos a sua existência e estado 'ready'.
     window.AdInPlay = { isLoaded: true, started: true };
     window.aiptag.loaded = true;
-    window.isAdBlocked = false; // Engana a verificação isAdBlocked
+    window.isAdBlocked = false;
     window.adinplay = { 
         create: () => {}, 
         destroy: () => {}, 
         isLoaded: true,
         call: (method, ...args) => { console.log(`[Eclipse] AdInPlay method called: ${method}`); return true; }
     };
-    // ------------------------------------------------------------------
-
-    // Restante da lógica de carregamento (a que funcionou para mostrar o Launcher)
+    // ------------------------------------------
     
-    // Ecrã de Loading Temporário
-    document.documentElement.innerHTML = `
-        <head>
-            <title>Eclipse Loading...</title>
-            <style>
-                body { background-color: #000; color: #00ff00; font-family: monospace; padding: 20px; }
-                .log { margin-bottom: 5px; }
-            </style>
-        </head>
-        <body>
-            <h1>Eclipse Launcher</h1>
-            <div id="logs"></div>
-            <script>
-                window.log = function(msg) {
-                    const div = document.createElement('div');
-                    div.className = 'log';
-                    div.innerText = '> ' + msg;
-                    document.getElementById('logs').appendChild(div);
-                }
-            </script>
-        </body>
-    `;
-    const log = (msg) => { console.log('[Eclipse]', msg); window.log(msg); };
-
+    // Log function for debugging
+    const log = (msg) => { console.log('[Eclipse]', msg); };
 
     async function fetchContent(path) {
         try {
-            const req = await fetch(`${RAW_BASE_URL}/${path}${TS}`);
-            if (!req.ok) throw new Error(`Falha ${req.status}`);
-            return await req.text();
+            const res = await fetch(`${RAW_BASE_URL}/${path}?t=${Date.now()}`);
+            if (!res.ok) {
+                log(`Fetch failed for: ${path} ${res.status}. CHECK GITHUB PATH!`);
+                return null;
+            }
+            return await res.text();
         } catch (e) {
-            log(`ERRO: Falha ao baixar ${path}. ${e.message}`);
+            log(`Fetch error for ${path}: ${e}`);
             return null;
         }
     }
     
+    // Ecrã de Loading Simples
+    document.documentElement.innerHTML = '<body><h1 style="color:white;text-align:center;margin-top:20vh;">A carregar ficheiros Eclipse...</h1></body>';
+
+
     try {
-        log('A carregar ficheiros...');
-        const [htmlContent, playJsContent] = await Promise.all([
+        log('A buscar ficheiros essenciais (index.html, vendor.js, play.js)...');
+        
+        // Buscar todos os 3 ficheiros
+        const [htmlContent, vendorContent, playJsContent] = await Promise.all([
             fetchContent('index.html'),
+            fetchContent('vendor.js'),
             fetchContent('play.js')
         ]);
 
-        if (!htmlContent || !playJsContent) throw new Error("Recursos essenciais não carregados.");
+        if (!htmlContent || !vendorContent || !playJsContent) {
+            throw new Error("Falha ao carregar um ou mais ficheiros essenciais do GitHub.");
+        }
 
-        // 3. Reescrever a página completamente
+        log('Ficheiros baixados. A injetar o Vendor.js no HTML...');
+        
+        // 1. Inserir o vendor.js *antes* do fecho da tag </head>
+        // Isto é o MAIS SEGURO que podemos fazer para garantir o timing.
+        const injectedHtml = htmlContent.replace(
+            '</head>',
+            `    <script type="text/javascript" id="vendor-script">
+${vendorContent}
+    //# sourceURL=${RAW_BASE_URL}/vendor.js
+    </script>
+</head>`
+        );
+
+        // 2. Reescrever a página completamente com o Vendor.js já dentro
         document.open();
-        document.write(htmlContent);
+        document.write(injectedHtml);
         document.close();
-        log('Launcher UI injetada.');
+        log('HTML e Vendor.js injetados.');
 
-        // 4. Injetar a lógica do Launcher
+
+        // 3. Injetar play.js, que agora não precisa de carregar o vendor.js
         const script = document.createElement('script');
-        script.textContent = playJsContent;
-        document.body.appendChild(script);
-        log('play.js injetado. A aguardar clique.');
+        script.textContent = playJsContent + `\n//# sourceURL=${RAW_BASE_URL}/play.js`;
+        // Timeout para dar tempo ao DOM de processar os elementos do Launcher
+        setTimeout(() => {
+            document.body.appendChild(script);
+            log('play.js injetado. Launcher deve estar pronto.');
+        }, 50);
 
     } catch (e) {
-        log(`ERRO FATAL NO TAMPERMONKEY: ${e.message}`);
+        log(`ERRO CRÍTICO: ${e.message}`);
+        document.body.innerHTML = `<h1 style="color:red;text-align:center;margin-top:20vh;">ERRO NO LANÇAMENTO: ${e.message}</h1><p style="color:white;text-align:center;">Verifica o caminho dos ficheiros no GitHub.</p>`;
     }
 })();
