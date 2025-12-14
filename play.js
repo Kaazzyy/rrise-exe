@@ -4,6 +4,7 @@ const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main';
 // --- FUNÇÕES AUXILIARES ---
 
 // Função que injeta o código de forma segura (para o main.js com código extra)
+// target = 'body' ou 'head'
 function injectScriptText(text, sourceUrl, target = 'head') {
     const s = document.createElement('script');
     s.type = 'text/javascript';
@@ -41,9 +42,8 @@ async function injectScriptFromUrl(url, target = 'head') {
     }
 }
 
-// Função para esconder o Launcher UI
+// Função para esconder o Launcher UI (Usamos o ID do index.html)
 function hideLauncherUI() {
-    // Usamos o ID que definimos no index.html
     const launcherDiv = document.getElementById('launcher-ui'); 
     if (launcherDiv) launcherDiv.style.display = 'none';
     
@@ -58,8 +58,9 @@ function initializeLauncher() {
     const nickInput = document.getElementById("nickname");
     const skinInput = document.getElementById("skin");
 
+    // Verifica se a UI do Launcher carregou corretamente
     if (!playButton || !nickInput || !skinInput) {
-        console.error('[Eclipse:play.js] Elementos da UI não encontrados. O Launcher não está carregado corretamente.');
+        console.error('[Eclipse:play.js] Elementos da UI não encontrados. Verifique o index.html e o timing do UserScript.');
         return; 
     }
 
@@ -69,7 +70,7 @@ function initializeLauncher() {
     
     // **A injeção do jogo SÓ ACONTECE AQUI (NO CLIQUE)**
     playButton.addEventListener('click', async function () {
-        console.log('[Eclipse] Play button clicked. Initiating game injection...');
+        console.log('[Eclipse] Play button clicked. Iniciando injeção do jogo...');
         
         const nick = nickInput.value || "Player";
         const skin = skinInput.value || "";
@@ -80,7 +81,7 @@ function initializeLauncher() {
         hideLauncherUI(); // Esconde o launcher
         
         // 1. Injetar o Vendor (Bibliotecas base)
-        const vendorSuccess = await injectScriptFromUrl(`${RAW_BASE_URL}/js/vendor.js`); 
+        const vendorSuccess = await injectScriptFromUrl(`${RAW_BASE_URL}/js/vendor.js`, 'body'); 
         
         if (vendorSuccess) {
             // 2. Injetar o Main (Jogo) com o código de inicialização agressiva
@@ -88,14 +89,12 @@ function initializeLauncher() {
                 const mainJsContent = await fetchContent('js/main.js'); 
                 
                 if (mainJsContent) {
-                    // Código de inicialização agressiva (para forçar o aparecimento da UI)
+                    // Código de inicialização agressiva (para forçar o aparecimento da UI do jogo)
                     const initializationCode = `
-                        console.log('[Eclipse] Inicialização pós-injeção: A forçar conexão.');
+                        console.log('[Eclipse] Inicialização pós-injeção: A forçar conexão e UI.');
                         
-                        // Define as variáveis de login globais
                         window.Eclipse_Nickname = localStorage.nickname || "Eclipse Player";
-                        window.Eclipse_Skin = localStorage.skinUrl || "";
-
+                        
                         // 1. Tenta definir o nome de usuário 
                         if (window.client && typeof window.client.setNickname === 'function') {
                             window.client.setNickname(window.Eclipse_Nickname);
@@ -109,10 +108,6 @@ function initializeLauncher() {
                         } else if (window.startGame) {
                             window.startGame();
                         }
-
-                        // Limpeza final (caso o CSS não tenha funcionado)
-                        const launcher = document.getElementById('launcher-ui');
-                        if(launcher) launcher.style.display = 'none';
                     `;
 
                     // Injeta o main.js mais o código de inicialização
@@ -129,6 +124,6 @@ function initializeLauncher() {
     });
 }
 
-// Inicia o listener se o DOM já estiver pronto, ou espera.
-// Usamos um pequeno timeout para dar tempo ao UserScript de desenhar o HTML do Launcher.
+// Inicia o listener
+// Usamos um pequeno timeout para dar tempo ao UserScript (Kazzy...) de desenhar o HTML do Launcher
 setTimeout(initializeLauncher, 50);
