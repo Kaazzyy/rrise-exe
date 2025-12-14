@@ -1,32 +1,39 @@
 // Base URL for the game scripts
 const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main'; 
-
-// Timestamp para evitar cache
 const TS = `?t=${Date.now()}`;
 
-// Função para injetar o código de forma segura, garantindo que o browser o executa
-function injectScriptText(text, sourceUrl, target = 'head') {
+// --- FUNÇÕES AUXILIARES ---
+
+// Injeta script a partir de texto (para main.js)
+function injectScriptText(text, sourceUrl) {
     const s = document.createElement('script');
     s.type = 'text/javascript';
     s.textContent = text + `\n//# sourceURL=${sourceUrl}`;
-    // Usamos o document.body para garantir que é injetado depois de todo o HTML
     document.body.appendChild(s); 
 }
 
-// Função para buscar o conteúdo
+// Injeta script a partir de URL (para vendor.js)
+function injectScriptFromUrl(url) {
+    return new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = url;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+    });
+}
+
+// Busca o conteúdo (para main.js)
 async function fetchContent(path) {
     try {
         const res = await fetch(`${RAW_BASE_URL}/${path}${TS}`); 
-        if (!res.ok) {
-             console.error(`[Eclipse] Falha no fetch de ${path}: ${res.status}`);
-             return null;
-        }
+        if (!res.ok) return null;
         return await res.text();
     } catch (e) {
-        console.error(`[Eclipse] Erro de rede ao buscar ${path}:`, e);
         return null;
     }
 }
+
 
 // --- Lógica Principal do Launcher ---
 async function initializeLauncher() {
@@ -35,50 +42,37 @@ async function initializeLauncher() {
     const playButton = document.getElementById("playBtn");
     const nickInput = document.getElementById("nickname");
     const skinInput = document.getElementById("skin");
-    const launcherUI = document.getElementById('launcher-ui');
 
-    if (!playButton || !nickInput || !skinInput) {
-        console.error("[Eclipse] Falha ao encontrar elementos do Launcher (IDs: playBtn, nickname, skin). Verifique o index.html.");
-        return; 
-    }
+    if (!playButton) return; 
 
     // 1. Configurar o estado inicial do botão
     playButton.disabled = true;
-    playButton.innerText = "Loading Game Files...";
-    playButton.style.opacity = "0.5";
+    playButton.innerText = "Loading Core System (Vendor)...";
     
     // Carregar dados salvos
     if (localStorage.getItem('nickname')) nickInput.value = localStorage.getItem('nickname');
     if (localStorage.getItem('skinUrl')) skinInput.value = localStorage.getItem('skinUrl');
 
-    // 2. Carregar o VENDOR.JS (Bibliotecas/Dependências)
-    console.log("[Eclipse] Fetching vendor.js...");
-    const vendorJsContent = await fetchContent('vendor.js');
-    if (!vendorJsContent) {
+    // 2. Carregar o VENDOR.JS (Bibliotecas/Dependências) - Usa URL direto
+    try {
+        await injectScriptFromUrl(`${RAW_BASE_URL}/vendor.js${TS}`);
+        console.log("[Eclipse] Vendor.js loaded successfully.");
+        
+        // Ativar o Botão
+        playButton.disabled = false;
+        playButton.innerText = "Play Now";
+        playButton.style.opacity = "1";
+        playButton.style.cursor = "pointer";
+
+    } catch (e) {
+        console.error("[Eclipse] ERROR: Failed to load Vendor.js. Check network.", e);
         playButton.innerText = "ERROR: Failed to load Vendor.js";
         return;
     }
-    injectScriptText(vendorJsContent, `${RAW_BASE_URL}/vendor.js`);
-    console.log("[Eclipse] Vendor.js injected.");
 
-    // 3. Carregar o MAIN.JS (O Jogo)
-    console.log("[Eclipse] Fetching main.js...");
-    const mainJsContent = await fetchContent('main.js');
-    if (!mainJsContent) {
-        playButton.innerText = "ERROR: Failed to load Main.js";
-        return;
-    }
-    
-    // 4. Ativar o Botão
-    playButton.disabled = false;
-    playButton.innerText = "Play Now";
-    playButton.style.opacity = "1";
-    playButton.style.cursor = "pointer";
-    console.log("[Eclipse] System Ready. Waiting for Play.");
-    
 
-    // 5. Evento de Clique
-    playButton.addEventListener('click', () => {
+    // 3. Evento de Clique
+    playButton.addEventListener('click', async () => {
         playButton.disabled = true;
         playButton.innerText = "Starting Game...";
         
@@ -88,54 +82,54 @@ async function initializeLauncher() {
         localStorage.setItem('nickname', nick);
         localStorage.setItem('skinUrl', skin); 
 
-        // B. Código de Inicialização Agressiva
-        // Este código é o que garante que o Nickname e Skin são vistos pelo jogo.
+        // B. Esconder Launcher
+        const launcherUI = document.getElementById('launcher-ui');
+        if(launcherUI) launcherUI.style.display = 'none';
+        
+        // C. Carregar o MAIN.JS
+        const mainJsContent = await fetchContent('main.js');
+        if (!mainJsContent) {
+            console.error('[Eclipse] Falha ao carregar main.js. O jogo não pode começar.');
+            playButton.innerText = "ERROR: Main.js Failed";
+            if(launcherUI) launcherUI.style.display = 'flex'; // Volta a mostrar se falhar
+            return;
+        }
+
+        // D. Código de Inicialização Agressiva
         const initializationCode = `
-            // 1. Garante que as variáveis globais são setadas antes de qualquer função de login
+            // 1. Variáveis globais para o teu código customizado
             window.Eclipse_Nickname = "${nick}";
             window.Eclipse_SkinUrl = "${skin}";
-
-            // 2. Tenta forçar a função que o main.js usa para obter o Nickname/Skin
-            // (Baseado na tua estrutura de código do main.js, que lê o localStorage)
             
-            // 3. Tenta iniciar o jogo após um pequeno atraso
+            // 2. Força o Nickname/Skin na primeira oportunidade
+            localStorage.setItem('nickname', window.Eclipse_Nickname);
+            localStorage.setItem('skinUrl', window.Eclipse_SkinUrl);
+            
+            // 3. Chamada de Início do Jogo
+            // Esta é a função mais provável que inicia o jogo depois do carregamento/ads.
             setTimeout(() => {
                 if (window.client && typeof window.client.connect === 'function') {
-                    // Chamada típica para iniciar a UI do jogo/conexão
                     window.client.connect(); 
                 } else if (typeof window.initGame === 'function') {
                     window.initGame();
                 } else if (typeof window.startGame === 'function') {
                     window.startGame();
                 }
-                
-                // Força o set do Nickname/Skin
-                if (window.client && typeof window.client.setNickname === 'function') {
-                     window.client.setNickname(window.Eclipse_Nickname);
-                }
-                if (window.client && typeof window.client.setSkin === 'function') {
-                     window.client.setSkin(window.Eclipse_SkinUrl);
-                }
-                
-                // Esconde o Launcher
-                const launcher = document.getElementById('launcher-ui');
-                if(launcher) launcher.style.display = 'none';
-                document.body.style.background = '#000'; // Fundo preto para o jogo
-                
-            }, 100); 
+            }, 50); 
+            
+            // 4. Garante que os anúncios não aparecem DEPOIS de o jogo arrancar.
+            document.body.style.background = '#000';
+            
         `;
 
-        // C. Injeta o MAIN.JS + Código de Inicialização
+        // E. Injeta o MAIN.JS + Código de Inicialização
         injectScriptText(mainJsContent + initializationCode, `${RAW_BASE_URL}/main.js`);
-        console.log('[Eclipse] Jogo injetado. A tentar iniciar...');
+        console.log('[Eclipse] Jogo injetado e inicialização forçada.');
     });
 }
 
-// Inicializa quando o DOM estiver pronto
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeLauncher);
-} else {
-    // Se o DOM já estiver pronto (graças ao Tampermonkey @run-at document-start)
-    // Usamos um pequeno timeout para garantir que todos os elementos foram desenhados.
-    setTimeout(initializeLauncher, 50);
-}
+// Inicializa a lógica após o DOM estar pronto
+document.addEventListener('DOMContentLoaded', () => {
+    // Adiciona um pequeno delay caso o Tailwind ainda esteja a carregar estilos
+    setTimeout(initializeLauncher, 100); 
+});
