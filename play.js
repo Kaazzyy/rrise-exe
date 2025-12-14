@@ -1,108 +1,73 @@
-// Base URL for the game scripts
-const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main'; 
+(async () => {
+    console.log("[Eclipse] Initializing Logic...");
 
-// Função que injeta o código de forma segura
-function injectScriptText(text, sourceUrl, target = 'head') {
-    const s = document.createElement('script');
-    s.type = 'text/javascript';
-    s.textContent = text + `\n//# sourceURL=${sourceUrl}`;
-    document[target].appendChild(s); 
-}
+    const REPO = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main';
+    const TS = `?t=${Date.now()}`; // Evita cache
 
-// Função para buscar o conteúdo (usada apenas para main.js agora)
-async function fetchContent(path) {
-    try {
-        const res = await fetch(`${RAW_BASE_URL}/${path}?t=${Date.now()}`); 
-        if (!res.ok) return null;
-        return await res.text();
-    } catch (e) {
-        return null;
+    // Função auxiliar para injetar scripts
+    function injectScript(content, id) {
+        const s = document.createElement('script');
+        s.textContent = content;
+        s.id = id;
+        document.body.appendChild(s);
     }
-}
 
-function hideLauncherUI() {
-    // Esconde o container do launcher e remove o fundo para ver o jogo
-    const launcherDiv = document.getElementById('launcher-ui'); 
-    if (launcherDiv) launcherDiv.style.display = 'none';
-    document.body.style.background = 'none'; 
-}
+    async function loadScriptUrl(url) {
+        const req = await fetch(url);
+        return await req.text();
+    }
 
+    // 1. Carregar dependências (Vendor.js) imediatamente em background
+    try {
+        const vendorCode = await loadScriptUrl(`${REPO}/vendor.js${TS}`);
+        injectScript(vendorCode, 'vendor-js');
+        console.log("[Eclipse] Vendor loaded.");
+    } catch (e) {
+        console.error("[Eclipse] Failed to load vendor.js", e);
+    }
 
-function initializeLauncher() {
-    const playButton = document.getElementById("playBtn");
-    const nickInput = document.getElementById("nickname");
-    const skinInput = document.getElementById("skin");
+    // 2. Configurar o Botão PLAY
+    const playBtn = document.getElementById('playBtn');
+    const nickInput = document.getElementById('nickname');
+    const skinInput = document.getElementById('skin');
+    const launcherUI = document.getElementById('launcher-ui'); // Certifica-te que no index.html a div principal tem id="launcher-ui"
 
-    if (!playButton) return; 
+    // Pré-carregar valores salvos anteriormente
+    if (localStorage.getItem('nickname')) nickInput.value = localStorage.getItem('nickname');
+    if (localStorage.getItem('skinUrl')) skinInput.value = localStorage.getItem('skinUrl');
 
-    // Carregar dados salvos
-    if(localStorage.nickname) nickInput.value = localStorage.nickname;
-    if(localStorage.skinUrl) skinInput.value = localStorage.skinUrl;
-    
-    playButton.addEventListener('click', async function () {
-        console.log('[Eclipse] Iniciando injeção do jogo (Main.js)...');
-        
-        const nick = nickInput.value || "Player";
+    playBtn.addEventListener('click', async () => {
+        console.log("[Eclipse] Play clicked!");
+
+        // A. Salvar Dados
+        const nick = nickInput.value || "Eclipse User";
         const skin = skinInput.value || "";
-        
-        localStorage.nickname = nick;
-        localStorage.skinUrl = skin;
-        
-        hideLauncherUI();
-        
-        // --- INJEÇÃO DO MAIN.JS + CÓDIGO DE START ---
-        
-        const mainJsContent = await fetchContent('js/main.js'); 
-        
-        if (mainJsContent) {
-             // Este código é executado logo a seguir ao main.js e força a inicialização do jogo
-            const initializationCode = `
-                console.log('[Eclipse] Inicialização pós-injeção: A forçar conexão.');
-                
-                // Define as variáveis de login globais
-                window.Eclipse_Nickname = localStorage.nickname || "Eclipse Player";
-                window.Eclipse_Skin = localStorage.skinUrl || "";
 
-                // Força a variável de login principal do Aetlis.io se for conhecida
-                // Substitua a 'client' (exemplo) pela variável que o jogo usa para o seu objeto principal, se souberes.
-                // Se não souberes, mantemos 'client'.
-                if (window.client && typeof window.client.setNickname === 'function') {
-                    window.client.setNickname(window.Eclipse_Nickname);
-                }
-                
-                // Tenta forçar o início do jogo / ligação ao servidor.
-                // Isto faz com que o painel UI (a imagem que mostraste) apareça.
-                if (window.client && typeof window.client.connect === 'function') {
-                    // É a chamada mais provável para iniciar o jogo e mostrar a UI.
-                    window.client.connect(); 
-                } else if (window.initGame) {
-                    // Segunda tentativa comum em mods
-                    window.initGame();
-                } else {
-                    // Terceira tentativa (comum em jogos Pixi/HTML5)
-                    setTimeout(() => { 
-                         if (typeof window.startGame === 'function') window.startGame();
-                    }, 500);
-                }
+        localStorage.setItem('nickname', nick);
+        localStorage.setItem('skinUrl', skin); // O main.js usa 'skinUrl'
 
-                // Limpeza final 
-                const launcher = document.getElementById('launcher-ui');
-                if(launcher) launcher.style.display = 'none';
-            `;
+        // B. Esconder o Launcher e mostrar o Canvas
+        if (launcherUI) launcherUI.style.display = 'none';
+        document.body.style.background = '#000'; // Fundo preto para o jogo
 
-            // Injeta o main.js mais o código de inicialização agressiva
-            injectScriptText(mainJsContent + initializationCode, `${RAW_BASE_URL}/js/main.js`, 'body');
+        // C. Carregar o Jogo (main.js)
+        try {
+            playBtn.innerText = "Loading Game...";
+            const mainCode = await loadScriptUrl(`${REPO}/main.js${TS}`);
             
-            console.log('[Eclipse] Jogo injetado, ads removidos, e inicialização forçada.');
-        } else {
-            console.error('[Eclipse] Falha ao carregar main.js. O jogo não pode começar.');
+            // Pequeno hack para garantir que o jogo lê o nick logo no início
+            const patchCode = `
+                window.EclipseNick = "${nick}";
+                window.EclipseSkin = "${skin}";
+                console.log("Injecting Main with", window.EclipseNick);
+            `;
+            
+            injectScript(patchCode + mainCode, 'main-game-js');
+        } catch (e) {
+            console.error("[Eclipse] Failed to load main.js", e);
+            alert("Error loading game files.");
+            if (launcherUI) launcherUI.style.display = 'flex'; // Volta a mostrar se falhar
         }
     });
-}
 
-// Inicializa quando o DOM estiver pronto
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeLauncher);
-} else {
-    initializeLauncher();
-}
+})();
