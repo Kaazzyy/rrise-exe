@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Eclipse - Launcher Fix
-// @version      1.7.0
-// @description  Aetlis.io Custom Launcher (Final Fix UI/Launcher)
+// @name         Eclipse - Launcher FINAL FIX
+// @version      1.7.1
+// @description  Aetlis.io Custom Launcher (Força a renderização do Launcher antes da lógica)
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -10,22 +10,17 @@
 (async () => {
     'use strict';
     
-    // URL base para os ficheiros no GitHub
     const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main';
     
-    // --- 🚫 REMOÇÃO TOTAL DA DEPENDÊNCIA DE ADS (MOCKING) ---
-    // Isto tem que ser feito antes de qualquer código do jogo correr.
+    // --- 🚫 BYPASS ADS (ESSENCIAL) ---
+    // Mocks para enganar o anti-adblock
     window.aiptag = window.aiptag || {};
     window.aiptag.cmd = window.aiptag.cmd || [];
     window.aiptag.cmd.push = function(fn) { try { fn(); } catch(e){} }; 
-    window.aiptag.cmd.display = function() { console.log('[Eclipse] AdInPlay mocked.'); };
-    window.AdInPlay = { isLoaded: true, started: true }; // Bypass de verificação de adblock
+    window.AdInPlay = { isLoaded: true, started: true }; 
     window.isAdBlocked = false;
     window.adinplay = { create: () => {}, destroy: () => {}, isLoaded: true };
-    // --------------------------------------------------------
-
-    // 1. Parar o carregamento original do Aetlis
-    window.stop();
+    // ---------------------------------
 
     // Funções auxiliares
     async function fetchContent(path) {
@@ -37,34 +32,41 @@
         }
     }
 
+    // Função para injetar o script como TEXTO (para garantir a sourceURL)
     function injectScriptText(text, sourceUrl, target = 'head') {
         const s = document.createElement('script');
         s.type = 'text/javascript';
         s.textContent = text + `\n//# sourceURL=${sourceUrl}`;
-        // Injetar no body para garantir que o script play.js vê o botão 'playBtn' no DOM.
-        document.body.appendChild(s); 
+        document[target].appendChild(s); 
     }
     
-    // 2. Injetar o HTML (index.html, que contém o Launcher, Canvas e HUD)
+    // 1. Parar o carregamento original
+    window.stop();
+    
+    // 2. Injetar o HTML (index.html, que contém o Launcher)
     const launcherHtml = await fetchContent('index.html');
     if (launcherHtml) {
         document.open();
         document.write(launcherHtml); // Substitui a página inteira
         document.close();
-        console.log('[Eclipse] Launcher UI injected.');
+        console.log('[Eclipse] Launcher UI injetado no DOM.');
     } else {
         return console.error('[Eclipse] Falha ao carregar index.html. Abortando.');
     }
     
     // 3. Injetar o play.js (Lógica do botão 'Play')
-    // O play.js agora será o único responsável por injetar vendor.js e main.js APENAS ao clicar em "Play".
     const playJsContent = await fetchContent('play.js'); 
+    
     if (playJsContent) {
-        // Usamos um pequeno timeout para dar tempo ao DOM de processar o novo HTML
-        setTimeout(() => {
-             injectScriptText(playJsContent, `${RAW_BASE_URL}/play.js`, 'body');
-             console.log('[Eclipse] play.js injetado. Aguardando clique...');
-        }, 50);
+        // FORÇA O NAVEGADOR A PROCESSAR O NOVO DOM
+        // Usamos requestAnimationFrame + setTimeout(0) para garantir que o navegador
+        // terminou de renderizar o HTML antes de injetar a lógica.
+        window.requestAnimationFrame(() => {
+            setTimeout(() => {
+                 injectScriptText(playJsContent, `${RAW_BASE_URL}/play.js`, 'body');
+                 console.log('[Eclipse] play.js injetado. Launcher deve aparecer.');
+            }, 0);
+        });
     } else {
         console.error('[Eclipse] Falha ao carregar play.js. O botão Play não funcionará.');
     }
