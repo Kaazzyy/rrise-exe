@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Eclipse - DIRECT LAUNCH (Síncrono)
-// @version      1.9.0
-// @description  Força o carregamento sequencial de Vendor e Main para evitar crash.
+// @name         Eclipse - DIRECT LAUNCH (Nativo)
+// @version      2.0.0
+// @description  Utiliza SRC nativo para sincronização estável, eliminando o problema de "text text"
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -10,9 +10,14 @@
 (async () => {
     'use strict';
     
-    const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main';
-    
+    // ATENÇÃO: Se os teus ficheiros js/vendor.js e js/main.js estão apenas no
+    // GitHub RAW, esta solução não funcionará. Presumimos que estão acessíveis 
+    // publicamente via GitHub Pages no caminho /js/vendor.js e /js/main.js.
+    const PUBLIC_BASE_URL = 'https://kaazzyy.github.io/Eclipse'; 
+    const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main'; // Mantido para o HTML
+
     // --- BYPASS ADS (ESSENCIAL) ---
+    // Mocks para enganar o anti-adblock
     window.aiptag = window.aiptag || {};
     window.aiptag.cmd = window.aiptag.cmd || [];
     window.aiptag.cmd.push = function(fn) { try { fn(); } catch(e){} }; 
@@ -29,8 +34,8 @@
     // 1. Parar o carregamento original
     window.stop();
 
-    // Funções auxiliares
-    async function fetchContent(path) {
+    // Função para buscar o HTML (apenas o HTML)
+    async function fetchHtmlContent(path) {
         try {
             const res = await fetch(`${RAW_BASE_URL}/${path}?t=${Date.now()}`); 
             return res.ok ? await res.text() : null;
@@ -38,66 +43,66 @@
             return null;
         }
     }
-
-    console.log('[Eclipse] A carregar ficheiros...');
     
-    // 2. Fetch de todos os ficheiros necessários
-    const [htmlContent, vendorJsContent, mainJsContent] = await Promise.all([
-        fetchContent('index.html'),
-        fetchContent('js/vendor.js'),
-        fetchContent('js/main.js')
-    ]);
-
-    if (!htmlContent || !vendorJsContent || !mainJsContent) {
-        return console.error('[Eclipse] Falha ao carregar um ou mais ficheiros essenciais. Abortando.');
+    // 2. Fetch do HTML (index.html, minimal)
+    const htmlContent = await fetchHtmlContent('index.html');
+    
+    if (!htmlContent) {
+        return console.error('[Eclipse] Falha ao carregar index.html. Abortando.');
     }
     
-    // 3. Código de Inicialização que será anexado ao main.js
+    // 3. Código de Inicialização que será executado após o main.js
     const initializationCode = `
-        // O jogo está ofuscado. A forma mais segura de definir o nick é injectar na variável cliente.
-        try {
-            if (window.client) {
-                if (typeof window.client.setNickname === 'function') {
-                    window.client.setNickname("${DEFAULT_NICKNAME}");
-                } else {
-                    window.client.nickname = "${DEFAULT_NICKNAME}";
+        // O código é injectado numa função de callback, não na global
+        (function() {
+            try {
+                if (window.client) {
+                    if (typeof window.client.setNickname === 'function') {
+                        window.client.setNickname("${DEFAULT_NICKNAME}");
+                    } else {
+                        window.client.nickname = "${DEFAULT_NICKNAME}";
+                    }
+                    window.client.skinUrl = "${DEFAULT_SKIN}";
                 }
-                window.client.skinUrl = "${DEFAULT_SKIN}";
+            } catch (e) {
+                console.warn("[Eclipse] Falha ao definir nickname/skin. O jogo vai continuar.");
             }
-        } catch (e) {
-            console.warn("[Eclipse] Falha ao definir nickname/skin. O jogo vai continuar.");
-        }
-        
-        // Forçar a conexão/início para mostrar a UI.
-        if (window.client && typeof window.client.connect === 'function') {
-            window.client.connect(); 
-        } else if (window.initGame) {
-            window.initGame();
-        } else if (window.startGame) {
-            window.startGame();
-        }
-        console.log('[Eclipse] Inicialização forçada concluída com sucesso.');
+            
+            // Forçar a conexão/início para mostrar a UI.
+            if (window.client && typeof window.client.connect === 'function') {
+                window.client.connect(); 
+            } else if (window.initGame) {
+                window.initGame();
+            } else if (window.startGame) {
+                window.startGame();
+            }
+            console.log('[Eclipse] Inicialização forçada concluída com sucesso.');
+        })();
     `;
     
-    // 4. Injeção Síncrona do DOM
+    // 4. Injeção Síncrona do DOM (HTML + Scripts com SRC)
     document.open();
     document.write(htmlContent); // Injeta Canvas e HUD
-    
-    // Adiciona o script do VENDOR.JS
+
+    // --- INJEÇÃO NATIVA VIA <script src="..."> (O NAVEGADOR SINCRONIZA!) ---
+    // Vendor.js é carregado e executado primeiro
     document.write(`
-        <script type="text/javascript" data-src-type="synced-vendor" nonce="${Math.random()}">
-            ${vendorJsContent}
-        </script>
+        <script src="${PUBLIC_BASE_URL}/js/vendor.js?t=${Date.now()}"></script>
     `);
-    
-    // Adiciona o script do MAIN.JS + Código de Inicialização
+
+    // Main.js é carregado e executado em seguida (NÃO CONTEÚDO RAW)
     document.write(`
-        <script type="text/javascript" data-src-type="synced-main" nonce="${Math.random()}">
-            ${mainJsContent + initializationCode}
+        <script src="${PUBLIC_BASE_URL}/js/main.js?t=${Date.now()}"></script>
+    `);
+
+    // Código de Inicialização é executado por último
+    document.write(`
+        <script type="text/javascript" nonce="${Math.random()}">
+            ${initializationCode}
         </script>
     `);
 
     document.close();
-    console.log('[Eclipse] Injeção de jogo concluída de forma síncrona. O jogo deve iniciar agora.');
+    console.log('[Eclipse] Injeção nativa concluída. Verifique a UI do jogo.');
     
 })();
