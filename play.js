@@ -37,7 +37,6 @@ function initializeLauncher() {
     const skinInput = document.getElementById("skin");
 
     if (!playButton || !nickInput || !skinInput) {
-        // Se a UI não for encontrada, o UserScript não deu tempo ao DOM
         console.error('[Eclipse:play.js] UI elements not found. Initialization failed.');
         return; 
     }
