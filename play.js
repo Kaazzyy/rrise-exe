@@ -2,8 +2,6 @@
 const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main'; 
 
 // --- FUNÇÕES AUXILIARES ---
-
-// Função que injeta o código de forma segura (para o main.js com código extra)
 function injectScriptText(text, sourceUrl, target = 'body') {
     const s = document.createElement('script');
     s.type = 'text/javascript';
@@ -11,7 +9,6 @@ function injectScriptText(text, sourceUrl, target = 'body') {
     document[target].appendChild(s); 
 }
 
-// Função para buscar o conteúdo (usada apenas para main.js)
 async function fetchContent(path) {
     try {
         const res = await fetch(`${RAW_BASE_URL}/${path}?t=${Date.now()}`); 
@@ -23,7 +20,6 @@ async function fetchContent(path) {
 }
 
 function hideLauncherUI() {
-    // Esconde o container do launcher
     const launcherDiv = document.getElementById('launcher-ui'); 
     if (launcherDiv) launcherDiv.style.display = 'none';
     document.body.style.background = 'none'; 
@@ -38,25 +34,20 @@ function initializeLauncher() {
     const nickInput = document.getElementById("nickname");
     const skinInput = document.getElementById("skin");
 
-    if (!playButton || !nickInput || !skinInput) {
-         // Isto não deve acontecer se o Tampermonkey injetou o HTML corretamente
-         console.error("[Eclipse] Elementos UI não encontrados. Aborting play.js.");
-         return; 
-    }
+    if (!playButton) return; 
 
-    // Carregar dados salvos
-    if (localStorage.getItem('nickname')) nickInput.value = localStorage.getItem('nickname');
-    if (localStorage.getItem('skinUrl')) skinInput.value = localStorage.getItem('skinUrl');
-
-    // 1. ATIVAR O BOTÃO IMEDIATAMENTE (Vendor.js já está carregado)
+    // O VENDOR.JS FOI INJETADO NO TAMPERMONKEY - ASSUMIMOS QUE ESTÁ OK
     playButton.disabled = false;
     playButton.innerText = "Play Now";
     playButton.style.opacity = "1";
     playButton.style.cursor = "pointer";
     console.log("[Eclipse] System Ready. Button Active.");
     
+    // Carregar dados salvos
+    if (localStorage.getItem('nickname')) nickInput.value = localStorage.getItem('nickname');
+    if (localStorage.getItem('skinUrl')) skinInput.value = localStorage.getItem('skinUrl');
 
-    // 2. Evento de Clique
+    // Evento de Clique
     playButton.addEventListener('click', async () => {
         playButton.disabled = true;
         playButton.innerText = "Starting Game...";
@@ -71,20 +62,20 @@ function initializeLauncher() {
         const mainJsContent = await fetchContent('main.js');
         
         if (!mainJsContent) {
-            console.error('[Eclipse] Falha ao carregar main.js. O jogo não pode começar.');
             playButton.innerText = "ERROR: Main.js Failed";
             document.getElementById('launcher-ui').style.display = 'flex';
             return;
         }
 
-        // C. Código de Inicialização Agressiva
+        // C. Patching e Inicialização
         const initializationCode = `
-            // 1. Patching de Nickname e Skin antes de o main.js ser executado (se não for imediato)
+            // 1. Patching de Nickname e Skin
             localStorage.setItem('nickname', "${nick}");
             localStorage.setItem('skinUrl', "${skin}");
-            
-            // 2. Tenta forçar o início do jogo (depois de um curto delay para o main.js correr)
+
+            // 2. Tenta forçar o início do jogo (depois de um pequeno delay para o main.js correr)
             setTimeout(() => {
+                // Tentar a chamada nativa de início do jogo
                 if (window.client && typeof window.client.connect === 'function') {
                     window.client.connect(); 
                 } else if (typeof window.initGame === 'function') {
@@ -93,23 +84,26 @@ function initializeLauncher() {
                     window.startGame();
                 }
                 
-                // 3. Força o Nickname/Skin no objeto do jogo (se existir)
-                if (window.client && typeof window.client.setNickname === 'function') {
-                     window.client.setNickname("${nick}");
-                }
-                
-                // 4. Limpeza final
+                // Limpeza final
                 hideLauncherUI();
                 
             }, 100); 
         `;
-
+        
         // D. Injeta o MAIN.JS + Código de Inicialização
-        injectScriptText(mainJsContent + initializationCode, `${RAW_BASE_URL}/main.js`);
-        console.log('[Eclipse] Jogo injetado e inicialização forçada.');
+        // Envolvemos o main.js com o webpackJsonp se necessário (ajuda a ligar-se ao vendor.js)
+        const finalCode = `(window.webpackJsonp = window.webpackJsonp || []).push([["main"],{
+            "main_entry": function(e, t, n) {
+                ${mainJsContent}
+                // Executar código extra
+                ${initializationCode}
+            }
+        },[["main_entry"]]]);`;
+
+        injectScriptText(finalCode, `${RAW_BASE_URL}/main.js`);
+        console.log('[Eclipse] Jogo injetado com webpackJsonp patch.');
     });
 }
 
-// O Tampermonkey injetou o HTML, pelo que o DOM já tem os elementos.
-// Chamamos o inicializador diretamente.
-setTimeout(initializeLauncher, 10);
+// Inicia a lógica após o DOM estar pronto
+setTimeout(initializeLauncher, 100);
