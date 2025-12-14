@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Eclipse - Voltar à Estabilidade (Sem Crash)
-// @version      1.9.9
-// @description  Aetlis.io Custom Launcher (Bypass Ads, Injeção Estável)
+// @name         Eclipse - FINAL FIX (AdBlock Bypass)
+// @version      1.6.0
+// @description  Aetlis.io Custom Launcher (Neutraliza AdBlock Detection e Fixa o Start)
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -10,60 +10,37 @@
 (async () => {
     'use strict';
     
-    // URL base para os ficheiros no GitHub
     const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main';
     
-    // --- 🚫 BYPASS ADS (Essencial) ---
-    // Mocks para enganar o anti-adblock
+    // --- 🚫 REMOÇÃO TOTAL DA DEPENDÊNCIA DE ADS E BYPASS DE DETEÇÃO ---
+    
+    // 1. Mocking Básico (para impedir crash do carregamento)
     window.aiptag = window.aiptag || {};
     window.aiptag.cmd = window.aiptag.cmd || [];
     window.aiptag.cmd.push = function(fn) { try { fn(); } catch(e){} };
-    window.AdInPlay = { isLoaded: true, started: true }; 
-    window.isAdBlocked = false;
-    window.adinplay = { create: () => {}, destroy: () => {}, isLoaded: true };
-    // ---------------------------------
-
-    // 1. Parar o carregamento original do Aetlis
-    window.stop();
-
-    // Funções auxiliares
-    async function fetchContent(path) {
-        try {
-            // Adicionamos um timestamp para forçar a atualização
-            const res = await fetch(`${RAW_BASE_URL}/${path}?t=${Date.now()}`); 
-            return res.ok ? await res.text() : null;
-        } catch (e) {
-            return null;
-        }
-    }
-
-    function injectScriptText(text, sourceUrl) {
-        const s = document.createElement('script');
-        s.type = 'text/javascript';
-        s.textContent = text + `\n//# sourceURL=${sourceUrl}`;
-        // Injetamos no body para garantir que a lógica do play.js corre após o HTML.
-        document.body.appendChild(s); 
-    }
+    window.aiptag.cmd.display = function() { console.log('[Eclipse] AdInPlay: Display mocked.'); };
     
-    // 2. Injetar o HTML (index.html, com o Launcher UI, Canvas e HUD)
-    const launcherHtml = await fetchContent('index.html');
-    if (launcherHtml) {
-        document.open();
-        document.write(launcherHtml); // Substitui a página inteira
-        document.close();
-        console.log('[Eclipse] Launcher UI injected.');
-    } else {
-        return console.error('[Eclipse] Falha ao carregar index.html. Abortando.');
-    }
+    // 2. Variáveis de Detecção (Ataque à Segunda Linha de Defesa)
+    // Se o jogo detetar 'AdBlock', é porque procura uma destas variáveis e ela está indefinida.
+    // Declaramos a maioria como 'true' para indicar que o "setup" foi concluído com sucesso.
+    window.AdInPlay = { isLoaded: true, started: true };
+    window.aiptag.loaded = true;
+    window.isAdBlocked = false; // Engana a verificação isAdBlocked
+
+    // A variável 'adinplay' é a mais comum para travar: forçamos a sua existência.
+    window.adinplay = { 
+        create: () => {}, 
+        destroy: () => {}, 
+        isLoaded: true,
+        // Garante que o método de 'connect' ou 'start' que o jogo usa corre
+        call: (method, ...args) => { console.log(`[Eclipse] AdInPlay method called: ${method}`); return true; }
+    };
+    // ------------------------------------------------------------------
+
+    // ... (restante do código: fetchContent, injectScriptText, window.stop(), etc. 
+    // MANTÉM o código do Passo 1 da resposta anterior) ...
     
-    // 3. Injetar o play.js (Lógica do botão 'Play')
-    const playJsContent = await fetchContent('play.js'); 
-    if (playJsContent) {
-        // Pequeno timeout para o navegador processar o novo HTML e o play.js conseguir encontrar o botão.
-        setTimeout(() => {
-             injectScriptText(playJsContent, `${RAW_BASE_URL}/play.js`);
-             console.log('[Eclipse] play.js injetado. Jogo pronto a iniciar no clique.');
-        }, 50);
-    }
+    // Se usares o código da minha resposta anterior (Passo 1), apenas precisas de garantir que 
+    // este bloco de bypass de ads está no topo, antes de 'window.stop()'.
     
 })();
