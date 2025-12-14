@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Eclipse - FINAL FIX (Execução Diferida)
-// @version      2.1.0
-// @description  A solução mais estável para evitar o crash de sincronização do Vendor/Main.
+// @name         Eclipse - Voltar à Estabilidade (Sem Crash)
+// @version      1.9.9
+// @description  Aetlis.io Custom Launcher (Bypass Ads, Injeção Estável)
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -10,23 +10,19 @@
 (async () => {
     'use strict';
     
+    // URL base para os ficheiros no GitHub
     const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main';
     
-    // --- BYPASS ADS (ESSENCIAL) ---
+    // --- 🚫 BYPASS ADS (Essencial para não dar crash e remover a mensagem de AdBlock) ---
     window.aiptag = window.aiptag || {};
     window.aiptag.cmd = window.aiptag.cmd || [];
-    window.aiptag.cmd.push = function(fn) { try { fn(); } catch(e){} }; 
+    window.aiptag.cmd.push = function(fn) { try { fn(); } catch(e){} };
     window.AdInPlay = { isLoaded: true, started: true }; 
     window.isAdBlocked = false;
     window.adinplay = { create: () => {}, destroy: () => {}, isLoaded: true };
-    // ---------------------------------
+    // -----------------------------------------------------------------------------------
 
-    // --- VARIÁVEIS DE CONFIGURAÇÃO ---
-    const DEFAULT_NICKNAME = localStorage.nickname || "Eclipse Player";
-    const DEFAULT_SKIN = localStorage.skinUrl || ""; 
-    // ---------------------------------
-    
-    // 1. Parar o carregamento original
+    // 1. Parar o carregamento original do Aetlis
     window.stop();
 
     // Funções auxiliares
@@ -38,70 +34,33 @@
             return null;
         }
     }
-    
-    // 2. Fetch de todos os ficheiros
-    const [htmlContent, vendorJsContent, mainJsContent] = await Promise.all([
-        fetchContent('index.html'), // Minimal HTML
-        fetchContent('js/vendor.js'),
-        fetchContent('js/main.js')
-    ]);
 
-    if (!htmlContent || !vendorJsContent || !mainJsContent) {
-        return console.error('[Eclipse] Falha ao carregar ficheiros. Verifique os caminhos.');
+    function injectScriptText(text, sourceUrl, target = 'head') {
+        const s = document.createElement('script');
+        s.type = 'text/javascript';
+        s.textContent = text + `\n//# sourceURL=${sourceUrl}`;
+        // Injetamos no body para garantir que a lógica do play.js corre após o HTML.
+        document.body.appendChild(s); 
     }
     
-    // 3. Código de Inicialização (Forçar o Nick e o Connect)
-    const initializationCode = `
-        try {
-            if (window.client) {
-                if (typeof window.client.setNickname === 'function') {
-                    window.client.setNickname("${DEFAULT_NICKNAME}");
-                } else {
-                    window.client.nickname = "${DEFAULT_NICKNAME}";
-                }
-                window.client.skinUrl = "${DEFAULT_SKIN}";
-            }
-        } catch (e) {}
-        
-        // Forçar a conexão/início para mostrar a UI.
-        if (window.client && typeof window.client.connect === 'function') {
-            window.client.connect(); 
-        } else if (window.initGame) {
-            window.initGame();
-        } else if (window.startGame) {
-            window.startGame();
-        }
-    `;
+    // 2. Injetar o HTML (index.html, com o Launcher)
+    const launcherHtml = await fetchContent('index.html');
+    if (launcherHtml) {
+        document.open();
+        document.write(launcherHtml); // Substitui a página inteira
+        document.close();
+    } else {
+        return console.error('[Eclipse] Falha ao carregar index.html. Abortando.');
+    }
     
-    // 4. Injeção Síncrona do DOM (HTML e Vendor)
-    document.open();
-    document.write(htmlContent); // Injeta Canvas e HUD
-
-    // Injeta o VENDOR.JS
-    document.write(`
-        <script type="text/javascript" data-src-type="vendor-sync" nonce="${Math.random()}">
-            ${vendorJsContent}
-        </script>
-    `);
-    
-    // 5. Injeta o MAIN.JS EMBRULHADO NA FUNÇÃO DEFERIDA
-    // O main.js é colocado dentro de uma função anónima, que será chamada com um pequeno delay.
-    document.write(`
-        <script type="text/javascript" data-src-type="main-deferred" nonce="${Math.random()}">
-            // A função contém o Main.js e o nosso código de inicialização
-            function runMainGame() {
-                ${mainJsContent}
-                ${initializationCode}
-            }
-
-            // Chamamos a função Main.js com um pequeno delay. 
-            // Isto permite que o navegador termine TUDO do Vendor.js antes de chamar o Main.
-            setTimeout(runMainGame, 50); 
-            console.log('[Eclipse] Main.js diferido. A aguardar 50ms...');
-        </script>
-    `);
-
-    document.close();
-    console.log('[Eclipse] Injeção de jogo concluída com execução diferida. O jogo deve iniciar agora.');
+    // 3. Injetar o play.js (Lógica do botão 'Play')
+    const playJsContent = await fetchContent('play.js'); 
+    if (playJsContent) {
+        // Pequeno timeout para o navegador processar o DOM (melhora a chance do Launcher aparecer)
+        setTimeout(() => {
+             injectScriptText(playJsContent, `${RAW_BASE_URL}/play.js`);
+             console.log('[Eclipse] play.js injetado. Jogo pronto a iniciar.');
+        }, 50);
+    }
     
 })();
