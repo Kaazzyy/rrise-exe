@@ -14,6 +14,7 @@
     const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main';
     
     // --- 🚫 BYPASS ADS (Essencial) ---
+    // Mocks para enganar o anti-adblock
     window.aiptag = window.aiptag || {};
     window.aiptag.cmd = window.aiptag.cmd || [];
     window.aiptag.cmd.push = function(fn) { try { fn(); } catch(e){} };
@@ -28,6 +29,7 @@
     // Funções auxiliares
     async function fetchContent(path) {
         try {
+            // Adicionamos um timestamp para forçar a atualização
             const res = await fetch(`${RAW_BASE_URL}/${path}?t=${Date.now()}`); 
             return res.ok ? await res.text() : null;
         } catch (e) {
@@ -39,6 +41,7 @@
         const s = document.createElement('script');
         s.type = 'text/javascript';
         s.textContent = text + `\n//# sourceURL=${sourceUrl}`;
+        // Injetamos no body para garantir que a lógica do play.js corre após o HTML.
         document.body.appendChild(s); 
     }
     
