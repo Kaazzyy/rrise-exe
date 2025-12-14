@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Eclipse - Ad-Free Final Fix
-// @version      1.5.1
-// @description  Aetlis.io Custom Launcher (REMOÇÃO TOTAL DE ADS + Fix Sincronização)
+// @name         Eclipse - FINAL FIX (AdBlock Bypass)
+// @version      1.6.0
+// @description  Aetlis.io Custom Launcher (Neutraliza AdBlock Detection e Fixa o Start)
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -10,65 +10,37 @@
 (async () => {
     'use strict';
     
-    // URL base para os ficheiros no GitHub
     const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main';
     
-    // --- 🚫 REMOÇÃO TOTAL DA DEPENDÊNCIA DE ADS (AdInPlay Hijack) ---
-    // Criamos as variáveis globais que o jogo espera ver, mas com funções vazias.
-    // O jogo chama estas funções e continua, em vez de travar à espera da resposta do servidor de anúncios.
+    // --- 🚫 REMOÇÃO TOTAL DA DEPENDÊNCIA DE ADS E BYPASS DE DETEÇÃO ---
+    
+    // 1. Mocking Básico (para impedir crash do carregamento)
     window.aiptag = window.aiptag || {};
     window.aiptag.cmd = window.aiptag.cmd || [];
-    window.aiptag.cmd.push = function(fn) { try { fn(); } catch(e){} }; // Executa push imediatamente e silencia erros
+    window.aiptag.cmd.push = function(fn) { try { fn(); } catch(e){} };
     window.aiptag.cmd.display = function() { console.log('[Eclipse] AdInPlay: Display mocked.'); };
-    window.aiptag.display = function() { console.log('[Eclipse] AdInPlay: Display mocked (Alt).'); };
     
-    // Também cobrimos outras variáveis que o jogo possa procurar (embora menos comuns)
-    window.adinplay = { create: () => {}, destroy: () => {}, isLoaded: true };
+    // 2. Variáveis de Detecção (Ataque à Segunda Linha de Defesa)
+    // Se o jogo detetar 'AdBlock', é porque procura uma destas variáveis e ela está indefinida.
+    // Declaramos a maioria como 'true' para indicar que o "setup" foi concluído com sucesso.
+    window.AdInPlay = { isLoaded: true, started: true };
+    window.aiptag.loaded = true;
+    window.isAdBlocked = false; // Engana a verificação isAdBlocked
+
+    // A variável 'adinplay' é a mais comum para travar: forçamos a sua existência.
+    window.adinplay = { 
+        create: () => {}, 
+        destroy: () => {}, 
+        isLoaded: true,
+        // Garante que o método de 'connect' ou 'start' que o jogo usa corre
+        call: (method, ...args) => { console.log(`[Eclipse] AdInPlay method called: ${method}`); return true; }
+    };
     // ------------------------------------------------------------------
 
-    // 1. Parar o carregamento original do Aetlis (Essencial para não haver conflitos)
-    window.stop();
-
-    // Funções auxiliares
-    async function fetchContent(path) {
-        try {
-            const res = await fetch(`${RAW_BASE_URL}/${path}?t=${Date.now()}`); 
-            return res.ok ? await res.text() : null;
-        } catch (e) {
-            return null;
-        }
-    }
-
-    function injectScriptText(text, sourceUrl, target = 'head') {
-        const s = document.createElement('script');
-        s.type = 'text/javascript';
-        s.textContent = text + `\n//# sourceURL=${sourceUrl}`;
-        document[target].appendChild(s); 
-    }
+    // ... (restante do código: fetchContent, injectScriptText, window.stop(), etc. 
+    // MANTÉM o código do Passo 1 da resposta anterior) ...
     
-    // 2. Injetar o HTML (index.html)
-    const launcherHtml = await fetchContent('index.html');
-    if (launcherHtml) {
-        document.open();
-        document.write(launcherHtml); // Substitui a página inteira
-        document.close();
-    } else {
-        return console.error('[Eclipse] Falha ao carregar index.html. Abortando.');
-    }
-    
-    // 3. Injetar o VENDOR.JS (Bibliotecas base como PIXI.js, etc.)
-    // Isto deve carregar antes do main.js para resolver a maioria dos problemas de sincronização.
-    const vendorJsContent = await fetchContent('js/vendor.js');
-    if (vendorJsContent) {
-        injectScriptText(vendorJsContent, `${RAW_BASE_URL}/js/vendor.js`);
-    } else {
-         return console.error('[Eclipse] Falha ao carregar vendor.js. O jogo não vai arrancar.');
-    }
-    
-    // 4. Injetar o play.js (Lógica do botão 'Play'). Injetamos no body/head.
-    const playJsContent = await fetchContent('play.js'); 
-    if (playJsContent) {
-        injectScriptText(playJsContent, `${RAW_BASE_URL}/play.js`, 'body');
-    }
+    // Se usares o código da minha resposta anterior (Passo 1), apenas precisas de garantir que 
+    // este bloco de bypass de ads está no topo, antes de 'window.stop()'.
     
 })();
