@@ -1,27 +1,32 @@
 // Base URL for the game scripts
 const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main'; 
 
-// --- 🚫 REFORÇO DE REMOÇÃO DE ANÚNCIOS ---
-// Garante que o bypass está ativo antes de injetar o jogo
-window.aiptag = window.aiptag || {};
-window.aiptag.cmd = window.aiptag.cmd || [];
-window.aiptag.cmd.display = function() { }; 
+// Função que injeta o código de forma segura
+function injectScriptText(text, sourceUrl, target = 'head') {
+    const s = document.createElement('script');
+    s.type = 'text/javascript';
+    s.textContent = text + `\n//# sourceURL=${sourceUrl}`;
+    document[target].appendChild(s); 
+}
 
-async function injectScriptFromUrl(url) {
+// Função para buscar o conteúdo (usada apenas para main.js agora)
+async function fetchContent(path) {
     try {
-        const res = await fetch(url, { cache: "no-store" });
-        if (!res.ok) return false;
-        const text = await res.text();
-        const s = document.createElement('script');
-        s.type = 'text/javascript';
-        s.textContent = text + '\n//# sourceURL=' + url;
-        document.head.appendChild(s);
-        return true;
+        const res = await fetch(`${RAW_BASE_URL}/${path}?t=${Date.now()}`); 
+        if (!res.ok) return null;
+        return await res.text();
     } catch (e) {
-        console.error('Injection error', e);
-        return false;
+        return null;
     }
 }
+
+function hideLauncherUI() {
+    // Esconde o container do launcher e remove o fundo para ver o jogo
+    const launcherDiv = document.getElementById('launcher-ui'); 
+    if (launcherDiv) launcherDiv.style.display = 'none';
+    document.body.style.background = 'none'; 
+}
+
 
 function initializeLauncher() {
     const playButton = document.getElementById("playBtn");
@@ -31,34 +36,62 @@ function initializeLauncher() {
     if (!playButton) return; 
 
     // Carregar dados salvos
-    if(localStorage.nickname && nickInput) nickInput.value = localStorage.nickname;
-    if(localStorage.skinUrl && skinInput) skinInput.value = localStorage.skinUrl;
+    if(localStorage.nickname) nickInput.value = localStorage.nickname;
+    if(localStorage.skinUrl) skinInput.value = localStorage.skinUrl;
     
     playButton.addEventListener('click', async function () {
-        const nick = (nickInput && nickInput.value) || "Player";
-        const skin = (skinInput && skinInput.value) || "";
+        console.log('[Eclipse] Iniciando injeção do jogo (Main.js)...');
+        
+        const nick = nickInput.value || "Player";
+        const skin = skinInput.value || "";
         
         localStorage.nickname = nick;
         localStorage.skinUrl = skin;
         
-        // 1. Esconder o Launcher e revelar o jogo
-        const launcherDiv = document.getElementById('launcher-ui');
-        if (launcherDiv) launcherDiv.style.display = 'none';
-        document.body.style.background = 'none'; // Remove o fundo preto
+        hideLauncherUI();
         
-        // 2. Injetar o Vendor (Bibliotecas)
-        const vendorSuccess = await injectScriptFromUrl(`${RAW_BASE_URL}/js/vendor.js`); 
+        // --- INJEÇÃO DO MAIN.JS + CÓDIGO DE START ---
         
-        if (vendorSuccess) {
-            // 3. Injetar o Main (Jogo) com um pequeno delay
-            setTimeout(async () => {
-                await injectScriptFromUrl(`${RAW_BASE_URL}/js/main.js`);
-                console.log('Eclipse: Jogo injetado sem anúncios.');
-            }, 100);
+        const mainJsContent = await fetchContent('js/main.js'); 
+        
+        if (mainJsContent) {
+            // Este código é executado logo a seguir ao main.js e força a inicialização do jogo
+            const initializationCode = `
+                console.log('[Eclipse] Inicialização pós-injeção: A forçar conexão.');
+                
+                // Define as variáveis de login globais
+                window.Eclipse_Nickname = localStorage.nickname || "Eclipse Player";
+                window.Eclipse_Skin = localStorage.skinUrl || "";
+
+                // 1. Tenta definir o nome de usuário (necessário para a UI)
+                if (window.client && window.client.setNickname) {
+                    window.client.setNickname(window.Eclipse_Nickname);
+                }
+                
+                // 2. Tenta forçar o início do jogo / ligação ao servidor.
+                // Isto faz com que o painel UI (a imagem que mostraste) apareça.
+                if (window.client && window.client.connect) {
+                    window.client.connect(); 
+                } else if (window.initGame) {
+                    window.initGame();
+                }
+
+                // Limpeza final 
+                const launcher = document.getElementById('launcher-ui');
+                if(launcher) launcher.style.display = 'none';
+            `;
+
+            // Injeta o main.js mais o código de inicialização agressiva
+            injectScriptText(mainJsContent + initializationCode, `${RAW_BASE_URL}/js/main.js`, 'body');
+            
+            console.log('[Eclipse] Jogo injetado, ads removidos, e inicialização forçada.');
+        } else {
+            console.error('[Eclipse] Falha ao carregar main.js. O jogo não pode começar.');
         }
     });
 }
 
+// Inicializa quando o DOM estiver pronto
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeLauncher);
 } else {
