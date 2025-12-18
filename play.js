@@ -1,8 +1,7 @@
 const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main'; 
 
-function log(msg, color = "#00ffff") {
-    console.log(`%c[Eclipse-System] ${msg}`, `color: ${color}; font-weight: bold;`);
-}
+// 1. Função de Log para sabermos onde para
+function debug(msg) { console.log('%c[Eclipse-Fix]', 'color: #ff9900; font-weight: bold;', msg); }
 
 async function fetchContent(path) {
     try {
@@ -12,82 +11,67 @@ async function fetchContent(path) {
 }
 
 function init() {
-    log("Launcher pronto. A aguardar inputs...");
+    debug("Launcher iniciado.");
     const btn = document.getElementById("playBtn");
     const nickInp = document.getElementById("nickname");
     const skinInp = document.getElementById("skin");
 
-    if (!btn) return;
+    if (!btn) return debug("Erro: Botão não encontrado!");
 
-    // Ativa o botão imediatamente
+    // Recupera o que estava escrito antes do crash
+    if (localStorage.getItem('nickname')) nickInp.value = localStorage.getItem('nickname');
+    if (localStorage.getItem('skinUrl')) skinInp.value = localStorage.getItem('skinUrl');
+
     btn.disabled = false;
     btn.innerText = "Play Now";
-    btn.style.opacity = "1";
 
     btn.addEventListener("click", async () => {
         const nick = nickInp.value || "EclipsePlayer";
         const skin = skinInp.value || "";
         
-        log(`A preparar entrada para: ${nick}`);
-        btn.innerText = "Injecting Engine...";
-        btn.disabled = true;
-
-        // 1. Gravar dados (Onde o jogo vai ler)
+        // --- PASSO CRÍTICO: Guardar ANTES de injetar ---
         localStorage.setItem('nickname', nick);
         localStorage.setItem('skinUrl', skin);
-        window.Eclipse_Nickname = nick; 
+        debug("Dados guardados. A baixar motor...");
 
-        // 2. Buscar o Main.js
+        btn.innerText = "Downloading...";
+        btn.disabled = true;
+
         const mainCode = await fetchContent("main.js");
         if (!mainCode) {
             btn.innerText = "Error: main.js 404";
             return;
         }
 
-        log("Main.js descarregado. A forçar arranque...");
+        debug("Motor baixado. A injetar com proteção...");
 
-        // 3. Injeção e Gatilho de Conexão
+        // --- INJEÇÃO PROTEGIDA (O SEGREDO PARA NÃO CRASHAR) ---
         const script = document.createElement('script');
         script.textContent = `
             try {
-                // Injeta o código do jogo
+                // Forçamos o Nick no objeto global antes do jogo carregar
+                window.nickname = "${nick}";
+                window.skinUrl = "${skin}";
+
                 ${mainCode}
                 
-                console.log('[Eclipse] Motor injetado. A procurar função de connect...');
+                console.log('[Eclipse] Motor injetado com sucesso.');
 
-                // Tenta forçar a conexão de 100ms em 100ms até o jogo responder
-                let attempts = 0;
-                const forceStart = setInterval(() => {
-                    attempts++;
-                    
-                    // Procura pelo cliente do jogo no objeto global
-                    const game = window.client || window.game || window.Aetlis;
-                    
-                    if (game && (game.connect || game.init)) {
-                        console.log('[Eclipse] Motor encontrado! A ligar ao servidor...');
-                        if (game.connect) game.connect();
-                        else if (game.init) game.init();
-                        
-                        // Esconde a UI para veres o jogo
-                        document.getElementById('launcher-ui').style.display = 'none';
-                        document.body.style.background = 'none';
-                        
-                        clearInterval(forceStart);
-                    }
+                // Tenta esconder o launcher após o jogo carregar
+                setTimeout(() => {
+                    const ui = document.getElementById('launcher-ui');
+                    if(ui) ui.style.display = 'none';
+                    document.body.style.background = 'none';
+                }, 500);
 
-                    if (attempts > 50) { // Para de tentar após 5 segundos
-                        clearInterval(forceStart);
-                        console.log('[Eclipse] Timeout: O motor não respondeu ao comando connect.');
-                    }
-                }, 100);
-
-            } catch(e) {
-                console.error('[Eclipse] Erro na execução do main.js:', e);
+            } catch (err) {
+                console.error('[Eclipse] O Motor (main.js) crashou:', err);
+                alert("O jogo crashou ao iniciar. Vê a consola (F12) para o erro.");
             }
         `;
         document.body.appendChild(script);
     });
 }
 
-// Pequeno delay para garantir que o HTML está montado
-setTimeout(init, 200);
+// Pequeno delay para o DOM respirar
+setTimeout(init, 300);
