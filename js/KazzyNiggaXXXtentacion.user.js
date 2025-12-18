@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Deep Sync Fix
-// @version      9.0.0
+// @name         Eclipse - Instant Sync
+// @version      10.0.0
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -32,60 +32,42 @@
             const nick = nickInp.value || "EclipsePlayer";
             const skin = skinInp.value || "";
             
-            // 1. Salvar no nosso sistema
             localStorage.setItem('eclipse_nick', nick);
             localStorage.setItem('eclipse_skin', skin);
-
-            // 2. FORÇAR NO SISTEMA DO JOGO (Chaves comuns em clones de Vanis/Aetlis)
+            
+            // Forçar no storage para o próximo F5 (backup)
             localStorage.setItem('nickname', nick);
             localStorage.setItem('skinUrl', skin);
-            
-            // Se o jogo usa um objeto de definições complexo:
-            try {
-                let gameSettings = JSON.parse(localStorage.getItem('settings') || '{}');
-                gameSettings.nickname = nick;
-                gameSettings.skinUrl = skin;
-                localStorage.setItem('settings', JSON.stringify(gameSettings));
-            } catch(e) {}
 
-            // 3. SINCRONIZAR COM O MOTOR EM EXECUÇÃO
             if (window.client) {
-                // Tenta injetar em todas as propriedades possíveis
-                const targets = [window.client, window.client.settings, window.client.options];
-                targets.forEach(t => {
-                    if (t) {
-                        t.nickname = nick;
-                        t.skinUrl = skin;
-                        t.skin = skin;
-                    }
-                });
-
-                // 4. INTERCEPTAR O INPUT REAL (Simular digitação)
-                const realInput = document.querySelector('input[placeholder*="Nick"], #nickname:not(#eclipse-overlay #nickname)');
-                if (realInput) {
-                    realInput.value = nick;
-                    // Disparar a sequência completa de eventos que o jogo espera
-                    ['input', 'change', 'blur'].forEach(ev => {
-                        realInput.dispatchEvent(new Event(ev, { bubbles: true }));
-                    });
+                // 1. FORÇAR RE-LEITURA DE SETTINGS
+                if (window.client.settings) {
+                    window.client.settings.nickname = nick;
+                    window.client.settings.skinUrl = skin;
                 }
 
-                // 5. EXECUTAR CONEXÃO E SPAWN
-                if (window.client.connect) window.client.connect();
-                
+                // 2. CONECTAR SE NÃO ESTIVER CONECTADO
+                if (window.client.connect && !window.client.isConnected) {
+                    window.client.connect();
+                }
+
+                // 3. O PULO DO GATO: Chamar o spawn com os dados forçados
+                // Esperamos um pouco para o socket abrir
                 setTimeout(() => {
-                    if (window.client.spawn) {
-                        console.log("[Eclipse] Enviando spawn forçado para:", nick);
+                    if (typeof window.client.spawn === 'function') {
+                        console.log("[Eclipse] Forçando Spawn Direto...");
+                        // No motor do Aetlis, o spawn aceita o nick como argumento
                         window.client.spawn(nick);
                     }
-                }, 800);
+                }, 500);
             }
 
             overlay.remove();
+            // Disparar um resize para o jogo acordar o motor gráfico
+            window.dispatchEvent(new Event('resize'));
         };
     }
 
-    // Usamos um intervalo curto para garantir que o body já existe mas o jogo ainda não "trancou" os dados
     const checkBody = setInterval(() => {
         if (document.body) {
             clearInterval(checkBody);
