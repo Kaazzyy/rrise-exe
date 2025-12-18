@@ -1,31 +1,16 @@
 // ==UserScript==
-// @name         Eclipse - Official Injector
-// @version      2.0.0
-// @description  Bypass Anti-Mod by using official assets
+// @name         Eclipse - Official Injector (Forced UI)
+// @version      2.1.0
+// @description  Garante que o Launcher aparece sobre o jogo
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
 // ==/UserScript==
 
-(async () => {
+(function() {
     'use strict';
-
     const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main';
 
-    // 1. Bloquear o carregamento do Launcher original (se existir)
-    const observer = new MutationObserver((mutations) => {
-        for (let mutation of mutations) {
-            for (let node of mutation.addedNodes) {
-                // Se o jogo tentar criar a UI dele, nós podemos esconder aqui
-                if (node.id === 'main-ui' || node.className === 'vanis-ui') {
-                    node.style.display = 'none';
-                }
-            }
-        }
-    });
-    observer.observe(document.documentElement, { childList: true, subtree: true });
-
-    // 2. Baixar o teu HTML e play.js do GitHub
     async function loadEclipse() {
         try {
             const [html, playJs] = await Promise.all([
@@ -33,29 +18,27 @@
                 fetch(`${RAW_BASE_URL}/play.js?t=${Date.now()}`).then(r => r.text())
             ]);
 
-            // Criar um container para o teu launcher
-            const eclipseContainer = document.createElement('div');
-            eclipseContainer.id = "eclipse-wrapper";
-            eclipseContainer.innerHTML = html;
-            document.documentElement.appendChild(eclipseContainer);
+            // Criar um container de alta prioridade
+            const wrapper = document.createElement('div');
+            wrapper.id = "eclipse-main-wrapper";
+            wrapper.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; z-index:999999; background:#000;";
+            wrapper.innerHTML = html;
+            document.documentElement.appendChild(wrapper);
 
-            // Injetar o teu play.js
+            // Injetar o play.js
             const script = document.createElement('script');
             script.textContent = playJs + `\n//# sourceURL=${RAW_BASE_URL}/play.js`;
             document.body.appendChild(script);
 
-            console.log('[Eclipse] UI Injetada com sucesso.');
-        } catch (e) {
-            console.error('[Eclipse] Erro ao carregar UI:', e);
-        }
+            console.log('[Eclipse] Launcher forçado no topo.');
+        } catch (e) { console.error('[Eclipse] Erro:', e); }
     }
 
-    // Esperar o body existir para injetar a UI
-    const checkBody = setInterval(() => {
-        if (document.body) {
-            clearInterval(checkBody);
+    // Tentar injetar assim que o document.documentElement estiver disponível
+    const check = setInterval(() => {
+        if (document.documentElement) {
+            clearInterval(check);
             loadEclipse();
         }
-    }, 50);
-
+    }, 10);
 })();
