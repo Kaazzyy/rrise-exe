@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Eclipse - FINAL FIX (Inline Vendor)
-// @version      1.7.0
-// @description  Aetlis.io Custom Launcher (Força Vendor.js INLINE)
+// @name         Eclipse - Official Injector
+// @version      2.0.0
+// @description  Bypass Anti-Mod by using official assets
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -9,91 +9,53 @@
 
 (async () => {
     'use strict';
-    
+
     const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main';
-    
-    // --- 🚫 AdBlock Bypass: ESSENCIAL MANTER ---
-    window.aiptag = window.aiptag || {};
-    window.aiptag.cmd = window.aiptag.cmd || [];
-    window.aiptag.cmd.push = function(fn) { try { fn(); } catch(e){} };
-    window.aiptag.cmd.display = function() { console.log('[Eclipse] AdInPlay: Display mocked.'); };
-    window.AdInPlay = { isLoaded: true, started: true };
-    window.aiptag.loaded = true;
-    window.isAdBlocked = false;
-    window.adinplay = { 
-        create: () => {}, 
-        destroy: () => {}, 
-        isLoaded: true,
-        call: (method, ...args) => { console.log(`[Eclipse] AdInPlay method called: ${method}`); return true; }
-    };
-    // ------------------------------------------
-    
-    // Log function for debugging
-    const log = (msg) => { console.log('[Eclipse]', msg); };
 
-    async function fetchContent(path) {
-        try {
-            const res = await fetch(`${RAW_BASE_URL}/${path}?t=${Date.now()}`);
-            if (!res.ok) {
-                log(`Fetch failed for: ${path} ${res.status}. CHECK GITHUB PATH!`);
-                return null;
+    // 1. Bloquear o carregamento do Launcher original (se existir)
+    const observer = new MutationObserver((mutations) => {
+        for (let mutation of mutations) {
+            for (let node of mutation.addedNodes) {
+                // Se o jogo tentar criar a UI dele, nós podemos esconder aqui
+                if (node.id === 'main-ui' || node.className === 'vanis-ui') {
+                    node.style.display = 'none';
+                }
             }
-            return await res.text();
-        } catch (e) {
-            log(`Fetch error for ${path}: ${e}`);
-            return null;
         }
-    }
-    
-    // Ecrã de Loading Simples
-    document.documentElement.innerHTML = '<body><h1 style="color:white;text-align:center;margin-top:20vh;">A carregar ficheiros Eclipse...</h1></body>';
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
 
+    // 2. Baixar o teu HTML e play.js do GitHub
+    async function loadEclipse() {
+        try {
+            const [html, playJs] = await Promise.all([
+                fetch(`${RAW_BASE_URL}/index.html?t=${Date.now()}`).then(r => r.text()),
+                fetch(`${RAW_BASE_URL}/play.js?t=${Date.now()}`).then(r => r.text())
+            ]);
 
-    try {
-        log('A buscar ficheiros essenciais (index.html, vendor.js, play.js)...');
-        
-        // Buscar todos os 3 ficheiros
-        const [htmlContent, vendorContent, playJsContent] = await Promise.all([
-            fetchContent('index.html'),
-            fetchContent('vendor.js'),
-            fetchContent('play.js')
-        ]);
+            // Criar um container para o teu launcher
+            const eclipseContainer = document.createElement('div');
+            eclipseContainer.id = "eclipse-wrapper";
+            eclipseContainer.innerHTML = html;
+            document.documentElement.appendChild(eclipseContainer);
 
-        if (!htmlContent || !vendorContent || !playJsContent) {
-            throw new Error("Falha ao carregar um ou mais ficheiros essenciais do GitHub.");
-        }
-
-        log('Ficheiros baixados. A injetar o Vendor.js no HTML...');
-        
-        // 1. Inserir o vendor.js *antes* do fecho da tag </head>
-        // Isto é o MAIS SEGURO que podemos fazer para garantir o timing.
-        const injectedHtml = htmlContent.replace(
-            '</head>',
-            `    <script type="text/javascript" id="vendor-script">
-${vendorContent}
-    //# sourceURL=${RAW_BASE_URL}/vendor.js
-    </script>
-</head>`
-        );
-
-        // 2. Reescrever a página completamente com o Vendor.js já dentro
-        document.open();
-        document.write(injectedHtml);
-        document.close();
-        log('HTML e Vendor.js injetados.');
-
-
-        // 3. Injetar play.js, que agora não precisa de carregar o vendor.js
-        const script = document.createElement('script');
-        script.textContent = playJsContent + `\n//# sourceURL=${RAW_BASE_URL}/play.js`;
-        // Timeout para dar tempo ao DOM de processar os elementos do Launcher
-        setTimeout(() => {
+            // Injetar o teu play.js
+            const script = document.createElement('script');
+            script.textContent = playJs + `\n//# sourceURL=${RAW_BASE_URL}/play.js`;
             document.body.appendChild(script);
-            log('play.js injetado. Launcher deve estar pronto.');
-        }, 50);
 
-    } catch (e) {
-        log(`ERRO CRÍTICO: ${e.message}`);
-        document.body.innerHTML = `<h1 style="color:red;text-align:center;margin-top:20vh;">ERRO NO LANÇAMENTO: ${e.message}</h1><p style="color:white;text-align:center;">Verifica o caminho dos ficheiros no GitHub.</p>`;
+            console.log('[Eclipse] UI Injetada com sucesso.');
+        } catch (e) {
+            console.error('[Eclipse] Erro ao carregar UI:', e);
+        }
     }
+
+    // Esperar o body existir para injetar a UI
+    const checkBody = setInterval(() => {
+        if (document.body) {
+            clearInterval(checkBody);
+            loadEclipse();
+        }
+    }, 50);
+
 })();
