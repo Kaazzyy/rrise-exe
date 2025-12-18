@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Play Fix & Dual
-// @version      4.0.0
+// @name         Eclipse - Error Fix
+// @version      4.1.0
 // @match        *://aetlis.io/*
 // @grant        none
 // ==/UserScript==
@@ -9,43 +9,40 @@
     'use strict';
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
-    async function init() {
+    async function loadUI() {
         const res = await fetch(`${GITHUB_URL}?t=${Date.now()}`);
         const html = await res.text();
 
-        const overlay = document.createElement('div');
-        overlay.id = "eclipse-init";
-        overlay.style.cssText = "position:fixed; inset:0; z-index:1000000; background:#000; display:flex; align-items:center; justify-content:center;";
-        overlay.innerHTML = html;
-        document.body.appendChild(overlay);
+        const eclipse = document.createElement('div');
+        eclipse.id = "eclipse-shield";
+        // O Shield bloqueia o ecrã até clicares no botão
+        eclipse.style.cssText = "position:fixed; inset:0; z-index:1000000; background:#000; display:flex; align-items:center; justify-content:center;";
+        eclipse.innerHTML = html;
+        document.body.appendChild(eclipse);
 
-        overlay.querySelector('#playBtn').onclick = () => {
-            // Ativa o modo visual
-            document.body.classList.add('eclipse-mode');
-
-            // Captura os dados
-            const vals = {
-                nick: document.querySelector('#nickname').value,
-                skin: document.querySelector('#skin').value,
-                dNick: document.querySelector('#dualNickname').value,
-                dSkin: document.querySelector('#dualSkin').value
+        eclipse.querySelector('#playBtn').onclick = () => {
+            const data = {
+                nick: eclipse.querySelector('#nickname').value,
+                skin: eclipse.querySelector('#skin').value,
+                dNick: eclipse.querySelector('#dualNickname').value,
+                dSkin: eclipse.querySelector('#dualSkin').value
             };
 
-            // Sincroniza Dual via LocalStorage (Caminho mais seguro no Aetlis)
-            if (vals.dNick) localStorage.setItem('dualNickname', vals.dNick);
-            if (vals.dSkin) localStorage.setItem('dualSkinUrl', vals.dSkin);
+            // 1. Sincroniza Dual no Storage
+            if (data.dNick) localStorage.setItem('dualNickname', data.dNick);
+            if (data.dSkin) localStorage.setItem('dualSkinUrl', data.dSkin);
 
-            // Sincroniza Nick Principal
-            const gameInput = document.querySelector('input[placeholder*="Nick"], .input-text');
-            if (gameInput) {
-                gameInput.value = vals.nick;
-                gameInput.dispatchEvent(new Event('input', { bubbles: true }));
+            // 2. Tenta preencher o nick no input do jogo
+            const gameNick = document.querySelector('input[placeholder*="Nick"], .input-text');
+            if (gameNick) {
+                gameNick.value = data.nick;
+                gameNick.dispatchEvent(new Event('input', { bubbles: true }));
             }
 
-            // Remove o launcher para libertar o botão de Play original
-            overlay.remove();
+            // 3. Destrói o escudo para permitir interação com o Play original
+            eclipse.remove();
         };
     }
 
-    const check = setInterval(() => { if (document.body) { clearInterval(check); init(); } }, 200);
+    const check = setInterval(() => { if (document.body) { clearInterval(check); loadUI(); } }, 200);
 })();
