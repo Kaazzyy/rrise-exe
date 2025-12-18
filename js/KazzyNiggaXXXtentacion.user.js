@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Eclipse - UI Force Overhaul
-// @version      5.6.3
+// @version      5.6.4
 // @match        *://aetlis.io/*
 // @run-at       document-end
 // @grant        none
@@ -14,7 +14,6 @@
 
     async function loadEclipse() {
         try {
-            // Adiciona timestamp para evitar cache
             const response = await fetch(`${GITHUB_URL}?t=${Date.now()}`);
             const html = await response.text();
 
@@ -34,11 +33,9 @@
                     s2: document.getElementById('dual-skin').value
                 };
 
-                // Salvar dados Dual
                 if (data.n2) localStorage.setItem('dualNickname', data.n2);
                 if (data.s2) localStorage.setItem('dualSkinUrl', data.s2);
 
-                // Preencher inputs do jogo
                 document.querySelectorAll('input').forEach(i => {
                     if (i.placeholder?.toLowerCase().includes('nick')) { 
                         i.value = data.n1; 
@@ -56,7 +53,7 @@
                     /* 1. Fundo escuro */
                     #overlay { background: rgba(5,5,8,0.8) !important; }
                     
-                    /* 2. REGRA GERAL (Aplica o roxo nos painéis principais E NAS SKINS) */
+                    /* 2. REGRA GERAL (Painéis Quadrados/Arredondados) */
                     main-container, [class*="container"], [class*="box"], .main-container {
                         background-color: #0d0d0f !important;
                         background-image: none !important;
@@ -65,9 +62,16 @@
                         box-shadow: 0 0 25px rgba(124, 58, 237, 0.4) !important;
                     }
 
-                    /* 3. EXCEÇÕES APENAS PARA RODAPÉ E PRIVACIDADE (Skins foram removidas daqui) */
-                    
-                    /* PRIVACY / TERMS / FOOTER: Remove borda dos links lá em baixo */
+                    /* 3. AJUSTE ESPECÍFICO PARA SKINS (Redondas) */
+                    /* Força o contorno a ser um círculo perfeito para acompanhar a skin */
+                    [class*="skin"], .skin-preview, img[src*="skin"] {
+                        border-radius: 50% !important; /* Transforma o quadrado em círculo */
+                        border: 2px solid #7c3aed !important;
+                        box-shadow: 0 0 15px rgba(124, 58, 237, 0.5) !important;
+                        background-color: transparent !important; /* Remove fundo preto quadrado se houver */
+                    }
+
+                    /* 4. EXCEÇÕES (Remove roxo do Privacy/Terms) */
                     div:has(> a[href*="privacy"]), 
                     div:has(> a[href*="terms"]),
                     div:has(> .text-muted),
@@ -76,24 +80,25 @@
                         border: none !important;
                         box-shadow: none !important;
                         background: transparent !important;
+                        border-radius: 0 !important;
                     }
 
-                    /* Remove borda direta dos links de texto */
                     a[href*="privacy"], a[href*="terms"], .text-muted {
                         border: none !important;
                         background: transparent !important;
                         box-shadow: none !important;
                     }
 
-                    /* 4. BOTÕES */
+                    /* 5. BOTÕES */
                     button, .play-btn, [class*="btn-primary"], .primary {
                         background: linear-gradient(135deg, #7c3aed, #4f46e5) !important;
                         border: none !important;
                         color: white !important;
                         box-shadow: 0 4px 10px rgba(124, 58, 237, 0.5) !important;
+                        border-radius: 8px !important;
                     }
 
-                    /* 5. IN-GAME */
+                    /* 6. IN-GAME */
                     body.playing #overlay { 
                         backdrop-filter: none !important; 
                         background: transparent !important; 
