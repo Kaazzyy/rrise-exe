@@ -66,7 +66,7 @@
                     /* Força o contorno a ser um círculo perfeito para acompanhar a skin */
                     [class*="skin"], .skin-preview, img[src*="skin"] {
                         border-radius: 50% !important; /* Transforma o quadrado em círculo */
-                        border: 2px solid #7c3aed !important;
+                        border: 1px solid #7c3aed !important;
                         box-shadow: 0 0 15px rgba(124, 58, 237, 0.5) !important;
                         background-color: transparent !important; /* Remove fundo preto quadrado se houver */
                     }
