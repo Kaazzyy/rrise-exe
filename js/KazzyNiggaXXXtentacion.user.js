@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - UI & HUD Fix
-// @version      5.5.0
+// @name         Eclipse - UI Force Overhaul
+// @version      5.6.0
 // @match        *://aetlis.io/*
 // @run-at       document-end
 // @grant        none
@@ -15,54 +15,62 @@
             const response = await fetch(`${GITHUB_URL}?t=${Date.now()}`);
             const html = await response.text();
 
-            const overlay = document.createElement('div');
-            overlay.id = "eclipse-init-screen";
-            overlay.style.cssText = "position:fixed; inset:0; z-index:9999999; background:#000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);";
-            overlay.innerHTML = html;
-            document.body.appendChild(overlay);
+            const launcher = document.createElement('div');
+            launcher.id = "eclipse-launcher";
+            launcher.style.cssText = "position:fixed; inset:0; z-index:9999999; background:rgba(0,0,0,0.95); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);";
+            launcher.innerHTML = html;
+            document.body.appendChild(launcher);
 
-            overlay.querySelector('#btn-activate').onclick = function() {
-                const n1 = document.getElementById('main-nick').value;
-                const s1 = document.getElementById('main-skin').value;
-                const n2 = document.getElementById('dual-nick').value;
-                const s2 = document.getElementById('dual-skin').value;
+            launcher.querySelector('#btn-activate').onclick = function() {
+                const data = {
+                    n1: document.getElementById('main-nick').value,
+                    s1: document.getElementById('main-skin').value,
+                    n2: document.getElementById('dual-nick').value,
+                    s2: document.getElementById('dual-skin').value
+                };
 
-                // Sync Duals
-                if (n2) localStorage.setItem('dualNickname', n2);
-                if (s2) localStorage.setItem('dualSkinUrl', s2);
+                // Sync Dados
+                if (data.n2) localStorage.setItem('dualNickname', data.n2);
+                if (data.s2) localStorage.setItem('dualSkinUrl', data.s2);
 
-                // Injetar no Jogo (Busca profunda de inputs)
+                // Preencher Nick/Skin Principal
                 document.querySelectorAll('input').forEach(i => {
-                    if (i.placeholder?.includes('Nick')) { i.value = n1; i.dispatchEvent(new Event('input', { bubbles: true })); }
-                    if (i.placeholder?.includes('Skin')) { i.value = s1; i.dispatchEvent(new Event('input', { bubbles: true })); }
+                    if (i.placeholder?.toLowerCase().includes('nick')) { i.value = data.n1; i.dispatchEvent(new Event('input', { bubbles: true })); }
+                    if (i.placeholder?.toLowerCase().includes('skin')) { i.value = data.s1; i.dispatchEvent(new Event('input', { bubbles: true })); }
                 });
 
-                // INJEÇÃO DE CSS INTELIGENTE
+                // INJEÇÃO AGRESSIVA DE CSS
                 const style = document.createElement('style');
                 style.innerText = `
-                    /* Só aplica o borrão se o menu estiver visível */
-                    body:not(.playing) #overlay[style*="display: block"], 
-                    body:not(.playing) #overlay:not([style*="display: none"]) {
-                        background: rgba(8,8,12,0.8) !important;
-                        backdrop-filter: blur(15px) !important;
-                        display: flex !important;
-                    }
+                    /* Alvos principais do Aetlis */
+                    #overlay { background: rgba(5,5,8,0.8) !important; }
                     
-                    /* Remove borrão quando o menu some */
-                    #overlay[style*="display: none"] { backdrop-filter: none !important; }
-
-                    /* Estilo dos painéis */
-                    main-container, box-container { 
-                        border: 2px solid #7c3aed !important; 
-                        background: #0d0d0f !important; 
-                        box-shadow: 0 0 20px rgba(124,58,237,0.3) !important;
+                    /* Esta regra força o estilo em quase tudo que é painel */
+                    main-container, [class*="container"], [class*="box"], .main-container {
+                        background-color: #0d0d0f !important;
+                        background-image: none !important;
+                        border: 2px solid #7c3aed !important;
+                        border-radius: 15px !important;
+                        box-shadow: 0 0 25px rgba(124, 58, 237, 0.4) !important;
                     }
 
-                    .play-btn, button.primary { background: #7c3aed !important; }
+                    /* Forçar Botões */
+                    button, .play-btn, [class*="btn-primary"], .primary {
+                        background: linear-gradient(135deg, #7c3aed, #4f46e5) !important;
+                        border: none !important;
+                        color: white !important;
+                        box-shadow: 0 4px 10px rgba(124, 58, 237, 0.5) !important;
+                    }
+
+                    /* Ajuste In-Game (Remove borrão ao jogar) */
+                    body.playing #overlay { backdrop-filter: none !important; background: transparent !important; }
                 `;
                 document.head.appendChild(style);
 
-                overlay.remove();
+                // Adiciona uma classe ao body para o CSS saber que estamos no modo Eclipse
+                document.body.classList.add('eclipse-active');
+
+                launcher.remove();
             };
         } catch (err) { console.error(err); }
     }
