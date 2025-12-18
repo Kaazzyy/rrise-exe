@@ -1,5 +1,5 @@
 <style>
-    /* LAUNCHER ECLIPSE */
+    /* Launcher UI */
     #eclipse-ui-container {
         background: #0d0d0f !important;
         border: 2px solid #7c3aed !important;
@@ -8,58 +8,46 @@
         width: 380px !important;
         color: white !important;
         font-family: 'Space Grotesk', sans-serif !important;
-        box-shadow: 0 0 30px rgba(124, 58, 237, 0.4) !important;
     }
 
-    /* OVERRIDE DO MENU ORIGINAL */
-    /* Usando o ID exato do teu index.html */
+    /* Override Visual sem quebrar o clique */
     body.eclipse-mode #overlay {
         background: rgba(0, 0, 0, 0.85) !important;
         backdrop-filter: blur(10px) !important;
     }
 
-    /* Atacando o componente Vue principal */
-    body.eclipse-mode main-container {
-        background: rgba(15, 15, 20, 0.8) !important;
-        border: 1px solid #7c3aed !important;
-        border-radius: 15px !important;
-        box-shadow: 0 0 20px rgba(124, 58, 237, 0.2) !important;
-    }
-
-    /* Botão Play do Jogo */
+    /* Muda a cor do botão PLAY original sem mudar o elemento */
     body.eclipse-mode .play-btn, 
-    body.eclipse-mode button.primary {
-        background: #7c3aed !important;
-        color: white !important;
-        border: none !important;
-        box-shadow: 0 5px 15px rgba(124, 58, 237, 0.4) !important;
+    body.eclipse-mode button.primary,
+    body.eclipse-mode main-container button {
+        background-color: #7c3aed !important;
+        background-image: none !important; /* Remove gradientes originais */
+        filter: hue-rotate(250deg) brightness(1.2) !important; 
+        cursor: pointer !important;
+        pointer-events: auto !important; /* Garante que o clique funciona */
     }
 
-    .input-wrapper { margin-bottom: 12px; }
-    .input-wrapper label { display: block; font-size: 10px; color: #7c3aed; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
-    .input-wrapper input { width: 100%; background: #16161a; border: 1px solid #333; color: white; padding: 10px; border-radius: 8px; }
+    .input-wrapper { margin-bottom: 15px; }
+    .input-wrapper label { display: block; font-size: 10px; color: #7c3aed; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
+    .input-wrapper input { width: 100%; background: #16161a; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; }
 </style>
 
 <div id="eclipse-ui-container">
-    <h2 style="text-align:center; margin-bottom:20px;">ECLIPSE UI</h2>
+    <h2 style="text-align:center; margin-bottom:20px;">ECLIPSE v4.0</h2>
     
     <div class="input-wrapper">
-        <label>Main Player</label>
-        <input type="text" id="nickname" placeholder="Nick">
-        <input type="text" id="skin" placeholder="Skin URL" style="margin-top:5px;">
+        <label>Principal</label>
+        <input type="text" id="nickname" placeholder="Nickname">
+        <input type="text" id="skin" placeholder="Skin URL" style="margin-top:8px;">
     </div>
 
-    <div style="margin-top:15px; border-top:1px solid #222; padding-top:15px;">
-        <label style="display:block; font-size:10px; color:#7c3aed; font-weight:bold; text-transform:uppercase; margin-bottom:10px;">Dual Multibox</label>
-        <div class="input-wrapper">
-            <input type="text" id="dualNickname" placeholder="Dual Nick">
-        </div>
-        <div class="input-wrapper">
-            <input type="text" id="dualSkin" placeholder="Dual Skin URL">
-        </div>
+    <div style="margin-top:20px; border-top:1px solid #222; padding-top:20px;">
+        <label style="display:block; font-size:10px; color:#7c3aed; font-weight:bold; text-transform:uppercase;">Dual Identity</label>
+        <input type="text" id="dualNickname" placeholder="Dual Nick" style="width:100%; background:#16161a; border:1px solid #333; color:white; padding:12px; border-radius:8px; margin-top:10px;">
+        <input type="text" id="dualSkin" placeholder="Dual Skin URL" style="width:100%; background:#16161a; border:1px solid #333; color:white; padding:12px; border-radius:8px; margin-top:8px;">
     </div>
 
-    <button id="playBtn" style="width:100%; padding:15px; background:#7c3aed; color:white; border:none; border-radius:10px; margin-top:10px; font-weight:bold; cursor:pointer;">
-        APPLY & SYNC
+    <button id="playBtn" style="width:100%; padding:16px; background:#7c3aed; color:white; border:none; border-radius:12px; margin-top:20px; font-weight:bold; cursor:pointer;">
+        SYNC & PLAY
     </button>
 </div>
