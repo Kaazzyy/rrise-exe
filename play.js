@@ -1,44 +1,33 @@
-const MAIN_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/main.js';
-
-function init() {
+function initEclipse() {
+    console.log("[Eclipse] Play.js carregado.");
     const btn = document.getElementById("playBtn");
     if (!btn) return;
 
+    // Ativa o botão à força
+    btn.disabled = false;
+    btn.innerText = "Play Now";
+
     btn.onclick = async () => {
         const nick = document.getElementById("nickname").value || "Player";
-        const skin = document.getElementById("skin").value || "";
-
         localStorage.setItem('nickname', nick);
-        localStorage.setItem('skinUrl', skin);
         
-        btn.innerText = "INJECTING...";
-        btn.disabled = true;
-
-        try {
-            const response = await fetch(`${MAIN_URL}?t=${Date.now()}`);
-            const code = await response.text();
-
-            // Injeção via Blob: Isola a execução do motor pesado
-            const blob = new Blob([code], { type: 'application/javascript' });
-            const url = URL.createObjectURL(blob);
-            const script = document.createElement('script');
-            script.src = url;
-            
-            script.onload = () => {
-                console.log("[Eclipse] Motor Main carregado!");
-                setTimeout(() => {
-                    const ui = document.getElementById('launcher-wrapper');
-                    if (ui) ui.style.display = 'none';
-                    document.body.style.background = 'none';
-                }, 1500);
-            };
-
-            document.head.appendChild(script);
-        } catch (e) {
-            console.error("[Eclipse] Falha na injeção:", e);
-            btn.disabled = false;
-        }
+        btn.innerText = "Loading Engine...";
+        
+        // Injeção direta do motor
+        const s = document.createElement('script');
+        s.src = `https://raw.githubusercontent.com/kaazzyy/Eclipse/main/main.js?t=${Date.now()}`;
+        document.head.appendChild(s);
+        
+        console.log("[Eclipse] Main.js solicitado ao GitHub.");
     };
 }
 
-setTimeout(init, 300);
+// Tenta iniciar várias vezes caso o HTML demore a renderizar
+let attempts = 0;
+const checkExist = setInterval(() => {
+    if (document.getElementById("playBtn")) {
+        initEclipse();
+        clearInterval(checkExist);
+    }
+    if (++attempts > 20) clearInterval(checkExist);
+}, 200);
