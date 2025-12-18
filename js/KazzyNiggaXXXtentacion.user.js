@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - UI Overhaul Engine
-// @version      30.0.0
+// @name         Eclipse - Main Menu Overhaul
+// @version      32.0.0
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -17,53 +17,42 @@
 
         const overlay = document.createElement('div');
         overlay.id = "eclipse-overlay";
-        overlay.style.cssText = "position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(8px);";
+        overlay.style.cssText = "position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);";
         overlay.innerHTML = html;
         document.body.appendChild(overlay);
 
         const btn = overlay.querySelector('#playBtn');
-        const fields = {
-            nick: overlay.querySelector('#nickname'),
-            skin: overlay.querySelector('#skin'),
-            dNick: overlay.querySelector('#dualNickname'),
-            dSkin: overlay.querySelector('#dualSkin')
-        };
-
-        Object.keys(fields).forEach(k => fields[k].value = localStorage.getItem('eclipse_' + k) || "");
-
+        
         btn.onclick = () => {
+            // Ativa a classe que dispara o CSS do Menu Principal
+            document.body.classList.add('eclipse-ui-active');
+
+            // Sincronização de dados (Mantendo o que já funciona)
             const vals = {
-                nick: fields.nick.value,
-                skin: fields.skin.value.trim(),
-                dNick: fields.dNick.value.trim(),
-                dSkin: fields.dSkin.value.trim()
+                nick: document.querySelector('#nickname').value,
+                skin: document.querySelector('#skin').value.trim(),
+                dNick: document.querySelector('#dualNickname').value,
+                dSkin: document.querySelector('#dualSkin').value.trim()
             };
 
-            Object.keys(vals).forEach(k => localStorage.setItem('eclipse_' + k, vals[k]));
-
-            // --- ATIVAR NOVO VISUAL DO JOGO ---
-            document.body.classList.add('eclipse-ingame-ui');
-
-            // Lógica de Skins e Dual (Mantida da v28 que funcionou)
+            // Salvar
+            localStorage.setItem('eclipse_nick', vals.nick);
+            localStorage.setItem('eclipse_skin', vals.skin);
             if (vals.dNick) localStorage.setItem('dualNickname', vals.dNick);
             if (vals.dSkin) localStorage.setItem('dualSkinUrl', vals.dSkin);
 
-            // Injeção de dados e Spawn
+            // Injetar nos campos do jogo original
             setTimeout(() => {
-                const nInp = document.querySelector('input[placeholder*="Nick"]:not(#eclipse-overlay input)');
-                const sInp = document.querySelector('input[placeholder*="Skin"]:not(#eclipse-overlay input)');
-                
-                if (nInp) nInp.value = vals.nick;
-                if (sInp && vals.skin.startsWith('http')) sInp.value = vals.skin;
-                [nInp, sInp].forEach(el => el && el.dispatchEvent(new Event('input', { bubbles: true })));
-
-                if (window.client) {
-                    window.client.connect?.();
-                    setTimeout(() => window.client.spawn?.(vals.nick), 500);
+                const gameNick = document.querySelector('input[placeholder*="Nickname"]:not(#eclipse-overlay input), .input-text:not(#eclipse-overlay input)');
+                if (gameNick) {
+                    gameNick.value = vals.nick;
+                    gameNick.dispatchEvent(new Event('input', { bubbles: true }));
                 }
+                
+                // Remove o overlay para revelar o novo menu transformado
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.remove(), 500);
             }, 200);
-
-            overlay.remove();
         };
     }
 
