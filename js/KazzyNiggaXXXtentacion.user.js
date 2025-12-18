@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name         Eclipse - Final Emergency Fix
-// @version      5.0.0
-// @description  Força centralização absoluta e remove lixo do site original
+// @name         Eclipse - Premium UI Fix
+// @version      6.0.0
+// @description  UI Instantânea e Visual Corrigido
 // @author       Kazzy
 // @match        *://aetlis.io/*
-// @run-at       document-end
+// @run-at       document-start
 // ==/UserScript==
 
 (function() {
@@ -15,66 +15,83 @@
         try {
             const html = await fetch(`${RAW_BASE_URL}/index.html?t=${Date.now()}`).then(r => r.text());
 
-            // 1. Limpar estilos do body original que podem estar a empurrar o menu
-            document.body.style.margin = "0";
-            document.body.style.padding = "0";
-            document.body.style.overflow = "hidden";
-
-            // 2. Criar o Host do Launcher
             const host = document.createElement('div');
             host.id = "eclipse-host";
-            // Usamos Fixed + Flex para garantir centro absoluto independente do site
-            host.style.cssText = `
-                position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100vw !important;
-                height: 100vh !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                z-index: 2147483647 !important;
-                background: rgba(0, 0, 0, 0.85) !important;
-            `;
+            host.style.cssText = "position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:2147483647; background:rgba(0,0,0,0.8); backdrop-filter:blur(4px);";
             
-            // 3. Injetar o HTML (Limpando as classes que podem dar conflito no topo)
+            // Injetamos o CSS Crítico aqui para não haver delay de 1 segundo
             host.innerHTML = `
-                <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-                <div style="width: 100%; max-width: 450px; padding: 20px;">
+                <style>
+                    #launcher-ui {
+                        background: #111113 !important;
+                        border: 1px solid #27272a !important;
+                        border-radius: 24px !important;
+                        padding: 40px !important;
+                        width: 420px !important;
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
+                        color: white !important;
+                        font-family: 'Inter', sans-serif !important;
+                    }
+                    input {
+                        background: #1c1c1f !important;
+                        border: 1px solid #3f3f46 !important;
+                        color: white !important;
+                        border-radius: 12px !important;
+                        padding: 12px !important;
+                        width: 100% !important;
+                        margin-top: 8px !important;
+                        margin-bottom: 16px !important;
+                        outline: none !important;
+                    }
+                    input:focus { border-color: #8b5cf6 !important; }
+                    button {
+                        background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%) !important;
+                        color: white !important;
+                        font-weight: bold !important;
+                        padding: 14px !important;
+                        border-radius: 12px !important;
+                        cursor: pointer !important;
+                        border: none !important;
+                        width: 100% !important;
+                        transition: opacity 0.2s !important;
+                    }
+                    button:hover { opacity: 0.9 !important; }
+                    label { font-size: 14px !important; color: #a1a1aa !important; font-weight: 500 !important; }
+                </style>
+                <div id="launcher-ui">
                     ${html}
                 </div>
             `;
             document.body.appendChild(host);
 
-            // 4. Lógica do Botão
-            const playBtn = host.querySelector('#playBtn');
-            const nickInp = host.querySelector('#nickname');
+            // Lógica
+            const playBtn = host.querySelector('#playBtn') || host.querySelector('button');
+            const nickInp = host.querySelector('#nickname') || host.querySelector('input[type="text"]');
             const skinInp = host.querySelector('#skin');
 
             if (playBtn) {
                 nickInp.value = localStorage.getItem('nickname') || "";
-                skinInp.value = localStorage.getItem('skinUrl') || "";
+                if(skinInp) skinInp.value = localStorage.getItem('skinUrl') || "";
 
                 playBtn.onclick = () => {
-                    const nick = nickInp.value || "Eclipse";
-                    localStorage.setItem('nickname', nick);
-                    localStorage.setItem('skinUrl', skinInp.value);
-
-                    // Tentar dar spawn
+                    localStorage.setItem('nickname', nickInp.value);
+                    if(skinInp) localStorage.setItem('skinUrl', skinInp.value);
+                    
                     if (window.client) {
-                        if (window.client.settings) window.client.settings.nickname = nick;
+                        if (window.client.settings) window.client.settings.nickname = nickInp.value;
                         if (window.client.connect) window.client.connect();
-                        setTimeout(() => { if (window.client.spawn) window.client.spawn(nick); }, 500);
+                        setTimeout(() => { if (window.client.spawn) window.client.spawn(nickInp.value); }, 500);
                     }
-
-                    // Fechar e limpar
                     host.remove();
-                    window.dispatchEvent(new Event('resize'));
                 };
             }
-        } catch (e) { console.error('Eclipse Error:', e); }
+        } catch (e) { console.error('Eclipse UI Error:', e); }
     }
 
-    // Pequeno atraso para garantir que o body do jogo não apague o nosso launcher
-    setTimeout(loadEclipse, 500);
+    const check = setInterval(() => {
+        if (document.body) {
+            clearInterval(check);
+            loadEclipse();
+        }
+    }, 100);
 })();
