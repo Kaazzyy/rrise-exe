@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Smart Skin Engine
-// @version      21.0.0
+// @name         Eclipse - Vue.js Force Injection
+// @version      22.0.0
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -11,12 +11,13 @@
     'use strict';
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
-    function injectData(el, value) {
+    // FUNÇÃO MESTRE: Força o valor em campos protegidos por frameworks (Vue/React)
+    function setInput(el, value) {
         if (!el) return;
-        el.focus();
-        el.value = value;
-        // Dispara a sequência de eventos que o Vue/React costumam monitorizar
-        ['input', 'change', 'keyup', 'blur'].forEach(t => el.dispatchEvent(new Event(t, { bubbles: true })));
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+        nativeInputValueSetter.call(el, value);
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
     async function init() {
@@ -30,47 +31,41 @@
         document.body.appendChild(overlay);
 
         const btn = overlay.querySelector('#playBtn');
-        const nInput = overlay.querySelector('#nickname');
-        const sInput = overlay.querySelector('#skin');
+        const nickField = overlay.querySelector('#nickname');
+        const skinField = overlay.querySelector('#skin');
 
-        nInput.value = localStorage.getItem('eclipse_nick') || "";
-        sInput.value = localStorage.getItem('eclipse_skin') || "";
+        nickField.value = localStorage.getItem('eclipse_nick') || "";
+        skinField.value = localStorage.getItem('eclipse_skin') || "";
 
         btn.onclick = () => {
-            const nick = nInput.value;
-            const skin = sInput.value.trim();
+            const nickValue = nickField.value;
+            const skinValue = skinField.value.trim();
 
-            localStorage.setItem('eclipse_nick', nick);
-            localStorage.setItem('eclipse_skin', skin);
+            localStorage.setItem('eclipse_nick', nickValue);
+            localStorage.setItem('eclipse_skin', skinValue);
 
-            // --- DETEÇÃO DE SKIN PRESENTE ---
-            // Procuramos por todas as imagens de skin no contentor do jogo
-            const allSkins = Array.from(document.querySelectorAll('img.skin, .skin-item img'));
-            const alreadyExists = allSkins.some(img => img.src && (img.src.includes(skin) || skin.includes(img.src)));
+            // 1. Verificar se a skin já existe
+            const skinsOnPage = Array.from(document.querySelectorAll('.skin, .skin-item img'));
+            const exists = skinsOnPage.some(img => img.src && img.src.includes(skinValue));
 
-            if (skin !== "" && !alreadyExists) {
-                const addBtn = document.querySelector('.add-skin, img[src*="skin-add.png"], .btn-add-skin');
+            if (skinValue !== "" && !exists) {
+                const addBtn = document.querySelector('.add-skin, img[src*="skin-add.png"]');
                 if (addBtn) addBtn.click();
             }
 
-            // Aguarda o slot abrir/ser criado
+            // 2. Dar tempo para o novo slot ser o alvo
             setTimeout(() => {
-                const gameNick = document.querySelector('input[placeholder*="Nick"]:not(#eclipse-overlay input)');
+                const gameNick = document.querySelector('input[placeholder*="Nickname"]:not(#eclipse-overlay input)');
                 const gameSkin = document.querySelector('input[placeholder*="Skin"]:not(#eclipse-overlay input)');
 
-                injectData(gameNick, nick);
-                injectData(gameSkin, skin);
-
-                // Força o objeto do cliente para garantir que o Nick vai no spawn
-                if (window.client && window.client.settings) {
-                    window.client.settings.nickname = nick;
-                    window.client.settings.skinUrl = skin;
-                }
+                // Injeção forçada
+                setInput(gameNick, nickValue);
+                setInput(gameSkin, skinValue);
 
                 if (window.client && window.client.connect) window.client.connect();
                 
                 setTimeout(() => {
-                    if (window.client && window.client.spawn) window.client.spawn(nick);
+                    if (window.client && window.client.spawn) window.client.spawn(nickValue);
                 }, 500);
             }, 300);
 
