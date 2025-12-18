@@ -1,42 +1,49 @@
-const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main'; 
+const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/main.js';
 
-async function fetchContent(path) {
-    const res = await fetch(`${RAW_BASE_URL}/${path}?t=${Date.now()}`); 
-    return res.ok ? await res.text() : null;
-}
-
-async function start() {
-    console.log("%c[Eclipse] Launcher Ativo", "color: cyan");
+function init() {
     const btn = document.getElementById("playBtn");
-    if(!btn) return;
+    const nickInp = document.getElementById("nickname");
+    const skinInp = document.getElementById("skin");
 
-    btn.disabled = false;
-    btn.addEventListener("click", async () => {
-        btn.innerText = "CRITICAL BOOT...";
+    if (!btn) return;
+
+    // Recupera dados salvos
+    nickInp.value = localStorage.getItem('nickname') || "";
+    skinInp.value = localStorage.getItem('skinUrl') || "";
+
+    btn.onclick = async () => {
+        const nick = nickInp.value || "Player";
+        const skin = skinInp.value || "";
         
-        // 1. Carrega o Main.js
-        const code = await fetchContent("main.js");
-        if(!code) { alert("Erro ao baixar main.js do GitHub!"); return; }
+        // Salva para o jogo ler
+        localStorage.setItem('nickname', nick);
+        localStorage.setItem('skinUrl', skin);
+        
+        btn.innerText = "STARTING...";
+        btn.disabled = true;
 
-        console.log("[Eclipse] A injetar motor...");
+        // Baixa o main.js
+        const mainCode = await fetch(`${GITHUB_URL}?t=${Date.now()}`).then(r => r.text());
 
-        // 2. Injeção forçada com captura de erro absoluta
+        // Injeta o código do jogo
         const script = document.createElement('script');
         script.textContent = `
-            (function() {
-                try {
-                    console.log('[Eclipse] Executando Main.js...');
-                    ${code}
-                    console.log('[Eclipse] Execução concluída sem crashes de sintaxe.');
-                } catch (err) {
-                    console.error('[Eclipse] ERRO CRÍTICO NO MOTOR:');
-                    console.error(err.stack); // Isto vai mostrar a linha exata do erro
-                    alert("CRASH: " + err.message);
-                }
-            })();
+            try {
+                ${mainCode}
+                console.log("[Eclipse] Motor iniciado!");
+                // Esconde a interface
+                setTimeout(() => {
+                    document.getElementById('launcher-ui').style.display = 'none';
+                    document.body.style.background = 'none';
+                }, 800);
+            } catch(e) {
+                console.error("[Eclipse] Crash no Main:", e);
+                alert("Erro no motor do jogo. Verifica a consola.");
+            }
         `;
         document.body.appendChild(script);
-    });
+    };
 }
 
-setTimeout(start, 500);
+// Inicia
+setTimeout(init, 500);
