@@ -7,76 +7,78 @@ async function fetchContent(path) {
         const res = await fetch(`${RAW_BASE_URL}/${path}?t=${Date.now()}`); 
         if (!res.ok) throw new Error(`Erro ao baixar ${path}`);
         return await res.text();
-    } catch (e) { 
-        console.error(e);
-        return null; 
-    }
+    } catch (e) { return null; }
 }
 
 function initializeLauncher() {
-    log("Launcher pronto.");
-
     const playButton = document.getElementById("playBtn");
     const nickInput = document.getElementById("nickname");
     const skinInput = document.getElementById("skin");
     const launcherUI = document.getElementById("launcher-ui");
 
-    // Sincronizar UI com o que está salvo
+    // Sincronização da Skin e Nick logo ao abrir
     nickInput.value = localStorage.getItem('nickname') || "";
     skinInput.value = localStorage.getItem('skinUrl') || "";
 
-    playButton.addEventListener("click", async () => {
+    playButton.onclick = async () => {
         const nick = nickInput.value || "Eclipse Player";
         const skin = skinInput.value || "";
 
-        // Guardar para a próxima sessão
+        // Salvar dados
         localStorage.setItem('nickname', nick);
         localStorage.setItem('skinUrl', skin);
 
         playButton.disabled = true;
-        playButton.innerText = "Downloading Engine...";
+        playButton.innerText = "Loading Engine...";
 
-        // --- CARREGAMENTO SEQUENCIAL (Para evitar o Crash) ---
+        // Baixar os dois ficheiros em paralelo para ser mais rápido
+        const [vendorJs, mainJs] = await Promise.all([
+            fetchContent('vendor.js'),
+            fetchContent('main.js')
+        ]);
+
+        if (!vendorJs || !mainJs) {
+            alert("Erro ao baixar ficheiros do GitHub. Verifica a tua net.");
+            playButton.disabled = false;
+            return;
+        }
+
+        playButton.innerText = "Starting...";
+
+        // --- A SOLUÇÃO PARA O CRASH ---
+        // Criamos um único script que contém o motor e a lógica
+        const finalScript = document.createElement('script');
+        finalScript.type = 'text/javascript';
         
-        // 1. Baixar Vendor (Motor Gráfico)
-        const vendorJs = await fetchContent('vendor.js');
-        if (!vendorJs) return alert("Falha ao carregar vendor.js");
+        // Juntamos tudo: Vendor + Main + Comando de Start
+        finalScript.textContent = `
+            try {
+                ${vendorJs}
+                console.log('[Eclipse] Motor PIXI carregado.');
+                
+                ${mainJs}
+                console.log('[Eclipse] Lógica main.js carregada.');
 
-        // 2. Baixar Main (Lógica do Jogo)
-        const mainJs = await fetchContent('main.js');
-        if (!mainJs) return alert("Falha ao carregar main.js");
-
-        playButton.innerText = "Starting Game...";
-
-        // 3. Injeção em Ordem
-        const inject = (code, name) => {
-            const s = document.createElement('script');
-            s.textContent = code + `\n//# sourceURL=${RAW_BASE_URL}/${name}`;
-            document.head.appendChild(s);
-        };
-
-        // Injetar Vendor primeiro
-        inject(vendorJs, 'vendor.js');
-        
-        // Pequena pausa para o browser processar o motor gráfico
-        setTimeout(() => {
-            // Injetar Main + Lógica de Start
-            const boot = `
-                console.log('[Eclipse] Inicializando...');
-                if (window.client && window.client.connect) {
-                    window.client.connect();
-                }
+                // Forçar o início
                 setTimeout(() => {
+                    if (window.client && window.client.connect) window.client.connect();
+                    
+                    // Esconder UI e limpar background
                     const ui = document.getElementById('launcher-ui');
                     if(ui) ui.style.display = 'none';
+                    document.body.style.background = '#000';
                     window.dispatchEvent(new Event('resize'));
-                }, 500);
-            `;
-            inject(mainJs + boot, 'main.js');
-        }, 100);
-    });
+                }, 100);
+            } catch (err) {
+                console.error('[Eclipse] Erro Crítico na Injeção:', err);
+                alert("O jogo crashou durante a inicialização. Vê o Console (F12).");
+            }
+        `;
+
+        // Injeta o bloco gigante de uma vez só
+        document.head.appendChild(finalScript);
+    };
 }
 
-// Inicializa quando o DOM estiver pronto
 if (document.readyState === 'complete') initializeLauncher();
 else window.addEventListener('load', initializeLauncher);
