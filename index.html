@@ -36,30 +36,39 @@
     <canvas id="canvas"></canvas>
     <div id="hud"></div>
 
-    <div id="launcher-ui" class="p-8 rounded-2xl shadow-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-xl">
+<div id="launcher-ui">
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold tracking-tight text-white mb-1">Eclipse</h1>
+        <p class="text-zinc-500 text-sm font-medium uppercase tracking-widest">Ad-Free Client</p>
     </div>
-        <div class="w-full max-w-lg bg-zinc-900/40 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-zinc-800">
-            <h1 class="text-4xl font-extrabold text-center mb-3">Eclipse</h1>
-            <p class="text-center text-zinc-400 mb-10">Ad-Free Client</p>
 
-            <label class="block mb-4">
-                <span class="text-zinc-300 text-sm font-medium">Nickname</span>
-                <input id="nickname" class="w-full p-3 mt-1 rounded-lg bg-zinc-800 border border-zinc-700 text-white" placeholder="Enter nickname..." autocomplete="off">
-            </label>
-
-            <label class="block mb-6">
-                <span class="text-zinc-300 text-sm font-medium">Skin URL</span>
-                <input id="skin" class="w-full p-3 mt-1 rounded-lg bg-zinc-800 border border-zinc-700 text-white" placeholder="https://example.com/skin.png" autocomplete="off">
-            </label>
-
-            <button id="playBtn" class="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl transition-all shadow-lg transform hover:scale-[1.02] active:scale-95">
-                PLAY (NO ADS)
-            </button>
-            
-            <p class="text-center text-zinc-600 text-xs mt-4">v1.5 | Eclipse Client</p>
+    <div class="space-y-5">
+        <div class="group">
+            <label for="nickname">Nickname</label>
+            <input type="text" id="nickname" placeholder="Enter your nickname..." spellcheck="false">
         </div>
+
+        <div class="group">
+            <label for="skin">Skin URL</label>
+            <input type="text" id="skin" placeholder="https://skins.aetlis.io/s/..." spellcheck="false">
+        </div>
+
+        <button id="playBtn" class="w-full">
+            PLAY (NO ADS)
+        </button>
     </div>
+
+    <div class="mt-8 pt-6 border-t border-zinc-800/50 text-center">
+        <div class="flex justify-center gap-4 mb-3">
+            <span class="px-2 py-1 bg-zinc-800/50 rounded text-[10px] text-zinc-400">EU</span>
+            <span class="px-2 py-1 bg-zinc-800/50 rounded text-[10px] text-zinc-400">NA</span>
+            <span class="px-2 py-1 bg-zinc-800/50 rounded text-[10px] text-zinc-400">AS</span>
+        </div>
+        <p class="text-[10px] text-zinc-600 font-mono tracking-tighter">v1.5 | ECLIPSE PROJECT</p>
+    </div>
+</div>
 </body>
 </html>
+
 
 
