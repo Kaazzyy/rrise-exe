@@ -1,81 +1,89 @@
 <style>
-    /* Estilo do Launcher (O que já tinhas) */
+    /* 1. ESTILO DO LANUNCHER (O Teu Menu Inicial) */
     #eclipse-ui-container {
-        background: #0d0d0f !important;
+        background: rgba(13, 13, 15, 0.95) !important;
         border: 1px solid #7c3aed !important;
-        border-radius: 20px !important;
-        padding: 30px !important;
-        width: 380px !important;
+        border-radius: 24px !important;
+        padding: 35px !important;
+        width: 400px !important;
         color: white !important;
         font-family: 'Inter', sans-serif !important;
-        box-shadow: 0 0 30px rgba(124, 58, 237, 0.2) !important;
-        pointer-events: auto !important;
-    }
-    .text-center { text-align: center !important; }
-    .input-wrapper { margin-bottom: 15px !important; }
-    .input-wrapper label { display: block !important; font-size: 10px !important; color: #7c3aed !important; text-transform: uppercase; font-weight: 800; margin-bottom: 5px; }
-    .input-wrapper input { width: 100% !important; background: #16161a !important; border: 1px solid #27272a !important; border-radius: 8px !important; padding: 12px !important; color: white !important; outline: none !important; }
-    #playBtn { width: 100% !important; background: #7c3aed !important; color: white !important; border: none !important; border-radius: 12px !important; padding: 16px !important; font-weight: 800 !important; cursor: pointer !important; text-transform: uppercase; transition: 0.3s; }
-    #playBtn:hover { background: #6d28d9 !important; box-shadow: 0 0 15px rgba(124, 58, 237, 0.5) !important; }
-
-    /* --- UI DO JOGO (INGAME OVERHAUL) --- */
-    /* Isto vai esconder os painéis feios do jogo e aplicar o novo visual */
-    
-    .eclipse-ingame-ui .leaderboard, 
-    .eclipse-ingame-ui #leaderboard-container, 
-    .eclipse-ingame-ui .stats-panel {
-        background: rgba(13, 13, 15, 0.7) !important;
-        backdrop-filter: blur(10px) !important;
-        border: 1px solid rgba(124, 58, 237, 0.3) !important;
-        border-radius: 10px !important;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
-        color: #fff !important;
-        font-family: 'JetBrains Mono', monospace !important;
+        box-shadow: 0 0 50px rgba(124, 58, 237, 0.3) !important;
+        backdrop-filter: blur(10px);
     }
 
-    .eclipse-ingame-ui .chat-container {
-        background: transparent !important;
+    /* 2. REESTILIZAÇÃO DO MENU DO JOGO (INGAME MENU) */
+    /* Quando o Eclipse estiver ativo, ele vai mudar os painéis da print */
+    body.eclipse-ui-active .game-menu, 
+    body.eclipse-ui-active .menu-panel,
+    body.eclipse-ui-active .server-list,
+    body.eclipse-ui-active .profile-panel,
+    body.eclipse-ui-active .skin-panel {
+        background: rgba(15, 15, 20, 0.8) !important;
+        backdrop-filter: blur(12px) !important;
+        border: 1px solid rgba(124, 58, 237, 0.2) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    /* Estilizando os botões de Servidor (EU, NA, AS) */
+    body.eclipse-ui-active .server-tabs .tab {
+        border-bottom: 2px solid transparent !important;
+        transition: 0.3s;
+    }
+    body.eclipse-ui-active .server-tabs .tab.active {
+        color: #7c3aed !important;
+        border-bottom: 2px solid #7c3aed !important;
+    }
+
+    /* Transformando o Botão PLAY num botão Eclipse Premium */
+    body.eclipse-ui-active button.play-button, 
+    body.eclipse-ui-active .btn-play {
+        background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%) !important;
         border: none !important;
+        border-radius: 10px !important;
+        font-weight: 900 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 2px !important;
+        box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4) !important;
     }
 
-    .eclipse-ingame-ui .chat-input {
-        background: rgba(255, 255, 255, 0.05) !important;
-        border: 1px solid #27272a !important;
-        border-radius: 5px !important;
-        color: #fff !important;
+    /* Customização das Skins (Círculos) */
+    body.eclipse-ui-active .skin-item img {
+        border: 2px solid #27272a !important;
+        transition: 0.3s;
+    }
+    body.eclipse-ui-active .skin-item.selected img {
+        border-color: #7c3aed !important;
+        box-shadow: 0 0 15px rgba(124, 58, 237, 0.5) !important;
     }
 
-    /* Estilização das barras de progresso/massa se existirem */
-    .eclipse-ingame-ui .progress-bar-inner {
-        background: linear-gradient(90deg, #7c3aed, #4f46e5) !important;
+    /* Esconder o fundo original do jogo para um look mais limpo */
+    body.eclipse-ui-active #canvas-bg {
+        filter: brightness(0.4) blur(4px) !important;
     }
 </style>
 
 <div id="eclipse-ui-container">
-    <div class="text-center" style="margin-bottom: 25px;">
-        <h1 style="margin: 0; font-size: 28px; letter-spacing: -1px;">ECLIPSE</h1>
-        <div style="color: #7c3aed; font-size: 10px; font-weight: bold; letter-spacing: 3px;">ADVANCED OVERHAUL</div>
+    <div style="text-align: center; margin-bottom: 25px;">
+        <h1 style="margin: 0; font-size: 32px; letter-spacing: -2px; font-weight: 900;">ECLIPSE</h1>
+        <span style="color: #7c3aed; font-size: 10px; font-weight: bold; letter-spacing: 4px;">MENU OVERHAUL</span>
     </div>
 
     <div class="input-wrapper">
         <label>Main Nickname</label>
-        <input type="text" id="nickname">
+        <input type="text" id="nickname" placeholder="Your name">
     </div>
     <div class="input-wrapper">
-        <label>Main Skin URL</label>
-        <input type="text" id="skin">
+        <label>Skin URL</label>
+        <input type="text" id="skin" placeholder="Direct link">
     </div>
 
-    <div style="border-top: 1px solid #27272a; margin: 15px 0; padding-top: 15px;">
-        <label style="color: #7c3aed; font-size: 10px; font-weight: 800;">DUAL IDENTITY</label>
-        <div class="input-wrapper" style="margin-top: 10px;">
-            <input type="text" id="dualNickname" placeholder="Dual Nick...">
-        </div>
-        <div class="input-wrapper">
-            <input type="text" id="dualSkin" placeholder="Dual Skin...">
-        </div>
+    <div style="margin: 20px 0; padding: 15px; background: rgba(124, 58, 237, 0.05); border-radius: 12px; border: 1px solid rgba(124, 58, 237, 0.1);">
+        <label style="color: #7c3aed; font-size: 10px; font-weight: 800; display: block; margin-bottom: 10px;">DUAL CONFIG</label>
+        <input type="text" id="dualNickname" placeholder="Dual Nick" style="width: 100%; background: #111; border: 1px solid #222; color: #fff; padding: 8px; border-radius: 6px; margin-bottom: 8px;">
+        <input type="text" id="dualSkin" placeholder="Dual Skin URL" style="width: 100%; background: #111; border: 1px solid #222; color: #fff; padding: 8px; border-radius: 6px;">
     </div>
 
-    <button id="playBtn">START GAME</button>
-    <div style="text-align: center; font-size: 9px; color: #3f3f46; margin-top: 15px;">ECLIPSE V3.0 | BY KAZZY</div>
+    <button id="playBtn">LAUNCH INTERFACE</button>
 </div>
