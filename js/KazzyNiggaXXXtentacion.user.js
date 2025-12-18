@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Sync Fix
-// @version      8.0.0
+// @name         Eclipse - Deep Sync Fix
+// @version      9.0.0
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -19,54 +19,77 @@
         overlay.id = "eclipse-overlay";
         overlay.style.cssText = "position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px);";
         overlay.innerHTML = html;
-        document.documentElement.appendChild(overlay);
+        document.body.appendChild(overlay);
 
         const btn = overlay.querySelector('#playBtn');
-        const nickInput = overlay.querySelector('#nickname');
-        const skinInput = overlay.querySelector('#skin');
+        const nickInp = overlay.querySelector('#nickname');
+        const skinInp = overlay.querySelector('#skin');
 
-        nickInput.value = localStorage.getItem('eclipse_nick') || "";
-        skinInput.value = localStorage.getItem('eclipse_skin') || "";
+        nickInp.value = localStorage.getItem('eclipse_nick') || "";
+        skinInp.value = localStorage.getItem('eclipse_skin') || "";
 
         btn.onclick = () => {
-            const nick = nickInput.value || "EclipsePlayer";
-            const skin = skinInput.value || "";
+            const nick = nickInp.value || "EclipsePlayer";
+            const skin = skinInp.value || "";
             
+            // 1. Salvar no nosso sistema
             localStorage.setItem('eclipse_nick', nick);
             localStorage.setItem('eclipse_skin', skin);
 
-            // --- NOVO SISTEMA DE INJEÇÃO DE DADOS ---
+            // 2. FORÇAR NO SISTEMA DO JOGO (Chaves comuns em clones de Vanis/Aetlis)
+            localStorage.setItem('nickname', nick);
+            localStorage.setItem('skinUrl', skin);
+            
+            // Se o jogo usa um objeto de definições complexo:
+            try {
+                let gameSettings = JSON.parse(localStorage.getItem('settings') || '{}');
+                gameSettings.nickname = nick;
+                gameSettings.skinUrl = skin;
+                localStorage.setItem('settings', JSON.stringify(gameSettings));
+            } catch(e) {}
+
+            // 3. SINCRONIZAR COM O MOTOR EM EXECUÇÃO
             if (window.client) {
-                // 1. Atualiza as definições globais
-                if (window.client.settings) {
-                    window.client.settings.nickname = nick;
-                    window.client.settings.skinUrl = skin;
-                    window.client.settings.skin = skin; // Alguns clientes usam .skin em vez de .skinUrl
+                // Tenta injetar em todas as propriedades possíveis
+                const targets = [window.client, window.client.settings, window.client.options];
+                targets.forEach(t => {
+                    if (t) {
+                        t.nickname = nick;
+                        t.skinUrl = skin;
+                        t.skin = skin;
+                    }
+                });
+
+                // 4. INTERCEPTAR O INPUT REAL (Simular digitação)
+                const realInput = document.querySelector('input[placeholder*="Nick"], #nickname:not(#eclipse-overlay #nickname)');
+                if (realInput) {
+                    realInput.value = nick;
+                    // Disparar a sequência completa de eventos que o jogo espera
+                    ['input', 'change', 'blur'].forEach(ev => {
+                        realInput.dispatchEvent(new Event(ev, { bubbles: true }));
+                    });
                 }
 
-                // 2. Procura o input original do jogo e injeta lá o texto (Sync Forçado)
-                const originalInput = document.querySelector('input[placeholder*="Nickname"], #nick, .nick-input');
-                if (originalInput) {
-                    originalInput.value = nick;
-                    originalInput.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-
-                // 3. Executa a conexão e o spawn
+                // 5. EXECUTAR CONEXÃO E SPAWN
                 if (window.client.connect) window.client.connect();
                 
-                setTimeout(() => { 
+                setTimeout(() => {
                     if (window.client.spawn) {
-                        // Forçamos o nick diretamente na chamada da função
-                        window.client.spawn(nick); 
+                        console.log("[Eclipse] Enviando spawn forçado para:", nick);
+                        window.client.spawn(nick);
                     }
-                }, 500);
+                }, 800);
             }
 
             overlay.remove();
         };
     }
 
-    window.addEventListener('load', () => {
-        setTimeout(init, 500);
-    });
+    // Usamos um intervalo curto para garantir que o body já existe mas o jogo ainda não "trancou" os dados
+    const checkBody = setInterval(() => {
+        if (document.body) {
+            clearInterval(checkBody);
+            init();
+        }
+    }, 100);
 })();
