@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Skin & Nick Sync Fix
-// @version      12.0.0
+// @name         Eclipse - Skin Slot Adder & Sync
+// @version      13.0.0
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -42,38 +42,37 @@
             
             localStorage.setItem('eclipse_nick', nick);
             localStorage.setItem('eclipse_skin', skin);
-            localStorage.setItem('nickname', nick);
-            localStorage.setItem('skinUrl', skin);
 
-            // 1. Sincronizar Inputs Originais
-            const realNickInput = document.querySelector('input[placeholder*="Nick"], #nickname:not(#eclipse-overlay #nickname)');
-            const realSkinInput = document.querySelector('input[placeholder*="Skin"], #skinUrl, #skin:not(#eclipse-overlay #skin)');
-            
-            simulateTyping(realNickInput, nick);
-            simulateTyping(realSkinInput, skin);
-
-            // 2. Injeção Profunda no Client (Forçar carregamento da Skin)
-            if (window.client) {
-                if (window.client.settings) {
-                    window.client.settings.nickname = nick;
-                    window.client.settings.skinUrl = skin;
-                    window.client.settings.skin = skin;
-                }
-
-                // Tentar chamar a função de atualização de skin do próprio jogo
-                if (typeof window.client.setSkin === 'function') {
-                    window.client.setSkin(skin);
-                }
-
-                if (window.client.connect) window.client.connect();
-                
-                setTimeout(() => {
-                    if (window.client.spawn) {
-                        // Passamos o nick e a skin diretamente no spawn se o motor suportar
-                        window.client.spawn(nick, skin);
-                    }
-                }, 500);
+            // --- LÓGICA DE ADICIONAR NOVA SKIN ---
+            // 1. Tentar clicar no botão de "+" do jogo original
+            const addSkinBtn = document.querySelector('.add-skin, img[src*="skin-add.png"]');
+            if (addSkinBtn && skin.trim() !== "") {
+                console.log("[Eclipse] Adicionando novo slot de skin...");
+                addSkinBtn.click();
             }
+
+            // 2. Aguardar um milésimo para o slot abrir e injetar a skin
+            setTimeout(() => {
+                const realNickInput = document.querySelector('input[placeholder*="Nick"], #nickname:not(#eclipse-overlay #nickname)');
+                const realSkinInput = document.querySelector('input[placeholder*="Skin"], #skinUrl, #skin:not(#eclipse-overlay #skin)');
+                
+                if (realNickInput) simulateTyping(realNickInput, nick);
+                if (realSkinInput && skin.trim() !== "") simulateTyping(realSkinInput, skin);
+
+                // 3. Injeção no Client
+                if (window.client) {
+                    if (window.client.settings) {
+                        window.client.settings.nickname = nick;
+                        if (skin.trim() !== "") window.client.settings.skinUrl = skin;
+                    }
+                    
+                    if (window.client.connect) window.client.connect();
+                    
+                    setTimeout(() => {
+                        if (window.client.spawn) window.client.spawn(nick);
+                    }, 500);
+                }
+            }, 100);
 
             overlay.remove();
             window.dispatchEvent(new Event('resize'));
