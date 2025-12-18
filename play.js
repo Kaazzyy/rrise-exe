@@ -1,84 +1,77 @@
-const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main'; 
+const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main';
 
 function log(msg) { console.log('%c[Eclipse-Play]', 'color: #00ffff; font-weight: bold;', msg); }
 
 async function fetchContent(path) {
     try {
-        const res = await fetch(`${RAW_BASE_URL}/${path}?t=${Date.now()}`); 
-        if (!res.ok) throw new Error(`Erro ao baixar ${path}`);
+        const res = await fetch(`${RAW_BASE_URL}/${path}?t=${Date.now()}`);
+        if (!res.ok) return null;
         return await res.text();
     } catch (e) { return null; }
 }
 
 function initializeLauncher() {
+    log("A verificar elementos do Launcher...");
+
     const playButton = document.getElementById("playBtn");
     const nickInput = document.getElementById("nickname");
     const skinInput = document.getElementById("skin");
-    const launcherUI = document.getElementById("launcher-ui");
 
-    // Sincronização da Skin e Nick logo ao abrir
-    nickInput.value = localStorage.getItem('nickname') || "";
-    skinInput.value = localStorage.getItem('skinUrl') || "";
+    if (!playButton || !nickInput) {
+        // Se o document.write ainda não terminou, tentamos de novo em 50ms
+        setTimeout(initializeLauncher, 50);
+        return;
+    }
+
+    // --- CORREÇÃO DA SKIN E NICK ---
+    // Isto garante que ao abrir o launcher, os dados aparecem lá
+    const savedNick = localStorage.getItem('nickname') || localStorage.getItem('eclipse_nick');
+    const savedSkin = localStorage.getItem('skinUrl') || localStorage.getItem('eclipse_skin');
+    
+    if (savedNick) nickInput.value = savedNick;
+    if (savedSkin) skinInput.value = savedSkin;
+    // -------------------------------
 
     playButton.onclick = async () => {
         const nick = nickInput.value || "Eclipse Player";
         const skin = skinInput.value || "";
 
-        // Salvar dados
+        // Salva para a próxima vez
         localStorage.setItem('nickname', nick);
         localStorage.setItem('skinUrl', skin);
 
         playButton.disabled = true;
-        playButton.innerText = "Loading Engine...";
+        playButton.innerText = "Loading main.js...";
 
-        // Baixar os dois ficheiros em paralelo para ser mais rápido
-        const [vendorJs, mainJs] = await Promise.all([
-            fetchContent('vendor.js'),
-            fetchContent('main.js')
-        ]);
+        // O Vendor.js já foi injetado pelo Tampermonkey, agora só falta o main.js
+        const mainJs = await fetchContent('main.js');
 
-        if (!vendorJs || !mainJs) {
-            alert("Erro ao baixar ficheiros do GitHub. Verifica a tua net.");
+        if (!mainJs) {
+            alert("Erro ao baixar main.js do GitHub!");
             playButton.disabled = false;
             return;
         }
 
-        playButton.innerText = "Starting...";
-
-        // --- A SOLUÇÃO PARA O CRASH ---
-        // Criamos um único script que contém o motor e a lógica
-        const finalScript = document.createElement('script');
-        finalScript.type = 'text/javascript';
-        
-        // Juntamos tudo: Vendor + Main + Comando de Start
-        finalScript.textContent = `
-            try {
-                ${vendorJs}
-                console.log('[Eclipse] Motor PIXI carregado.');
+        // Injetar Main.js e Iniciar o Jogo
+        const script = document.createElement('script');
+        script.textContent = mainJs + `
+            \n//# sourceURL=${RAW_BASE_URL}/main.js
+            setTimeout(() => {
+                if (window.client && window.client.connect) window.client.connect();
                 
-                ${mainJs}
-                console.log('[Eclipse] Lógica main.js carregada.');
-
-                // Forçar o início
-                setTimeout(() => {
-                    if (window.client && window.client.connect) window.client.connect();
-                    
-                    // Esconder UI e limpar background
-                    const ui = document.getElementById('launcher-ui');
-                    if(ui) ui.style.display = 'none';
-                    document.body.style.background = '#000';
-                    window.dispatchEvent(new Event('resize'));
-                }, 100);
-            } catch (err) {
-                console.error('[Eclipse] Erro Crítico na Injeção:', err);
-                alert("O jogo crashou durante a inicialização. Vê o Console (F12).");
-            }
+                // Esconde o UI do Launcher
+                const ui = document.getElementById('launcher-ui');
+                if(ui) ui.style.display = 'none';
+                
+                // Garante que o canvas ocupa o ecrã todo
+                window.dispatchEvent(new Event('resize'));
+            }, 100);
         `;
-
-        // Injeta o bloco gigante de uma vez só
-        document.head.appendChild(finalScript);
+        document.body.appendChild(script);
+        
+        playButton.innerText = "Enjoy!";
     };
 }
 
-if (document.readyState === 'complete') initializeLauncher();
-else window.addEventListener('load', initializeLauncher);
+// Inicia a verificação
+initializeLauncher();
