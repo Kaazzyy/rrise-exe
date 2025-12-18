@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Instant Sync
-// @version      10.0.0
+// @name         Eclipse - Keyboard Emulator Sync
+// @version      11.0.0
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -10,6 +10,16 @@
 (function() {
     'use strict';
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
+
+    function simulateTyping(element, value) {
+        element.value = value;
+        // Dispara uma sequência completa de eventos para enganar o motor do jogo
+        const events = ['focus', 'keydown', 'keypress', 'input', 'keyup', 'change', 'blur'];
+        events.forEach(type => {
+            const event = new Event(type, { bubbles: true });
+            element.dispatchEvent(event);
+        });
+    }
 
     async function init() {
         const response = await fetch(`${GITHUB_URL}?t=${Date.now()}`);
@@ -34,36 +44,39 @@
             
             localStorage.setItem('eclipse_nick', nick);
             localStorage.setItem('eclipse_skin', skin);
-            
-            // Forçar no storage para o próximo F5 (backup)
             localStorage.setItem('nickname', nick);
             localStorage.setItem('skinUrl', skin);
 
+            // 1. Procurar o input original do jogo (que está escondido atrás do Eclipse)
+            // Tentamos vários seletores comuns nesse tipo de jogo
+            const realNickInput = document.querySelector('input[placeholder*="Nick"], #nickname:not(#eclipse-overlay #nickname), .nick-input');
+            const realSkinInput = document.querySelector('input[placeholder*="Skin"], #skin:not(#eclipse-overlay #skin), .skin-input');
+
+            if (realNickInput) simulateTyping(realNickInput, nick);
+            if (realSkinInput) simulateTyping(realSkinInput, skin);
+
             if (window.client) {
-                // 1. FORÇAR RE-LEITURA DE SETTINGS
+                // Forçar no objeto de settings se ele existir
                 if (window.client.settings) {
                     window.client.settings.nickname = nick;
                     window.client.settings.skinUrl = skin;
                 }
 
-                // 2. CONECTAR SE NÃO ESTIVER CONECTADO
-                if (window.client.connect && !window.client.isConnected) {
-                    window.client.connect();
-                }
-
-                // 3. O PULO DO GATO: Chamar o spawn com os dados forçados
-                // Esperamos um pouco para o socket abrir
+                // Tentar o Spawn
+                if (window.client.connect) window.client.connect();
+                
                 setTimeout(() => {
-                    if (typeof window.client.spawn === 'function') {
-                        console.log("[Eclipse] Forçando Spawn Direto...");
-                        // No motor do Aetlis, o spawn aceita o nick como argumento
+                    if (window.client.spawn) {
                         window.client.spawn(nick);
+                    } else {
+                        // Se o spawn direto falhar, tentamos clicar no botão de play original
+                        const realPlayBtn = document.querySelector('button.play, #play-button, .btn-play');
+                        if (realPlayBtn) realPlayBtn.click();
                     }
-                }, 500);
+                }, 400);
             }
 
             overlay.remove();
-            // Disparar um resize para o jogo acordar o motor gráfico
             window.dispatchEvent(new Event('resize'));
         };
     }
