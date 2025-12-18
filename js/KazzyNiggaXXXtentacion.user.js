@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Error Fix
-// @version      4.1.0
+// @name         Eclipse - Final Fix
+// @version      4.2.0
 // @match        *://aetlis.io/*
 // @grant        none
 // ==/UserScript==
@@ -9,40 +9,64 @@
     'use strict';
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
-    async function loadUI() {
-        const res = await fetch(`${GITHUB_URL}?t=${Date.now()}`);
-        const html = await res.text();
+    async function init() {
+        try {
+            const res = await fetch(`${GITHUB_URL}?t=${Date.now()}`);
+            const html = await res.text();
 
-        const eclipse = document.createElement('div');
-        eclipse.id = "eclipse-shield";
-        // O Shield bloqueia o ecrã até clicares no botão
-        eclipse.style.cssText = "position:fixed; inset:0; z-index:1000000; background:#000; display:flex; align-items:center; justify-content:center;";
-        eclipse.innerHTML = html;
-        document.body.appendChild(eclipse);
+            const wrapper = document.createElement('div');
+            wrapper.id = "eclipse-main-wrapper";
+            wrapper.style.cssText = "position:fixed; inset:0; z-index:1000000; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px);";
+            wrapper.innerHTML = html;
+            document.body.appendChild(wrapper);
 
-        eclipse.querySelector('#playBtn').onclick = () => {
-            const data = {
-                nick: eclipse.querySelector('#nickname').value,
-                skin: eclipse.querySelector('#skin').value,
-                dNick: eclipse.querySelector('#dualNickname').value,
-                dSkin: eclipse.querySelector('#dualSkin').value
+            const startBtn = wrapper.querySelector('#btn-activate');
+
+            startBtn.onclick = () => {
+                // Seleção Segura de Elementos
+                const elNick = wrapper.querySelector('#nick-main');
+                const elSkin = wrapper.querySelector('#skin-main');
+                const elDNick = wrapper.querySelector('#nick-dual');
+                const elDSkin = wrapper.querySelector('#skin-dual');
+
+                if (!elNick || !elDNick) {
+                    console.error("Erro: Campos do Eclipse não carregaram corretamente.");
+                    return;
+                }
+
+                const data = {
+                    nick: elNick.value,
+                    skin: elSkin ? elSkin.value.trim() : "",
+                    dNick: elDNick.value,
+                    dSkin: elDSkin ? elDSkin.value.trim() : ""
+                };
+
+                // Salvar para o Jogo
+                if (data.dNick) localStorage.setItem('dualNickname', data.dNick);
+                if (data.dSkin) localStorage.setItem('dualSkinUrl', data.dSkin);
+
+                // Injetar no Jogo (Nick Principal)
+                const gameNickInput = document.querySelector('input[placeholder*="Nickname"], .input-text');
+                if (gameNickInput) {
+                    gameNickInput.value = data.nick;
+                    gameNickInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+
+                // Destrancar o Jogo
+                wrapper.remove();
+                console.log("Eclipse: UI Sincronizada.");
             };
 
-            // 1. Sincroniza Dual no Storage
-            if (data.dNick) localStorage.setItem('dualNickname', data.dNick);
-            if (data.dSkin) localStorage.setItem('dualSkinUrl', data.dSkin);
-
-            // 2. Tenta preencher o nick no input do jogo
-            const gameNick = document.querySelector('input[placeholder*="Nick"], .input-text');
-            if (gameNick) {
-                gameNick.value = data.nick;
-                gameNick.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-
-            // 3. Destrói o escudo para permitir interação com o Play original
-            eclipse.remove();
-        };
+        } catch (e) {
+            console.error("Erro ao carregar Eclipse:", e);
+        }
     }
 
-    const check = setInterval(() => { if (document.body) { clearInterval(check); loadUI(); } }, 200);
+    // Espera o Body e o Jogo estarem prontos
+    const check = setInterval(() => {
+        if (document.body && document.querySelector('#app')) {
+            clearInterval(check);
+            init();
+        }
+    }, 500);
 })();
