@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Eclipse - Ultimate Injector (Absolute Center)
-// @version      4.2.0
-// @description  Força o centro usando transform: translate
+// @name         Eclipse - Ultimate Injector (Screen Fix)
+// @version      4.3.0
+// @description  Força o menu a ficar visível e centralizado sem scroll
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -17,58 +17,63 @@
 
             const host = document.createElement('div');
             host.id = "eclipse-shadow-host";
-            host.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:9999999; pointer-events:none;";
+            // Inset: 0 garante que ele cola em todas as bordas (Top, Bottom, Left, Right)
+            host.style.cssText = "position:fixed; inset:0; width:100vw; height:100vh; z-index:9999999; pointer-events:none;";
             document.documentElement.appendChild(host);
 
             const shadow = host.attachShadow({mode: 'open'});
             
             shadow.innerHTML = `
                 <style>
-                    /* Reset total para evitar herança do site oficial */
                     :host { all: initial; }
                     
-                    #launcher-ui { 
+                    /* Container principal que cobre a tela toda */
+                    .fullscreen-overlay {
                         position: fixed;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%); /* O segredo da centralização */
-                        width: 100%;
-                        max-width: 450px; /* Ajusta conforme o tamanho do teu painel */
-                        z-index: 1000;
+                        inset: 0;
+                        width: 100vw;
+                        height: 100vh;
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        background: rgba(0, 0, 0, 0.8);
                         pointer-events: auto;
-                        display: block !important;
+                        overflow: hidden;
                     }
 
-                    /* Background overlay atrás do menu */
-                    .overlay {
-                        position: fixed;
-                        top: 0; left: 0;
-                        width: 100vw; height: 100vh;
-                        background: rgba(0, 0, 0, 0.75);
-                        z-index: 999;
+                    /* O teu painel de login */
+                    #launcher-ui { 
+                        width: 90%;
+                        max-width: 420px;
+                        background: #18181b; /* Cor zinc-900 */
+                        border-radius: 1rem;
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+                        padding: 2rem;
+                        display: block !important;
                     }
                 </style>
                 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
                 
-                <div class="overlay"></div>
-                <div id="launcher-ui">
-                    ${html}
+                <div class="fullscreen-overlay">
+                    <div id="launcher-ui">
+                        ${html}
+                    </div>
                 </div>
             `;
 
+            // Lógica do botão
             const playBtn = shadow.getElementById('playBtn');
-            const nickInp = shadow.getElementById('nickname');
-            const skinInp = shadow.getElementById('skin');
-
             if (playBtn) {
+                const nickInp = shadow.getElementById('nickname');
+                const skinInp = shadow.getElementById('skin');
+                
                 nickInp.value = localStorage.getItem('nickname') || "";
                 skinInp.value = localStorage.getItem('skinUrl') || "";
 
                 playBtn.onclick = () => {
                     const nick = nickInp.value || "Eclipse";
-                    const skin = skinInp.value || "";
                     localStorage.setItem('nickname', nick);
-                    localStorage.setItem('skinUrl', skin);
+                    localStorage.setItem('skinUrl', skinInp.value);
 
                     if (window.client) {
                         if (window.client.settings) window.client.settings.nickname = nick;
@@ -77,11 +82,10 @@
                     }
 
                     host.style.opacity = "0";
-                    host.style.transition = "0.5s";
-                    setTimeout(() => host.remove(), 500);
+                    host.style.transition = "0.4s";
+                    setTimeout(() => host.remove(), 400);
                 };
             }
-
         } catch (e) { console.error('Eclipse Error:', e); }
     }
 
