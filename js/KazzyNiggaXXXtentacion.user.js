@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Deep UI Restored
-// @version      5.2.0
+// @name         Eclipse - Final Fix v5.3
+// @version      5.3.0
 // @match        *://aetlis.io/*
 // @grant        none
 // ==/UserScript==
@@ -9,57 +9,58 @@
     'use strict';
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
-    const ECLIPSE_CSS = `
-        #overlay { background: rgba(10, 10, 15, 0.9) !important; backdrop-filter: blur(20px) !important; }
-        main-container { background: rgba(15, 15, 20, 0.95) !important; border: 2px solid #7c3aed !important; border-radius: 20px !important; }
-        .play-btn, button.primary { background: linear-gradient(135deg, #7c3aed, #4f46e5) !important; border: none !important; }
-        input.input-text { background: #000 !important; border: 1px solid #7c3aed !important; color: #fff !important; }
-    `;
-
     async function start() {
-        const res = await fetch(`${GITHUB_URL}?t=${Date.now()}`);
-        const html = await res.text();
+        try {
+            const res = await fetch(`${GITHUB_URL}?t=${Date.now()}`);
+            const html = await res.text();
 
-        const wrap = document.createElement('div');
-        wrap.id = "eclipse-launcher-v5";
-        wrap.style.cssText = "position:fixed; inset:0; z-index:9999999; background:#000; display:flex; align-items:center; justify-content:center;";
-        wrap.innerHTML = html;
-        document.body.appendChild(wrap);
+            const wrap = document.createElement('div');
+            wrap.id = "eclipse-wrapper";
+            wrap.style.cssText = "position:fixed; inset:0; z-index:9999999; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px);";
+            wrap.innerHTML = html;
+            document.body.appendChild(wrap);
 
-        wrap.querySelector('#btn-activate').onclick = () => {
-            // 1. Injetar Visual
-            const styleSheet = document.createElement("style");
-            styleSheet.innerText = ECLIPSE_CSS;
-            document.head.appendChild(styleSheet);
+            wrap.querySelector('#eclipse-launch-btn').onclick = () => {
+                // 1. Capturar elementos de forma segura para evitar erro 'null'
+                const n1 = wrap.querySelector('#main-nick');
+                const s1 = wrap.querySelector('#main-skin');
+                const n2 = wrap.querySelector('#dual-nick');
+                const s2 = wrap.querySelector('#dual-skin');
 
-            // 2. Capturar TODOS os dados
-            const data = {
-                nick: wrap.querySelector('#nick-main').value,
-                skin: wrap.querySelector('#skin-main').value,
-                dNick: wrap.querySelector('#nick-dual').value,
-                dSkin: wrap.querySelector('#skin-dual').value
+                if (!n1 || !s1) return alert("Erro: Ficheiro HTML do GitHub desatualizado.");
+
+                // 2. Salvar Duals no LocalStorage
+                if (n2.value) localStorage.setItem('dualNickname', n2.value);
+                if (s2.value) localStorage.setItem('dualSkinUrl', s2.value);
+
+                // 3. Injetar no Jogo (Nick e Skin Principal)
+                const gameInputs = document.querySelectorAll('input');
+                gameInputs.forEach(i => {
+                    if (i.placeholder && i.placeholder.includes('Nick')) {
+                        i.value = n1.value;
+                        i.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                    if (i.placeholder && i.placeholder.includes('Skin')) {
+                        i.value = s1.value;
+                        i.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                });
+
+                // 4. Injetar o CSS de Overhaul para mudar a UI do jogo
+                const style = document.createElement('style');
+                style.innerText = `
+                    #overlay { background: rgba(5,5,10,0.9) !important; backdrop-filter: blur(15px) !important; }
+                    main-container { border: 2px solid #7c3aed !important; background: #0d0d0f !important; }
+                    .play-btn, button.primary { background: #7c3aed !important; cursor: pointer !important; opacity: 1 !important; visibility: visible !important; }
+                `;
+                document.head.appendChild(style);
+
+                // 5. REMOVER O WRAPPER (Liberta o botão de Play original)
+                wrap.remove();
+                console.log("Eclipse: UI Ativada com Sucesso.");
             };
-
-            // 3. Sincronizar Dual e Skin Principal
-            if(data.dNick) localStorage.setItem('dualNickname', data.dNick);
-            if(data.dSkin) localStorage.setItem('dualSkinUrl', data.dSkin);
-            
-            // Injetar Nick e Skin no Jogo Principal (Vue inputs)
-            const inputs = document.querySelectorAll('input');
-            inputs.forEach(input => {
-                if(input.placeholder && input.placeholder.includes('Nick')) {
-                    input.value = data.nick;
-                    input.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-                if(input.placeholder && input.placeholder.includes('Skin') && data.skin) {
-                    input.value = data.skin;
-                    input.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-            });
-
-            wrap.remove();
-        };
+        } catch (e) { console.error("Falha ao carregar Eclipse:", e); }
     }
 
-    const check = setInterval(() => { if(document.body) { clearInterval(check); start(); } }, 500);
+    const check = setInterval(() => { if (document.body && document.querySelector('main-container')) { clearInterval(check); start(); } }, 500);
 })();
