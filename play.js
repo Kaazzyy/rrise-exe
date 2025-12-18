@@ -1,65 +1,54 @@
-// play.js - Versão "Bridge" (Ponte entre Eclipse e Aetlis)
+// play.js - Versão Force Spawn
 function log(msg) { console.log('%c[Eclipse-Play]', 'color: #00ffff; font-weight: bold;', msg); }
 
 function initializeLauncher() {
     const playButton = document.getElementById("playBtn");
     const nickInput = document.getElementById("nickname");
-    const skinInput = document.getElementById("skin");
     const launcherUI = document.getElementById("launcher-ui");
+    const wrapper = document.getElementById("eclipse-main-wrapper");
 
     if (!playButton) return setTimeout(initializeLauncher, 100);
 
-    // 1. Puxar dados salvos
     nickInput.value = localStorage.getItem('nickname') || "";
-    skinInput.value = localStorage.getItem('skinUrl') || "";
 
     playButton.onclick = () => {
-        const nick = nickInput.value || "Eclipse Player";
-        const skin = skinInput.value || "";
-
+        const nick = nickInput.value || "EclipsePlayer";
         localStorage.setItem('nickname', nick);
-        localStorage.setItem('skinUrl', skin);
 
-        log("A sincronizar com o motor nativo...");
+        log("A sincronizar e a entrar...");
 
-        // 2. Preencher o formulário ESCONDIDO do jogo original
-        // O Aetlis usa IDs como #nickname e #skinUrl ou classes específicas
-        const nativeNick = document.querySelector('input[placeholder*="Nick"], #nickname');
-        const nativeSkin = document.querySelector('input[placeholder*="Skin"], #skinUrl');
+        // 1. Tentar injetar o nick no objeto do jogo e dar Spawn
+        if (window.client) {
+            // Define o nick diretamente no motor
+            if (window.client.settings) window.client.settings.nickname = nick;
+            
+            // Tenta conectar e dar spawn
+            if (typeof window.client.connect === 'function') window.client.connect();
+            
+            // Dá um pequeno tempo para a conexão estabilizar e tenta dar spawn
+            setTimeout(() => {
+                if (typeof window.client.spawn === 'function') {
+                    window.client.spawn(nick);
+                    log("Comando Spawn enviado.");
+                }
+            }, 500);
+        }
+
+        // 2. Tentar preencher o input nativo caso o objeto falhe
+        const nativeInput = document.querySelector('input[placeholder*="Nick"], #nickname:not(#eclipse-main-wrapper #nickname)');
+        if (nativeInput) {
+            nativeInput.value = nick;
+            nativeInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        // 3. Remover o Launcher (o wrapper que criamos no Tampermonkey)
+        if (wrapper) {
+            wrapper.style.transition = "opacity 0.5s";
+            wrapper.style.opacity = "0";
+            setTimeout(() => { wrapper.remove(); }, 500);
+        }
         
-        if (nativeNick) {
-            nativeNick.value = nick;
-            nativeNick.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-        if (nativeSkin) {
-            nativeSkin.value = skin;
-            nativeSkin.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-
-        // 3. Simular o clique no botão "Play" original para disparar o WebSocket
-        // Procuramos pelo botão original que geralmente tem a classe 'btn-play'
-        const nativePlayBtn = document.querySelector('.btn-play, button[type="submit"], #play-btn');
-        if (nativePlayBtn) {
-            nativePlayBtn.click();
-        } else if (window.client && window.client.connect) {
-            window.client.connect();
-        }
-
-        // 4. Limpar a tela e remover o Launcher
-        launcherUI.style.transition = "all 0.4s ease";
-        launcherUI.style.opacity = "0";
-        launcherUI.style.transform = "scale(0.9)";
-        
-        setTimeout(() => {
-            launcherUI.style.display = 'none';
-            // Forçar o foco no canvas para o teclado funcionar (WASD/Espaço)
-            const canvas = document.getElementById('canvas');
-            if (canvas) {
-                canvas.focus();
-                window.dispatchEvent(new Event('resize'));
-            }
-            log("Jogo iniciado.");
-        }, 400);
+        window.dispatchEvent(new Event('resize'));
     };
 }
 
