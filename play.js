@@ -94,4 +94,4 @@ function initializeLauncher() {
 }
 
 // Executa
-setTimeout(initializeLauncher, 100);
+setTimeout(initializeLauncher, 500);
