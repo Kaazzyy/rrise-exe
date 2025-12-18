@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Deep Dual Sync
-// @version      27.0.0
+// @name         Eclipse - Forced Dual Persistence
+// @version      28.0.0
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -12,8 +12,7 @@
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
     function simulateTyping(element, value) {
-        if (!element || value === undefined || value === "") return;
-        element.focus();
+        if (!element || value === undefined) return;
         element.value = value;
         ['input', 'change', 'blur', 'keyup'].forEach(type => {
             element.dispatchEvent(new Event(type, { bubbles: true }));
@@ -44,13 +43,17 @@
             const vals = {
                 nick: fields.nick.value,
                 skin: fields.skin.value.trim(),
-                dNick: fields.dNick.value,
+                dNick: fields.dNick.value.trim(),
                 dSkin: fields.dSkin.value.trim()
             };
             
             Object.keys(vals).forEach(k => localStorage.setItem('eclipse_' + k, vals[k]));
 
-            // Lógica de Skin Principal (v26 estável)
+            // 1. INJEÇÃO DIRETA NO STORAGE DO JOGO (Força o Dual mesmo sem o menu aberto)
+            if (vals.dNick) localStorage.setItem('dualNickname', vals.dNick);
+            if (vals.dSkin) localStorage.setItem('dualSkinUrl', vals.dSkin);
+
+            // 2. Lógica de Skin Principal (v26 estável)
             const isValidSkin = vals.skin.startsWith('http');
             if (isValidSkin) {
                 const allSkins = Array.from(document.querySelectorAll('.skin:not(.add-skin)'));
@@ -64,26 +67,25 @@
                 }
             }
 
-            // --- SYNC PROCESS ---
             setTimeout(() => {
-                // 1. Main Player
+                // Sincronizar Main
                 simulateTyping(document.querySelector('input[placeholder*="Nickname"]:not(#eclipse-overlay input)'), vals.nick);
                 if (isValidSkin) simulateTyping(document.querySelector('input[placeholder*="Skin URL"]:not(#eclipse-overlay input)'), vals.skin);
 
-                // 2. DUAL PLAYER (A peça do puzzle)
-                // Procuramos especificamente pelos atributos data que enviaste
+                // Sincronizar Dual via DOM (se os inputs existirem)
                 const dualInputs = document.querySelectorAll('input[data-v-dual-controls].input-text');
-                
                 if (dualInputs.length >= 2) {
-                    console.log("[Eclipse] Dual Inputs encontrados!");
-                    simulateTyping(dualInputs[0], vals.dNick); // Primeiro input: Nickname
-                    simulateTyping(dualInputs[1], vals.dSkin); // Segundo input: Skin URL
-                } else {
-                    // Busca alternativa por placeholder exato
-                    const dNickField = document.querySelector('input[placeholder="Dual Nickname"]');
-                    const dSkinField = document.querySelector('input[placeholder="Dual Skin URL"]');
-                    simulateTyping(dNickField, vals.dNick);
-                    simulateTyping(dSkinField, vals.dSkin);
+                    simulateTyping(dualInputs[0], vals.dNick);
+                    simulateTyping(dualInputs[1], vals.dSkin);
+                }
+
+                // Injeção via Objeto Client
+                if (window.client && window.client.settings) {
+                    window.client.settings.nickname = vals.nick;
+                    if (isValidSkin) window.client.settings.skinUrl = vals.skin;
+                    // Forçar settings de Dual
+                    window.client.settings.dualNickname = vals.dNick;
+                    window.client.settings.dualSkinUrl = vals.dSkin;
                 }
 
                 if (window.client && window.client.connect) {
