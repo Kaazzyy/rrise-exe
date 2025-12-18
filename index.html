@@ -1,74 +1,76 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Aetlis.io - Eclipse</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { margin: 0; overflow: hidden; background: #000; }
-        
-        /* ESTRUTURA CRÍTICA: Jogo precisa disto */
-        #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
-        #hud { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
-        
-        /* O teu Launcher UI */
-        #launcher-ui { 
-            position: relative; 
-            z-index: 50; 
-            background: radial-gradient(circle at top, #1a1a1a, #000);
-        }
-
-        /* --- 🚫 CSS ANTI-ANÚNCIOS REFORÇADO --- */
-        /* Garante que qualquer resquício de div de anúncio fica escondido */
-        #aetlis-io_300x250, #aetlis-io_728x90, .ad-box, div[id*="google"], div[id*="aetlis-io"], div[id*="aiptag"] {
-            display: none !important;
-            width: 0 !important;
-            height: 0 !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-        }
-    </style>
-</head>
-
-<body class="text-white">
-
-    <canvas id="canvas"></canvas>
-    <div id="hud"></div>
+<style>
+    /* Estilos Rápidos para evitar o delay do Tailwind */
+    #launcher-ui {
+        background: rgba(15, 15, 18, 0.95) !important;
+        border: 1px solid #27272a !important;
+        border-radius: 24px !important;
+        padding: 40px !important;
+        width: 100%;
+        max-width: 420px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8) !important;
+        backdrop-filter: blur(12px);
+    }
+    .input-group label {
+        display: block;
+        font-size: 12px;
+        text-transform: uppercase;
+        color: #71717a;
+        margin-bottom: 8px;
+        letter-spacing: 0.05em;
+    }
+    .input-group input {
+        width: 100% !important;
+        background: #18181b !important;
+        border: 1px solid #27272a !important;
+        border-radius: 12px !important;
+        padding: 12px 16px !important;
+        color: white !important;
+        outline: none !important;
+        transition: border-color 0.2s;
+        margin-bottom: 20px;
+    }
+    .input-group input:focus { border-color: #7c3aed !important; }
+    
+    #playBtn {
+        background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%) !important;
+        color: white !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.025em;
+        text-transform: uppercase;
+        padding: 16px !important;
+        border-radius: 14px !important;
+        cursor: pointer !important;
+        border: none !important;
+        transition: transform 0.1s, opacity 0.2s !important;
+    }
+    #playBtn:hover { opacity: 0.9; transform: translateY(-1px); }
+    #playBtn:active { transform: translateY(1px); }
+</style>
 
 <div id="launcher-ui">
     <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold tracking-tight text-white mb-1">Eclipse</h1>
-        <p class="text-zinc-500 text-sm font-medium uppercase tracking-widest">Ad-Free Client</p>
+        <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 4px;">Eclipse</h1>
+        <p style="color: #71717a; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">Ad-Free Client</p>
     </div>
 
-    <div class="space-y-5">
-        <div class="group">
-            <label for="nickname">Nickname</label>
-            <input type="text" id="nickname" placeholder="Enter your nickname..." spellcheck="false">
-        </div>
-
-        <div class="group">
-            <label for="skin">Skin URL</label>
-            <input type="text" id="skin" placeholder="https://skins.aetlis.io/s/..." spellcheck="false">
-        </div>
-
-        <button id="playBtn" class="w-full">
-            PLAY (NO ADS)
-        </button>
+    <div class="input-group">
+        <label>Nickname</label>
+        <input type="text" id="nickname" placeholder="Enter your nickname..." autocomplete="off">
+        
+        <label>Skin URL</label>
+        <input type="text" id="skin" placeholder="https://skins.aetlis.io/..." autocomplete="off">
     </div>
 
-    <div class="mt-8 pt-6 border-t border-zinc-800/50 text-center">
-        <div class="flex justify-center gap-4 mb-3">
-            <span class="px-2 py-1 bg-zinc-800/50 rounded text-[10px] text-zinc-400">EU</span>
-            <span class="px-2 py-1 bg-zinc-800/50 rounded text-[10px] text-zinc-400">NA</span>
-            <span class="px-2 py-1 bg-zinc-800/50 rounded text-[10px] text-zinc-400">AS</span>
+    <button id="playBtn">
+        Play (No Ads)
+    </button>
+
+    <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.05); text-align: center;">
+        <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 12px;">
+            <span style="font-size: 10px; padding: 4px 8px; background: rgba(255,255,255,0.05); border-radius: 4px; color: #52525b;">EU</span>
+            <span style="font-size: 10px; padding: 4px 8px; background: rgba(255,255,255,0.05); border-radius: 4px; color: #52525b;">NA</span>
+            <span style="font-size: 10px; padding: 4px 8px; background: rgba(255,255,255,0.05); border-radius: 4px; color: #52525b;">AS</span>
         </div>
-        <p class="text-[10px] text-zinc-600 font-mono tracking-tighter">v1.5 | ECLIPSE PROJECT</p>
+        <p style="font-size: 10px; color: #3f3f46; font-family: monospace;">v1.5 | ECLIPSE PROJECT</p>
     </div>
 </div>
-</body>
-</html>
-
-
-
