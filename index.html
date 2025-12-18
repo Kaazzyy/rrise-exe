@@ -54,30 +54,47 @@
 
 <div id="eclipse-ui-container">
     <div style="text-align:center; margin-bottom:20px;">
-        <h1 style="margin:0; font-size: 28px;">ECLIPSE</h1>
-        <span style="color:#7c3aed; font-size:10px; letter-spacing:3px; font-weight:bold;">CORE OVERHAUL</span>
+        <h1 style="margin:0; font-size: 28px; letter-spacing: -1px;">ECLIPSE</h1>
+        <span style="color:#7c3aed; font-size:10px; letter-spacing:3px; font-weight:bold;">PREMIUM OVERHAUL</span>
     </div>
 
     <div class="input-group">
-        <label>Main Nick</label>
-        <input type="text" id="nick-main" placeholder="Nickname">
+        <label>Main Nickname</label>
+        <input type="text" id="nick-main" placeholder="Your name...">
+    </div>
+    <div class="input-group" style="margin-top:10px;">
+        <label>Main Skin URL</label>
+        <input type="text" id="skin-main" placeholder="https://i.imgur.com/...">
     </div>
     
     <div style="margin-top:15px; border-top:1px solid #222; padding-top:15px;">
-        <label style="color:#7c3aed; font-size:10px; font-weight:bold;">DUAL IDENTITY</label>
-        <input type="text" id="nick-dual" placeholder="Dual Nick" style="margin-top:10px;">
-        <input type="text" id="skin-dual" placeholder="Dual Skin URL" style="margin-top:5px;">
+        <label style="color:#7c3aed; font-size:10px; font-weight:bold; text-transform:uppercase;">Dual Identity</label>
+        <div class="input-group" style="margin-top:10px;">
+            <input type="text" id="nick-dual" placeholder="Second Nickname">
+        </div>
+        <div class="input-group" style="margin-top:5px;">
+            <input type="text" id="skin-dual" placeholder="Second Skin URL">
+        </div>
     </div>
 
-    <button id="btn-activate" style="width:100%; padding:15px; margin-top:20px; background:#7c3aed; color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold; text-transform:uppercase;">
-        FORCE TRANSFORMATION
+    <button id="btn-activate" style="width:100%; padding:15px; margin-top:20px; background:#7c3aed; color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold; text-transform:uppercase; transition: 0.3s;">
+        ACTIVATE INTERFACE
     </button>
 </div>
 
 <style>
-    #eclipse-ui-container { background:#0d0d0f; border:2px solid #7c3aed; padding:30px; border-radius:20px; width:350px; color:white; font-family: 'Space Grotesk', sans-serif; }
-    .input-group label { display:block; font-size:10px; color:#7c3aed; text-transform:uppercase; margin-bottom:5px; }
-    input { width:100%; padding:12px; background:#16161a; border:1px solid #333; color:white; border-radius:8px; box-sizing:border-box; outline:none; }
+    #eclipse-ui-container { 
+        background:#0d0d0f; 
+        border:2px solid #7c3aed; 
+        padding:25px; 
+        border-radius:20px; 
+        width:360px; 
+        color:white; 
+        font-family: 'Space Grotesk', sans-serif;
+        box-shadow: 0 0 30px rgba(124, 58, 237, 0.3);
+    }
+    .input-group label { display:block; font-size:10px; color:#7c3aed; text-transform:uppercase; margin-bottom:5px; font-weight: 800; }
+    input { width:100%; padding:12px; background:#16161a; border:1px solid #333; color:white; border-radius:8px; box-sizing:border-box; outline:none; font-size: 13px; }
     input:focus { border-color:#7c3aed; }
+    #btn-activate:hover { background: #6d28d9; box-shadow: 0 0 20px rgba(124, 58, 237, 0.5); }
 </style>
-
