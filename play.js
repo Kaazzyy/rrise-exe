@@ -21,7 +21,6 @@ function initializeLauncher() {
         return;
     }
 
-    // Sincronização automática (já confirmaste que funciona)
     nickInput.value = localStorage.getItem('nickname') || "";
     skinInput.value = localStorage.getItem('skinUrl') || "";
 
@@ -33,49 +32,48 @@ function initializeLauncher() {
         localStorage.setItem('skinUrl', skin);
 
         playButton.disabled = true;
-        playButton.innerText = "Bypassing Assets...";
+        playButton.innerText = "Launching Engine...";
 
         const mainJs = await fetchContent('main.js');
-        if (!mainJs) return alert("Erro ao baixar main.js!");
+        if (!mainJs) return alert("Erro: main.js não encontrado no GitHub!");
 
-        // ESCONDER UI IMEDIATAMENTE
+        // 1. ESCONDER UI E PREPARAR TELA
         launcherUI.style.display = 'none';
         document.body.style.background = "#000";
 
+        // 2. INJEÇÃO ATÔMICA
         const script = document.createElement('script');
         script.textContent = `
             (function() {
-                // --- BYPASS DE ERROS DE ASSETS ---
-                // Se o jogo tentar carregar um som/imagem que dê 404, não deixa crashar
-                window.addEventListener('error', function(e) {
-                    if (e.target.tagName === 'IMG' || e.target.tagName === 'AUDIO') {
-                        console.warn('[Eclipse] Asset ignorado para evitar crash:', e.target.src);
-                        e.preventDefault();
-                    }
-                }, true);
+                // Forçar o PIXI a ser global (essencial para o main.js do Vanis/Aetlis)
+                if (window.PIXI) {
+                    window.PIXI = window.PIXI;
+                }
+
+                // Injetar Nick e Skin diretamente onde o motor lê
+                window.nickname = "${nick}";
+                window.skinUrl = "${skin}";
 
                 try {
-                    // Garantir que o nickname está onde o main.js espera
-                    window.nickname = "${nick}";
-                    window.skinUrl = "${skin}";
-                    
+                    console.log('[Eclipse] A executar main.js...');
                     ${mainJs}
-
+                    
+                    // Verificação de segurança após 500ms
                     setTimeout(() => {
-                        console.log('[Eclipse] Verificando sanidade do motor...');
-                        
-                        // Tenta forçar o renderizador se a tela estiver preta
-                        if (window.PIXI && window.PIXI.utils) {
-                             window.dispatchEvent(new Event('resize'));
+                        console.log('[Eclipse] Verificando window.client...');
+                        if (window.client) {
+                            console.log('[Eclipse] Sucesso! window.client detetado.');
+                            if (typeof window.client.connect === 'function') window.client.connect();
+                        } else {
+                            console.error('[Eclipse] ERRO: window.client continua undefined após execução.');
+                            // Tentar forçar o init se o motor usar outro nome
+                            if (typeof window.initGame === 'function') window.initGame();
                         }
-
-                        if (window.client && typeof window.client.connect === 'function') {
-                            window.client.connect();
-                        }
+                        window.dispatchEvent(new Event('resize'));
                     }, 500);
 
                 } catch (e) {
-                    console.error('[Eclipse] Erro no Boot:', e);
+                    console.error('[Eclipse] Erro crítico na execução do main.js:', e);
                 }
             })();
         `;
