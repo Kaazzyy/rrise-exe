@@ -1,51 +1,51 @@
-const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main';
-
-async function fetchContent(path) {
-    const res = await fetch(`${RAW_BASE_URL}/${path}?t=${Date.now()}`);
-    return res.ok ? await res.text() : null;
-}
+// play.js - Versão para Injeção Nativa
+function log(msg) { console.log('%c[Eclipse-Play]', 'color: #00ffff; font-weight: bold;', msg); }
 
 function initializeLauncher() {
     const playButton = document.getElementById("playBtn");
+    const nickInput = document.getElementById("nickname");
+    const skinInput = document.getElementById("skin");
+    const launcherUI = document.getElementById("launcher-ui");
+
     if (!playButton) return setTimeout(initializeLauncher, 100);
 
-    // Carregar Nick/Skin salvos
-    document.getElementById("nickname").value = localStorage.getItem('nickname') || "";
-    document.getElementById("skin").value = localStorage.getItem('skinUrl') || "";
+    // Carregar o que está salvo
+    nickInput.value = localStorage.getItem('nickname') || "";
+    skinInput.value = localStorage.getItem('skinUrl') || "";
 
-    playButton.onclick = async () => {
-        const nick = document.getElementById("nickname").value || "EclipsePlayer";
-        const skin = document.getElementById("skin").value || "";
-        
+    playButton.onclick = () => {
+        const nick = nickInput.value || "Eclipse Player";
+        const skin = skinInput.value || "";
+
+        // Salvar
         localStorage.setItem('nickname', nick);
         localStorage.setItem('skinUrl', skin);
 
-        playButton.disabled = true;
-        playButton.innerText = "Bypassing Anti-Mod...";
+        log("A conectar ao jogo oficial...");
 
-        const mainJs = await fetchContent('main.js');
-        if (!mainJs) return alert("Erro ao baixar main.js");
+        // 1. Passar os dados para o jogo original
+        // No Aetlis/Vanis original, os inputs têm IDs específicos
+        const nativeNick = document.getElementById('nickname'); // id do jogo original
+        if (nativeNick) {
+            nativeNick.value = nick;
+            nativeNick.dispatchEvent(new Event('input'));
+        }
 
-        // ESCONDER UI
-        document.getElementById('launcher-ui').style.display = 'none';
+        // 2. Tentar conectar usando o objeto global do jogo
+        if (window.client && typeof window.client.connect === 'function') {
+            window.client.connect();
+        }
 
-        // CRIAR UM BLOB (Faz o script parecer um ficheiro real do site)
-        const blob = new Blob([mainJs], { type: 'application/javascript' });
-        const scriptUrl = URL.createObjectURL(blob);
-        const script = document.createElement('script');
-        script.src = scriptUrl;
-        
-        script.onload = () => {
-            console.log('[Eclipse] Engine carregada via Blob.');
-            setTimeout(() => {
-                if (window.client && window.client.connect) {
-                    window.client.connect();
-                }
-                window.dispatchEvent(new Event('resize'));
-            }, 300);
-        };
-
-        document.head.appendChild(script);
+        // 3. Esconder o teu Launcher
+        launcherUI.style.transition = "opacity 0.5s";
+        launcherUI.style.opacity = "0";
+        setTimeout(() => {
+            launcherUI.style.display = 'none';
+            // Forçar o foco no canvas para poderes jogar
+            const canvas = document.getElementById('canvas');
+            if(canvas) canvas.focus();
+        }, 500);
     };
 }
+
 initializeLauncher();
