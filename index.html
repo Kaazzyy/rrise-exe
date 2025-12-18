@@ -48,7 +48,6 @@
         background: #242427 !important;
     }
 
-    /* Nova Secção Multibox */
     .dual-section {
         margin-top: 24px !important;
         padding-top: 20px !important;
@@ -79,16 +78,7 @@
         letter-spacing: 1px !important;
         transition: all 0.2s !important;
         margin-top: 15px !important;
-        box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3) !important;
     }
-
-    #playBtn:hover {
-        opacity: 0.9 !important;
-        transform: translateY(-1px) !important;
-        box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4) !important;
-    }
-
-    #playBtn:active { transform: translateY(1px) !important; }
 
     .footer-text {
         text-align: center !important;
@@ -96,46 +86,40 @@
         color: #3f3f46 !important;
         margin-top: 25px !important;
         font-family: monospace !important;
-        letter-spacing: 1px !important;
     }
 </style>
 
 <div id="eclipse-ui-container">
     <div class="text-center mb-8">
-        <h1 style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -1px; color: white;">Eclipse</h1>
+        <h1 style="margin: 0; font-size: 32px; font-weight: 800; color: white;">Eclipse</h1>
         <p style="margin: 4px 0 0; color: #7c3aed; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Ad-Free Client</p>
     </div>
 
     <div class="input-wrapper">
-        <label for="nickname">Main Nickname</label>
-        <input type="text" id="nickname" placeholder="Your name..." autocomplete="off" spellcheck="false">
+        <label>Main Nickname</label>
+        <input type="text" id="nickname" placeholder="Your name...">
     </div>
 
     <div class="input-wrapper">
-        <label for="skin">Main Skin URL</label>
-        <input type="text" id="skin" placeholder="https://skins.aetlis.io/..." autocomplete="off" spellcheck="false">
+        <label>Main Skin URL</label>
+        <input type="text" id="skin" placeholder="https://...">
     </div>
 
     <div class="dual-section">
         <span class="dual-title">Dual Identity (Multibox)</span>
-        
         <div class="input-wrapper">
-            <label for="dualNickname">Dual Nickname</label>
-            <input type="text" id="dualNickname" placeholder="Second player name..." autocomplete="off" spellcheck="false">
+            <label>Dual Nickname</label>
+            <input type="text" id="dualNickname" placeholder="Second name...">
         </div>
-
         <div class="input-wrapper">
-            <label for="dualSkin">Dual Skin URL</label>
-            <input type="text" id="dualSkin" placeholder="Second skin URL..." autocomplete="off" spellcheck="false">
+            <label>Dual Skin URL</label>
+            <input type="text" id="dualSkin" placeholder="Second skin...">
         </div>
     </div>
 
-    <button id="playBtn">Play with Dual</button>
+    <button id="playBtn">Play Now</button>
 
     <div class="footer-text">
-        <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; opacity: 0.4;">
-            <span>[EU]</span><span>[NA]</span><span>[AS]</span>
-        </div>
-        v1.6 | ECLIPSE PROJECT
+        v1.7 | ECLIPSE PROJECT
     </div>
 </div>
