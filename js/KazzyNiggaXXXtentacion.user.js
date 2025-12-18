@@ -1,9 +1,7 @@
 // ==UserScript==
-// @name         Eclipse - Aetlis Hard Overhaul
-// @version      36.0.0
-// @author       Kazzy
+// @name         Eclipse - Visual Ativator
+// @version      3.8.0
 // @match        *://aetlis.io/*
-// @run-at       document-start
 // @grant        none
 // ==/UserScript==
 
@@ -11,57 +9,34 @@
     'use strict';
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
-    async function init() {
-        const response = await fetch(`${GITHUB_URL}?t=${Date.now()}`);
-        const html = await response.text();
+    async function start() {
+        const res = await fetch(`${GITHUB_URL}?t=${Date.now()}`);
+        const html = await res.text();
 
-        const overlay = document.createElement('div');
-        overlay.id = "eclipse-overlay";
-        overlay.style.cssText = "position:fixed; inset:0; z-index:999999; background:#000; display:flex; align-items:center; justify-content:center;";
-        overlay.innerHTML = html;
-        document.body.appendChild(overlay);
+        const ui = document.createElement('div');
+        ui.id = "eclipse-launcher";
+        ui.style.cssText = "position:fixed; inset:0; z-index:1000000; background:rgba(0,0,0,0.95); display:flex; align-items:center; justify-content:center;";
+        ui.innerHTML = html;
+        document.body.appendChild(ui);
 
-        const btn = overlay.querySelector('#playBtn');
-        
-        btn.onclick = () => {
-            // Aplicar a classe ao body
-            document.body.classList.add('eclipse-mode');
-            
-            // Forçar a classe mesmo que o jogo tente remover
-            setInterval(() => {
-                if(!document.body.classList.contains('eclipse-mode')) {
-                    document.body.classList.add('eclipse-mode');
-                }
-            }, 1000);
+        ui.querySelector('#playBtn').onclick = () => {
+            // Ativa o CSS In-Game
+            document.body.classList.add('eclipse-active');
 
-            const vals = {
-                nick: document.querySelector('#nickname').value,
-                skin: document.querySelector('#skin').value.trim(),
-                dNick: document.querySelector('#dualNickname').value,
-                dSkin: document.querySelector('#dualSkin').value.trim()
-            };
+            // Passa os dados para o jogo (mesmo que os lobbies não funcionem)
+            const nick = ui.querySelector('#nickname').value;
+            const gameNick = document.querySelector('input[placeholder*="Nick"]');
+            if (gameNick) {
+                gameNick.value = nick;
+                gameNick.dispatchEvent(new Event('input', { bubbles: true }));
+            }
 
-            // Salvar no storage
-            localStorage.setItem('eclipse_nick', vals.nick);
-            localStorage.setItem('eclipse_skin', vals.skin);
-            if(vals.dNick) localStorage.setItem('dualNickname', vals.dNick);
-            if(vals.dSkin) localStorage.setItem('dualSkinUrl', vals.dSkin);
-
-            // Injetar no jogo
-            setTimeout(() => {
-                const gameNick = document.querySelector('main-container input, input[placeholder*="Nick"]');
-                if (gameNick) {
-                    gameNick.value = vals.nick;
-                    gameNick.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-                
-                // Fade out e remove o launcher
-                overlay.style.transition = 'opacity 0.5s';
-                overlay.style.opacity = '0';
-                setTimeout(() => overlay.remove(), 500);
-            }, 200);
+            // Esconde o Launcher para veres o menu do jogo alterado
+            ui.style.transition = '0.4s';
+            ui.style.opacity = '0';
+            setTimeout(() => ui.remove(), 400);
         };
     }
 
-    const check = setInterval(() => { if (document.body) { clearInterval(check); init(); } }, 100);
+    const check = setInterval(() => { if(document.body) { clearInterval(check); start(); } }, 200);
 })();
