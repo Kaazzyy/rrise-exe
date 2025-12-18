@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Multibox & Skin Sync
-// @version      14.0.0
+// @name         Eclipse - Smart Skin & Multibox Sync
+// @version      15.0.0
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -12,7 +12,7 @@
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
     function simulateTyping(element, value) {
-        if (!element || value === undefined) return;
+        if (!element || !value) return;
         element.value = value;
         ['input', 'change', 'blur'].forEach(type => {
             element.dispatchEvent(new Event(type, { bubbles: true }));
@@ -30,71 +30,66 @@
         document.body.appendChild(overlay);
 
         const btn = overlay.querySelector('#playBtn');
-        const nickInp = overlay.querySelector('#nickname');
-        const skinInp = overlay.querySelector('#skin');
-        const dualNickInp = overlay.querySelector('#dualNickname');
-        const dualSkinInp = overlay.querySelector('#dualSkin');
+        const fields = {
+            nick: overlay.querySelector('#nickname'),
+            skin: overlay.querySelector('#skin'),
+            dNick: overlay.querySelector('#dualNickname'),
+            dSkin: overlay.querySelector('#dualSkin')
+        };
 
-        // Carregar dados guardados
-        nickInp.value = localStorage.getItem('eclipse_nick') || "";
-        skinInp.value = localStorage.getItem('eclipse_skin') || "";
-        dualNickInp.value = localStorage.getItem('eclipse_dual_nick') || "";
-        dualSkinInp.value = localStorage.getItem('eclipse_dual_skin') || "";
+        // Carregar do Storage
+        Object.keys(fields).forEach(key => {
+            fields[key].value = localStorage.getItem('eclipse_' + key) || "";
+        });
 
         btn.onclick = () => {
-            const data = {
-                nick: nickInp.value,
-                skin: skinInp.value,
-                dualNick: dualNickInp.value,
-                dualSkin: dualSkinInp.value
+            const vals = {
+                nick: fields.nick.value,
+                skin: fields.skin.value,
+                dNick: fields.dNick.value,
+                dSkin: fields.dSkin.value
             };
-            
-            // Guardar no Storage
-            localStorage.setItem('eclipse_nick', data.nick);
-            localStorage.setItem('eclipse_skin', data.skin);
-            localStorage.setItem('eclipse_dual_nick', data.dualNick);
-            localStorage.setItem('eclipse_dual_skin', data.dualSkin);
 
-            // 1. Lógica da Skin Principal (Adicionar slot novo se necessário)
-            const addSkinBtn = document.querySelector('.add-skin, img[src*="skin-add.png"]');
-            if (addSkinBtn && data.skin.trim() !== "") addSkinBtn.click();
+            // Guardar no Storage
+            Object.keys(vals).forEach(key => localStorage.setItem('eclipse_' + key, vals[key]));
+
+            // --- LÓGICA INTELIGENTE DE SKIN (EVITAR DUPLICADOS) ---
+            if (vals.skin.trim() !== "") {
+                // Procurar todas as skins já existentes na aba de skins do jogo
+                const existingSkins = Array.from(document.querySelectorAll('.skin:not(.add-skin)'))
+                    .map(img => img.src);
+                
+                const skinAlreadyExists = existingSkins.some(src => src.includes(vals.skin) || vals.skin.includes(src));
+
+                if (!skinAlreadyExists) {
+                    const addBtn = document.querySelector('.add-skin, img[src*="skin-add.png"]');
+                    if (addBtn) addBtn.click();
+                }
+            }
 
             setTimeout(() => {
-                // 2. Sincronizar Player 1
-                const realNick = document.querySelector('input[placeholder*="Nickname"]:not(#eclipse-overlay input)');
-                const realSkin = document.querySelector('input[placeholder*="Skin URL"]:not(#eclipse-overlay input)');
-                simulateTyping(realNick, data.nick);
-                simulateTyping(realSkin, data.skin);
+                // Sincronizar Player 1
+                simulateTyping(document.querySelector('input[placeholder*="Nickname"]:not(#eclipse-overlay input)'), vals.nick);
+                simulateTyping(document.querySelector('input[placeholder*="Skin URL"]:not(#eclipse-overlay input)'), vals.skin);
 
-                // 3. Sincronizar Dual Player (Multibox)
-                // Usando os seletores que encontraste nos elementos
-                const dualSection = document.querySelector('.dual-section-content');
-                if (dualSection) {
-                    const dualInputs = dualSection.querySelectorAll('input.input-text');
-                    if (dualInputs.length >= 2) {
-                        simulateTyping(dualInputs[0], data.dualNick); // Dual Nickname
-                        simulateTyping(dualInputs[1], data.dualSkin); // Dual Skin URL
-                    }
+                // Sincronizar Multibox
+                const dualInputs = document.querySelectorAll('.dual-section-content input.input-text');
+                if (dualInputs.length >= 2) {
+                    simulateTyping(dualInputs[0], vals.dNick);
+                    simulateTyping(dualInputs[1], vals.dSkin);
                 }
 
-                // 4. Injeção no Client
+                // Iniciar Jogo
                 if (window.client) {
                     if (window.client.connect) window.client.connect();
-                    setTimeout(() => {
-                        if (window.client.spawn) window.client.spawn(data.nick);
-                    }, 500);
+                    setTimeout(() => { if (window.client.spawn) window.client.spawn(vals.nick); }, 500);
                 }
-            }, 150);
+            }, 200);
 
             overlay.remove();
             window.dispatchEvent(new Event('resize'));
         };
     }
 
-    const checkBody = setInterval(() => {
-        if (document.body) {
-            clearInterval(checkBody);
-            init();
-        }
-    }, 100);
+    const checkBody = setInterval(() => { if (document.body) { clearInterval(checkBody); init(); } }, 100);
 })();
