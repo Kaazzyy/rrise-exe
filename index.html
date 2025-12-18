@@ -1,19 +1,19 @@
 <style>
     #eclipse-ui-container {
-        background: #111113 !important;
+        background: #0f0f12 !important;
         border: 1px solid #27272a !important;
         border-radius: 20px !important;
         padding: 30px !important;
         width: 380px !important;
         color: white !important;
-        font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8) !important;
+        font-family: 'Inter', sans-serif !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9) !important;
         box-sizing: border-box !important;
         pointer-events: auto !important;
     }
 
     .text-center { text-align: center !important; }
-    .mb-8 { margin-bottom: 30px !important; }
+    .mb-6 { margin-bottom: 24px !important; }
     
     .input-wrapper {
         margin-bottom: 16px !important;
@@ -27,29 +27,23 @@
         margin-bottom: 6px !important;
         text-transform: uppercase !important;
         letter-spacing: 1px !important;
-        font-weight: 600 !important;
     }
 
     .input-wrapper input {
         width: 100% !important;
-        background: #1c1c1f !important;
+        background: #18181b !important;
         border: 1px solid #3f3f46 !important;
         border-radius: 10px !important;
-        padding: 12px 14px !important;
+        padding: 12px !important;
         color: white !important;
-        font-size: 14px !important;
         outline: none !important;
-        transition: all 0.2s !important;
         box-sizing: border-box !important;
     }
 
-    .input-wrapper input:focus {
-        border-color: #7c3aed !important;
-        background: #242427 !important;
-    }
+    .input-wrapper input:focus { border-color: #7c3aed !important; }
 
     .dual-section {
-        margin-top: 24px !important;
+        margin-top: 20px !important;
         padding-top: 20px !important;
         border-top: 1px solid #27272a !important;
     }
@@ -60,7 +54,6 @@
         color: #7c3aed !important;
         text-transform: uppercase !important;
         font-weight: 800 !important;
-        letter-spacing: 2px !important;
         margin-bottom: 15px !important;
     }
 
@@ -72,27 +65,23 @@
         border-radius: 12px !important;
         padding: 16px !important;
         font-weight: 700 !important;
-        font-size: 14px !important;
         cursor: pointer !important;
         text-transform: uppercase !important;
-        letter-spacing: 1px !important;
-        transition: all 0.2s !important;
-        margin-top: 15px !important;
+        margin-top: 10px !important;
     }
 
     .footer-text {
         text-align: center !important;
         font-size: 10px !important;
         color: #3f3f46 !important;
-        margin-top: 25px !important;
-        font-family: monospace !important;
+        margin-top: 20px !important;
     }
 </style>
 
 <div id="eclipse-ui-container">
-    <div class="text-center mb-8">
-        <h1 style="margin: 0; font-size: 32px; font-weight: 800; color: white;">Eclipse</h1>
-        <p style="margin: 4px 0 0; color: #7c3aed; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Ad-Free Client</p>
+    <div class="text-center mb-6">
+        <h1 style="margin: 0; font-size: 28px; font-weight: 800;">Eclipse</h1>
+        <p style="margin: 0; color: #7c3aed; font-size: 10px; text-transform: uppercase; letter-spacing: 2px;">Ad-Free Client</p>
     </div>
 
     <div class="input-wrapper">
@@ -119,7 +108,5 @@
 
     <button id="playBtn">Play Now</button>
 
-    <div class="footer-text">
-        v1.7 | ECLIPSE PROJECT
-    </div>
+    <div class="footer-text">v1.8 | ECLIPSE PROJECT</div>
 </div>
