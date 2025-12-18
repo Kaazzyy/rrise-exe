@@ -1,67 +1,93 @@
 const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main'; 
 
-function eclipseLog(msg, color = "#00ff00") {
-    console.log(`%c[Eclipse-Debug] ${msg}`, `color: ${color}; font-weight: bold;`);
+function log(msg, color = "#00ffff") {
+    console.log(`%c[Eclipse-System] ${msg}`, `color: ${color}; font-weight: bold;`);
 }
 
 async function fetchContent(path) {
-    const res = await fetch(`${RAW_BASE_URL}/${path}?t=${Date.now()}`); 
-    return res.ok ? await res.text() : null;
+    try {
+        const res = await fetch(`${RAW_BASE_URL}/${path}?t=${Date.now()}`); 
+        return res.ok ? await res.text() : null;
+    } catch (e) { return null; }
 }
 
 function init() {
-    eclipseLog("Lógica do Launcher iniciada.");
+    log("Launcher pronto. A aguardar inputs...");
     const btn = document.getElementById("playBtn");
-    
-    if (!btn) {
-        eclipseLog("ERRO: Não encontrei o botão 'playBtn'!", "#ff0000");
-        return;
-    }
+    const nickInp = document.getElementById("nickname");
+    const skinInp = document.getElementById("skin");
 
-    // Ativa o botão
+    if (!btn) return;
+
+    // Ativa o botão imediatamente
     btn.disabled = false;
     btn.innerText = "Play Now";
-    eclipseLog("Botão ativado. À espera do clique...");
+    btn.style.opacity = "1";
 
     btn.addEventListener("click", async () => {
-        eclipseLog("Botão clicado!");
-        btn.innerText = "Downloading main.js...";
+        const nick = nickInp.value || "EclipsePlayer";
+        const skin = skinInp.value || "";
+        
+        log(`A preparar entrada para: ${nick}`);
+        btn.innerText = "Injecting Engine...";
         btn.disabled = true;
 
+        // 1. Gravar dados (Onde o jogo vai ler)
+        localStorage.setItem('nickname', nick);
+        localStorage.setItem('skinUrl', skin);
+        window.Eclipse_Nickname = nick; 
+
+        // 2. Buscar o Main.js
         const mainCode = await fetchContent("main.js");
         if (!mainCode) {
-            eclipseLog("ERRO: main.js veio vazio ou deu erro de rede.", "#ff0000");
+            btn.innerText = "Error: main.js 404";
             return;
         }
 
-        eclipseLog("main.js descarregado. Tamanho: " + mainCode.length + " caracteres.");
-        btn.innerText = "Injetando Motor...";
+        log("Main.js descarregado. A forçar arranque...");
 
-        // Esta é a parte onde costuma congelar. Vamos envolver em 'try/catch'
-        try {
-            const script = document.createElement('script');
-            // Adicionamos um pequeno atraso e código de arranque forçado
-            script.textContent = mainCode + `
-                console.log('[Eclipse] Código do jogo injetado. A tentar arrancar...');
-                setTimeout(() => {
-                    if (window.client && window.client.connect) window.client.connect();
-                    else if (window.initGame) window.initGame();
-                    console.log('[Eclipse] Tentativa de boot enviada.');
-                }, 500);
-            `;
-            document.body.appendChild(script);
-            eclipseLog("Injeção concluída com sucesso!");
-            
-            // Esconde o launcher
-            setTimeout(() => {
-                document.getElementById('launcher-ui').style.display = 'none';
-                document.body.style.background = 'none';
-            }, 1000);
+        // 3. Injeção e Gatilho de Conexão
+        const script = document.createElement('script');
+        script.textContent = `
+            try {
+                // Injeta o código do jogo
+                ${mainCode}
+                
+                console.log('[Eclipse] Motor injetado. A procurar função de connect...');
 
-        } catch (err) {
-            eclipseLog("CRASH na injeção: " + err.message, "#ff0000");
-        }
+                // Tenta forçar a conexão de 100ms em 100ms até o jogo responder
+                let attempts = 0;
+                const forceStart = setInterval(() => {
+                    attempts++;
+                    
+                    // Procura pelo cliente do jogo no objeto global
+                    const game = window.client || window.game || window.Aetlis;
+                    
+                    if (game && (game.connect || game.init)) {
+                        console.log('[Eclipse] Motor encontrado! A ligar ao servidor...');
+                        if (game.connect) game.connect();
+                        else if (game.init) game.init();
+                        
+                        // Esconde a UI para veres o jogo
+                        document.getElementById('launcher-ui').style.display = 'none';
+                        document.body.style.background = 'none';
+                        
+                        clearInterval(forceStart);
+                    }
+
+                    if (attempts > 50) { // Para de tentar após 5 segundos
+                        clearInterval(forceStart);
+                        console.log('[Eclipse] Timeout: O motor não respondeu ao comando connect.');
+                    }
+                }, 100);
+
+            } catch(e) {
+                console.error('[Eclipse] Erro na execução do main.js:', e);
+            }
+        `;
+        document.body.appendChild(script);
     });
 }
 
-setTimeout(init, 500);
+// Pequeno delay para garantir que o HTML está montado
+setTimeout(init, 200);
