@@ -1,66 +1,67 @@
 // ==UserScript==
-// @name         Eclipse - Aetlis Visual Overhaul
-// @version      35.0.0
+// @name         Eclipse - Aetlis Hard Overhaul
+// @version      36.0.0
 // @author       Kazzy
 // @match        *://aetlis.io/*
+// @run-at       document-start
 // @grant        none
 // ==/UserScript==
 
 (function() {
     'use strict';
-    
-    // URL do teu ficheiro HTML no GitHub (Substitui pela tua se necessário)
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
     async function init() {
         const response = await fetch(`${GITHUB_URL}?t=${Date.now()}`);
         const html = await response.text();
 
-        const eclipseOverlay = document.createElement('div');
-        eclipseOverlay.id = "eclipse-init-screen";
-        eclipseOverlay.style.cssText = "position:fixed; inset:0; z-index:999999; background:#000; display:flex; align-items:center; justify-content:center;";
-        eclipseOverlay.innerHTML = html;
-        document.body.appendChild(eclipseOverlay);
+        const overlay = document.createElement('div');
+        overlay.id = "eclipse-overlay";
+        overlay.style.cssText = "position:fixed; inset:0; z-index:999999; background:#000; display:flex; align-items:center; justify-content:center;";
+        overlay.innerHTML = html;
+        document.body.appendChild(overlay);
 
-        const playBtn = eclipseOverlay.querySelector('#playBtn');
+        const btn = overlay.querySelector('#playBtn');
         
-        playBtn.onclick = () => {
-            // 1. Ativa o modo visual no BODY (Dispara o CSS acima)
+        btn.onclick = () => {
+            // Aplicar a classe ao body
             document.body.classList.add('eclipse-mode');
+            
+            // Forçar a classe mesmo que o jogo tente remover
+            setInterval(() => {
+                if(!document.body.classList.contains('eclipse-mode')) {
+                    document.body.classList.add('eclipse-mode');
+                }
+            }, 1000);
 
-            // 2. Captura os valores do teu launcher
-            const data = {
+            const vals = {
                 nick: document.querySelector('#nickname').value,
                 skin: document.querySelector('#skin').value.trim(),
                 dNick: document.querySelector('#dualNickname').value,
                 dSkin: document.querySelector('#dualSkin').value.trim()
             };
 
-            // 3. Persistência
-            localStorage.setItem('eclipse_nick', data.nick);
-            localStorage.setItem('eclipse_skin', data.skin);
-            if(data.dNick) localStorage.setItem('dualNickname', data.dNick);
-            if(data.dSkin) localStorage.setItem('dualSkinUrl', data.dSkin);
+            // Salvar no storage
+            localStorage.setItem('eclipse_nick', vals.nick);
+            localStorage.setItem('eclipse_skin', vals.skin);
+            if(vals.dNick) localStorage.setItem('dualNickname', vals.dNick);
+            if(vals.dSkin) localStorage.setItem('dualSkinUrl', vals.dSkin);
 
-            // 4. Injeta os dados no jogo real (usando seletores do index.html original)
-            const gameInput = document.querySelector('main-container input, .input-text');
-            if (gameInput) {
-                gameInput.value = data.nick;
-                gameInput.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-
-            // 5. Remove o launcher inicial para revelar o menu do jogo transformado
-            eclipseOverlay.style.transition = '0.5s';
-            eclipseOverlay.style.opacity = '0';
-            setTimeout(() => eclipseOverlay.remove(), 500);
+            // Injetar no jogo
+            setTimeout(() => {
+                const gameNick = document.querySelector('main-container input, input[placeholder*="Nick"]');
+                if (gameNick) {
+                    gameNick.value = vals.nick;
+                    gameNick.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+                
+                // Fade out e remove o launcher
+                overlay.style.transition = 'opacity 0.5s';
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.remove(), 500);
+            }, 200);
         };
     }
 
-    // Espera o jogo carregar o DOM
-    const loader = setInterval(() => {
-        if (document.body) {
-            clearInterval(loader);
-            init();
-        }
-    }, 200);
+    const check = setInterval(() => { if (document.body) { clearInterval(check); init(); } }, 100);
 })();
