@@ -12,26 +12,52 @@
         pointer-events: auto !important;
     }
     .text-center { text-align: center !important; }
-    .input-wrapper { margin-bottom: 20px !important; text-align: left !important; }
-    .input-wrapper label { display: block !important; font-size: 11px !important; color: #7c3aed !important; margin-bottom: 8px !important; text-transform: uppercase; font-weight: 800; }
-    .input-wrapper input { width: 100% !important; background: #16161a !important; border: 1px solid #3f3f46 !important; border-radius: 10px !important; padding: 14px !important; color: white !important; outline: none !important; box-sizing: border-box !important; }
-    #playBtn { width: 100% !important; background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%) !important; color: white !important; border: none !important; border-radius: 12px !important; padding: 18px !important; font-weight: 800 !important; cursor: pointer !important; margin-top: 10px; text-transform: uppercase; }
-    .footer { text-align: center !important; font-size: 10px !important; color: #3f3f46 !important; margin-top: 25px; font-family: monospace; }
+    .input-wrapper { margin-bottom: 15px !important; text-align: left !important; }
+    .input-wrapper label { display: block !important; font-size: 10px !important; color: #71717a !important; margin-bottom: 5px !important; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; }
+    .input-wrapper input { width: 100% !important; background: #16161a !important; border: 1px solid #3f3f46 !important; border-radius: 8px !important; padding: 12px !important; color: white !important; outline: none !important; box-sizing: border-box !important; font-size: 13px; }
+    .input-wrapper input:focus { border-color: #7c3aed !important; }
+    
+    .dual-header { 
+        display: block !important; 
+        color: #7c3aed !important; 
+        font-size: 10px !important; 
+        font-weight: 800 !important; 
+        text-transform: uppercase; 
+        margin: 20px 0 15px !important; 
+        padding-top: 15px; 
+        border-top: 1px solid #27272a; 
+        letter-spacing: 2px;
+    }
+
+    #playBtn { width: 100% !important; background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%) !important; color: white !important; border: none !important; border-radius: 12px !important; padding: 16px !important; font-weight: 800 !important; cursor: pointer !important; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; }
+    .footer { text-align: center !important; font-size: 9px !important; color: #3f3f46 !important; margin-top: 20px; font-family: monospace; }
 </style>
 
 <div id="eclipse-ui-container">
-    <div class="text-center" style="margin-bottom: 30px;">
-        <h1 style="margin: 0; font-size: 30px;">ECLIPSE</h1>
-        <div style="color: #7c3aed; font-size: 11px; font-weight: bold; letter-spacing: 2px;">SMART SKIN v2.3</div>
+    <div class="text-center" style="margin-bottom: 25px;">
+        <h1 style="margin: 0; font-size: 28px; letter-spacing: -1px;">ECLIPSE</h1>
+        <div style="color: #7c3aed; font-size: 10px; font-weight: bold; letter-spacing: 3px;">MULTIBOX READY</div>
+    </div>
+
+    <div class="input-wrapper">
+        <label>Main Nickname</label>
+        <input type="text" id="nickname" placeholder="Player name...">
     </div>
     <div class="input-wrapper">
-        <label>Player Nickname</label>
-        <input type="text" id="nickname" placeholder="Enter name...">
+        <label>Main Skin URL</label>
+        <input type="text" id="skin" placeholder="Skin URL...">
+    </div>
+
+    <span class="dual-header">Dual Identity</span>
+    <div class="input-wrapper">
+        <label>Dual Nickname (Optional)</label>
+        <input type="text" id="dualNickname" placeholder="Second name...">
     </div>
     <div class="input-wrapper">
-        <label>Custom Skin URL</label>
-        <input type="text" id="skin" placeholder="Paste link here...">
+        <label>Dual Skin URL (Optional)</label>
+        <input type="text" id="dualSkin" placeholder="Second skin URL...">
     </div>
+
     <button id="playBtn">SPAWN NOW</button>
-    <div class="footer">ECLIPSE PROJECT | v2.3</div>
+    <div class="footer">ECLIPSE PROJECT | v2.5</div>
 </div>
