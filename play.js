@@ -21,6 +21,7 @@ function initializeLauncher() {
         return;
     }
 
+    // Carregar dados salvos
     nickInput.value = localStorage.getItem('nickname') || "";
     skinInput.value = localStorage.getItem('skinUrl') || "";
 
@@ -32,49 +33,54 @@ function initializeLauncher() {
         localStorage.setItem('skinUrl', skin);
 
         playButton.disabled = true;
-        playButton.innerText = "Launching Engine...";
+        playButton.innerText = "Cleaning environment...";
 
+        // Baixar o main.js
         const mainJs = await fetchContent('main.js');
-        if (!mainJs) return alert("Erro: main.js não encontrado no GitHub!");
+        if (!mainJs) return alert("Erro: main.js não encontrado!");
 
-        // 1. ESCONDER UI E PREPARAR TELA
+        // --- BYPASS DE SEGURANÇA ---
+        // Esconder UI e forçar fundo preto
         launcherUI.style.display = 'none';
         document.body.style.background = "#000";
 
-        // 2. INJEÇÃO ATÔMICA
         const script = document.createElement('script');
         script.textContent = `
             (function() {
-                // Forçar o PIXI a ser global (essencial para o main.js do Vanis/Aetlis)
-                if (window.PIXI) {
-                    window.PIXI = window.PIXI;
-                }
-
-                // Injetar Nick e Skin diretamente onde o motor lê
+                // 1. Injetar configurações onde o main.js espera (Vanis/Aetlis padrão)
                 window.nickname = "${nick}";
                 window.skinUrl = "${skin}";
-
+                
+                // 2. Mock de funções de ads para evitar crash
+                window.aiptag = { cmd: { push: (f) => f() }, loaded: true };
+                
                 try {
-                    console.log('[Eclipse] A executar main.js...');
-                    ${mainJs}
+                    console.log('[Eclipse] A disparar motor principal...');
                     
-                    // Verificação de segurança após 500ms
-                    setTimeout(() => {
-                        console.log('[Eclipse] Verificando window.client...');
-                        if (window.client) {
-                            console.log('[Eclipse] Sucesso! window.client detetado.');
-                            if (typeof window.client.connect === 'function') window.client.connect();
-                        } else {
-                            console.error('[Eclipse] ERRO: window.client continua undefined após execução.');
-                            // Tentar forçar o init se o motor usar outro nome
-                            if (typeof window.initGame === 'function') window.initGame();
-                        }
-                        window.dispatchEvent(new Event('resize'));
-                    }, 500);
+                    // Executa o main.js
+                    ${mainJs}
 
-                } catch (e) {
-                    console.error('[Eclipse] Erro crítico na execução do main.js:', e);
+                    // 3. Verificação forçada de conexão
+                    let attempts = 0;
+                    const checkClient = setInterval(() => {
+                        attempts++;
+                        if (window.client && typeof window.client.connect === 'function') {
+                            console.log('[Eclipse] Client encontrado! Conectando...');
+                            window.client.connect();
+                            clearInterval(checkClient);
+                        } 
+                        if (attempts > 20) {
+                            console.warn('[Eclipse] Client não subiu automaticamente. Tentando forçar init...');
+                            if (window.initGame) window.initGame();
+                            clearInterval(checkClient);
+                        }
+                    }, 200);
+
+                } catch (err) {
+                    console.error('[Eclipse] Crash no main.js:', err);
                 }
+                
+                window.dispatchEvent(new Event('resize'));
             })();
         `;
         document.body.appendChild(script);
