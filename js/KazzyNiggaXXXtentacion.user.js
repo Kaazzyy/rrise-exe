@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Precision Overhaul
-// @version      3.9.0
+// @name         Eclipse - Play Fix & Dual
+// @version      4.0.0
 // @match        *://aetlis.io/*
 // @grant        none
 // ==/UserScript==
@@ -20,9 +20,10 @@
         document.body.appendChild(overlay);
 
         overlay.querySelector('#playBtn').onclick = () => {
+            // Ativa o modo visual
             document.body.classList.add('eclipse-mode');
 
-            // Captura valores do Launcher
+            // Captura os dados
             const vals = {
                 nick: document.querySelector('#nickname').value,
                 skin: document.querySelector('#skin').value,
@@ -30,17 +31,18 @@
                 dSkin: document.querySelector('#dualSkin').value
             };
 
-            // Sincroniza com o localStorage do jogo para o Dual
+            // Sincroniza Dual via LocalStorage (Caminho mais seguro no Aetlis)
             if (vals.dNick) localStorage.setItem('dualNickname', vals.dNick);
             if (vals.dSkin) localStorage.setItem('dualSkinUrl', vals.dSkin);
 
-            // Sincroniza Nick Principal no input do jogo
-            const gameInput = document.querySelector('input[placeholder*="Nickname"], .input-text');
+            // Sincroniza Nick Principal
+            const gameInput = document.querySelector('input[placeholder*="Nick"], .input-text');
             if (gameInput) {
                 gameInput.value = vals.nick;
                 gameInput.dispatchEvent(new Event('input', { bubbles: true }));
             }
 
+            // Remove o launcher para libertar o botão de Play original
             overlay.remove();
         };
     }
