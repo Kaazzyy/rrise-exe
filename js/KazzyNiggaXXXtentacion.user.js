@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Precision UI v6.3
-// @version      6.3.0
+// @name         Eclipse - Zero-Footer v6.4
+// @version      6.4.0
 // @match        *://aetlis.io/*
 // @grant        none
 // ==/UserScript==
@@ -30,55 +30,44 @@
 
                 const style = document.createElement('style');
                 style.innerText = `
-                    /* 1. VOLTAR COM O ROXO NOS CONTAINERS PRINCIPAIS (v5.6 Style) */
-                    main-container, .main-container, box-container, .box-container {
+                    /* 1. BASE v6.1: ROXO EM TUDO */
+                    main-container, [class*="container"], [class*="box"], .main-container {
                         background-color: #0d0d0f !important;
+                        background-image: none !important;
                         border: 2px solid #7c3aed !important;
                         border-radius: 15px !important;
                         box-shadow: 0 0 25px rgba(124, 58, 237, 0.4) !important;
                     }
 
-                    /* 2. REMOVER APENAS O QUE PEDISTE (Sem Borda e Sem Roxo em volta) */
-                    .bottom-links, 
-                    .social-links, 
-                    .privacy-policy, 
-                    .terms-link, 
-                    .policy-container,
-                    [class*="footer"] a,
-                    .social-links a {
+                    /* 2. REMOVER BORDAS APENAS DA POLÍTICA (TOPO) E LINKS (BAIXO) */
+                    .privacy-policy, .terms-link, .policy-container,
+                    .bottom-links, .social-links, [class*="footer"] {
                         border: none !important;
-                        box-shadow: none !important;
                         background: transparent !important;
-                        outline: none !important;
+                        box-shadow: none !important;
                     }
 
-                    /* 3. AJUSTE DAS SKINS (Círculo Perfeito e Ajustado) */
-                    .skin-item, .perk-item, .skin-container {
+                    /* 3. FIX DAS SKINS (AJUSTADO AO CÍRCULO) */
+                    .skin-item, .perk-item, [class*="skin-container"] {
                         border: 1.5px solid #7c3aed !important;
                         border-radius: 50% !important;
                         background: transparent !important;
-                        overflow: hidden !important;
-                        padding: 0 !important;
                         box-shadow: 0 0 10px rgba(124, 58, 237, 0.3) !important;
+                        overflow: hidden !important;
                     }
-                    
                     .skin-item img { border-radius: 50% !important; }
 
-                    /* 4. HUD FIX (Jogo Visível) */
+                    /* 4. HUD FIX (JOGO VISÍVEL) */
                     #overlay { background: rgba(0,0,0,0.4) !important; backdrop-filter: none !important; }
-                    
-                    /* 5. BOTÃO PLAY */
+
+                    /* 5. BOTÕES */
                     .play-btn, .primary {
                         background: #7c3aed !important;
                         border: none !important;
                     }
-
-                    /* 6. ÍCONES DO TOPO (Settings, etc) */
-                    .tabs-container i, .header-icon { color: #7c3aed !important; }
                 `;
                 document.head.appendChild(style);
 
-                // Sync Dados
                 if (data.n2) localStorage.setItem('dualNickname', data.n2);
                 if (data.s2) localStorage.setItem('dualSkinUrl', data.s2);
                 
