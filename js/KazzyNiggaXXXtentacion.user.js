@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Smart Skin & Multibox Sync
-// @version      15.0.0
+// @name         Eclipse - Ultimate Skin & Dual Fix
+// @version      16.0.0
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -11,12 +11,11 @@
     'use strict';
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
-    function simulateTyping(element, value) {
-        if (!element || !value) return;
-        element.value = value;
-        ['input', 'change', 'blur'].forEach(type => {
-            element.dispatchEvent(new Event(type, { bubbles: true }));
-        });
+    function forceSync(el, val) {
+        if (!el || !val) return;
+        el.value = val;
+        // Dispara todos os eventos para o Vue.js do jogo detetar a mudança
+        ['input', 'change', 'blur', 'keyup'].forEach(t => el.dispatchEvent(new Event(t, { bubbles: true })));
     }
 
     async function init() {
@@ -30,66 +29,54 @@
         document.body.appendChild(overlay);
 
         const btn = overlay.querySelector('#playBtn');
-        const fields = {
-            nick: overlay.querySelector('#nickname'),
-            skin: overlay.querySelector('#skin'),
-            dNick: overlay.querySelector('#dualNickname'),
-            dSkin: overlay.querySelector('#dualSkin')
-        };
-
-        // Carregar do Storage
-        Object.keys(fields).forEach(key => {
-            fields[key].value = localStorage.getItem('eclipse_' + key) || "";
+        const ids = ['nickname', 'skin', 'dualNickname', 'dualSkin'];
+        const inputs = {};
+        ids.forEach(id => {
+            inputs[id] = overlay.querySelector('#' + id);
+            inputs[id].value = localStorage.getItem('eclipse_' + id) || "";
         });
 
         btn.onclick = () => {
-            const vals = {
-                nick: fields.nick.value,
-                skin: fields.skin.value,
-                dNick: fields.dNick.value,
-                dSkin: fields.dSkin.value
-            };
+            ids.forEach(id => localStorage.setItem('eclipse_' + id, inputs[id].value));
 
-            // Guardar no Storage
-            Object.keys(vals).forEach(key => localStorage.setItem('eclipse_' + key, vals[key]));
-
-            // --- LÓGICA INTELIGENTE DE SKIN (EVITAR DUPLICADOS) ---
-            if (vals.skin.trim() !== "") {
-                // Procurar todas as skins já existentes na aba de skins do jogo
-                const existingSkins = Array.from(document.querySelectorAll('.skin:not(.add-skin)'))
-                    .map(img => img.src);
-                
-                const skinAlreadyExists = existingSkins.some(src => src.includes(vals.skin) || vals.skin.includes(src));
-
-                if (!skinAlreadyExists) {
-                    const addBtn = document.querySelector('.add-skin, img[src*="skin-add.png"]');
-                    if (addBtn) addBtn.click();
-                }
+            const mainSkin = inputs.skin.value.trim();
+            
+            // 1. Verificar se a skin já existe para não criar duplicados
+            const hasSkin = Array.from(document.querySelectorAll('img.skin')).some(img => img.src.includes(mainSkin));
+            if (mainSkin !== "" && !hasSkin) {
+                const addBtn = document.querySelector('.add-skin, img[src*="skin-add.png"]');
+                if (addBtn) addBtn.click();
             }
 
             setTimeout(() => {
-                // Sincronizar Player 1
-                simulateTyping(document.querySelector('input[placeholder*="Nickname"]:not(#eclipse-overlay input)'), vals.nick);
-                simulateTyping(document.querySelector('input[placeholder*="Skin URL"]:not(#eclipse-overlay input)'), vals.skin);
+                // 2. Sincronizar Player 1 (Seletores Reforçados)
+                forceSync(document.querySelector('input[placeholder*="Nick"]:not(#eclipse-overlay input)'), inputs.nickname.value);
+                forceSync(document.querySelector('input[placeholder*="Skin"]:not(#eclipse-overlay input)'), mainSkin);
 
-                // Sincronizar Multibox
-                const dualInputs = document.querySelectorAll('.dual-section-content input.input-text');
-                if (dualInputs.length >= 2) {
-                    simulateTyping(dualInputs[0], vals.dNick);
-                    simulateTyping(dualInputs[1], vals.dSkin);
+                // 3. Sincronizar Dual (Multibox) - Procura profunda
+                const dualFields = document.querySelectorAll('input[placeholder*="Dual"]');
+                if (dualFields.length >= 2) {
+                    forceSync(dualFields[0], inputs.dualNickname.value);
+                    forceSync(dualFields[1], inputs.dualSkin.value);
+                } else {
+                    // Se não encontrar por placeholder, tenta pela classe que enviaste
+                    const altDual = document.querySelectorAll('.dual-section-content input');
+                    if (altDual.length >= 2) {
+                        forceSync(altDual[0], inputs.dualNickname.value);
+                        forceSync(altDual[1], inputs.dualSkin.value);
+                    }
                 }
 
-                // Iniciar Jogo
                 if (window.client) {
                     if (window.client.connect) window.client.connect();
-                    setTimeout(() => { if (window.client.spawn) window.client.spawn(vals.nick); }, 500);
+                    setTimeout(() => { if (window.client.spawn) window.client.spawn(inputs.nickname.value); }, 400);
                 }
-            }, 200);
+            }, 250);
 
             overlay.remove();
             window.dispatchEvent(new Event('resize'));
         };
     }
 
-    const checkBody = setInterval(() => { if (document.body) { clearInterval(checkBody); init(); } }, 100);
+    const check = setInterval(() => { if (document.body) { clearInterval(check); init(); } }, 100);
 })();
