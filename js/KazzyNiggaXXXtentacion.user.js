@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Eclipse - Shadow DOM Injector
-// @version      3.0.0
-// @description  Isola o launcher de conflitos de CSS do site
+// @name         Eclipse - Ultimate Injector
+// @version      4.0.0
+// @description  Final isolation and logic fix
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -13,41 +13,67 @@
 
     async function loadEclipse() {
         try {
-            const [html, playJs] = await Promise.all([
-                fetch(`${RAW_BASE_URL}/index.html?t=${Date.now()}`).then(r => r.text()),
-                fetch(`${RAW_BASE_URL}/play.js?t=${Date.now()}`).then(r => r.text())
-            ]);
+            const html = await fetch(`${RAW_BASE_URL}/index.html?t=${Date.now()}`).then(r => r.text());
 
-            // 1. Criar o Host do Shadow DOM
             const host = document.createElement('div');
             host.id = "eclipse-shadow-host";
-            host.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:9999999;";
+            host.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:9999999; display:flex; align-items:center; justify-content:center;";
             document.documentElement.appendChild(host);
 
-            // 2. Criar a Raiz Sombria (Shadow Root)
             const shadow = host.attachShadow({mode: 'open'});
-
-            // 3. Injetar o HTML dentro do Shadow DOM
-            // Importante: Re-injetar o Tailwind para funcionar dentro da bolha
+            
+            // Injetamos o HTML com o Tailwind forçado
             shadow.innerHTML = `
-                <script src="https://cdn.tailwindcss.com"></script>
                 <style>
-                    :host { all: initial; } /* Reseta tudo o que vem de fora */
+                    :host { all: initial; font-family: sans-serif; }
+                    /* Garante que o launcher ocupe a tela toda no shadow */
+                    #launcher-ui { 
+                        position: fixed; top:0; left:0; width:100vw; height:100vh;
+                        display: flex; align-items: center; justify-content: center;
+                        background: rgba(0,0,0,0.85);
+                    }
                 </style>
+                <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
                 ${html}
             `;
 
-            // 4. Injetar o play.js no contexto Global (window)
-            // Ele precisa estar fora do shadow para falar com o motor do jogo (window.client)
-            const script = document.createElement('script');
-            script.textContent = `
-                window.eclipseShadow = document.querySelector('#eclipse-shadow-host').shadowRoot;
-                ${playJs}
-            `;
-            document.body.appendChild(script);
+            // --- LÓGICA DO BOTÃO ---
+            const playBtn = shadow.getElementById('playBtn');
+            const nickInp = shadow.getElementById('nickname');
+            const skinInp = shadow.getElementById('skin');
 
-            console.log('[Eclipse] Shadow DOM ativo. Conflitos eliminados.');
-        } catch (e) { console.error('[Eclipse] Erro:', e); }
+            if (playBtn) {
+                nickInp.value = localStorage.getItem('nickname') || "";
+                skinInp.value = localStorage.getItem('skinUrl') || "";
+
+                playBtn.onclick = () => {
+                    const nick = nickInp.value || "Eclipse";
+                    const skin = skinInp.value || "";
+                    localStorage.setItem('nickname', nick);
+                    localStorage.setItem('skinUrl', skin);
+
+                    // 1. Tentar dar spawn no jogo oficial
+                    if (window.client) {
+                        if (window.client.settings) window.client.settings.nickname = nick;
+                        if (window.client.connect) window.client.connect();
+                        setTimeout(() => { if (window.client.spawn) window.client.spawn(nick); }, 500);
+                    }
+
+                    // 2. Tentar preencher inputs originais escondidos
+                    const realNick = document.querySelector('input[placeholder*="Nick"], #nickname');
+                    if (realNick) {
+                        realNick.value = nick;
+                        realNick.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+
+                    // 3. Fechar Launcher
+                    host.style.opacity = "0";
+                    host.style.transition = "0.5s";
+                    setTimeout(() => host.remove(), 500);
+                };
+            }
+
+        } catch (e) { console.error('Eclipse Error:', e); }
     }
 
     const check = setInterval(() => {
