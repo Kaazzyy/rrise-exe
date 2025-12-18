@@ -49,7 +49,7 @@ function initializeLauncher() {
 
         // 3. Baixar o main.js ANTES de mexer na tela
         // NOTA: Tenta baixar de 'js/main.js' primeiro (estrutura padrão), fallback para raiz
-        let mainJsContent = await fetchContent('js/main.js');
+        let mainJsContent = await fetchContent('main.js');
         if (!mainJsContent) mainJsContent = await fetchContent('main.js');
 
         if (!mainJsContent) {
