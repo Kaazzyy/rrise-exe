@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Skin Slot Adder & Sync
-// @version      13.0.0
+// @name         Eclipse - Multibox & Skin Sync
+// @version      14.0.0
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -12,7 +12,7 @@
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
     function simulateTyping(element, value) {
-        if (!element) return;
+        if (!element || value === undefined) return;
         element.value = value;
         ['input', 'change', 'blur'].forEach(type => {
             element.dispatchEvent(new Event(type, { bubbles: true }));
@@ -32,47 +32,59 @@
         const btn = overlay.querySelector('#playBtn');
         const nickInp = overlay.querySelector('#nickname');
         const skinInp = overlay.querySelector('#skin');
+        const dualNickInp = overlay.querySelector('#dualNickname');
+        const dualSkinInp = overlay.querySelector('#dualSkin');
 
+        // Carregar dados guardados
         nickInp.value = localStorage.getItem('eclipse_nick') || "";
         skinInp.value = localStorage.getItem('eclipse_skin') || "";
+        dualNickInp.value = localStorage.getItem('eclipse_dual_nick') || "";
+        dualSkinInp.value = localStorage.getItem('eclipse_dual_skin') || "";
 
         btn.onclick = () => {
-            const nick = nickInp.value || "EclipsePlayer";
-            const skin = skinInp.value || "";
+            const data = {
+                nick: nickInp.value,
+                skin: skinInp.value,
+                dualNick: dualNickInp.value,
+                dualSkin: dualSkinInp.value
+            };
             
-            localStorage.setItem('eclipse_nick', nick);
-            localStorage.setItem('eclipse_skin', skin);
+            // Guardar no Storage
+            localStorage.setItem('eclipse_nick', data.nick);
+            localStorage.setItem('eclipse_skin', data.skin);
+            localStorage.setItem('eclipse_dual_nick', data.dualNick);
+            localStorage.setItem('eclipse_dual_skin', data.dualSkin);
 
-            // --- LÓGICA DE ADICIONAR NOVA SKIN ---
-            // 1. Tentar clicar no botão de "+" do jogo original
+            // 1. Lógica da Skin Principal (Adicionar slot novo se necessário)
             const addSkinBtn = document.querySelector('.add-skin, img[src*="skin-add.png"]');
-            if (addSkinBtn && skin.trim() !== "") {
-                console.log("[Eclipse] Adicionando novo slot de skin...");
-                addSkinBtn.click();
-            }
+            if (addSkinBtn && data.skin.trim() !== "") addSkinBtn.click();
 
-            // 2. Aguardar um milésimo para o slot abrir e injetar a skin
             setTimeout(() => {
-                const realNickInput = document.querySelector('input[placeholder*="Nick"], #nickname:not(#eclipse-overlay #nickname)');
-                const realSkinInput = document.querySelector('input[placeholder*="Skin"], #skinUrl, #skin:not(#eclipse-overlay #skin)');
-                
-                if (realNickInput) simulateTyping(realNickInput, nick);
-                if (realSkinInput && skin.trim() !== "") simulateTyping(realSkinInput, skin);
+                // 2. Sincronizar Player 1
+                const realNick = document.querySelector('input[placeholder*="Nickname"]:not(#eclipse-overlay input)');
+                const realSkin = document.querySelector('input[placeholder*="Skin URL"]:not(#eclipse-overlay input)');
+                simulateTyping(realNick, data.nick);
+                simulateTyping(realSkin, data.skin);
 
-                // 3. Injeção no Client
-                if (window.client) {
-                    if (window.client.settings) {
-                        window.client.settings.nickname = nick;
-                        if (skin.trim() !== "") window.client.settings.skinUrl = skin;
+                // 3. Sincronizar Dual Player (Multibox)
+                // Usando os seletores que encontraste nos elementos
+                const dualSection = document.querySelector('.dual-section-content');
+                if (dualSection) {
+                    const dualInputs = dualSection.querySelectorAll('input.input-text');
+                    if (dualInputs.length >= 2) {
+                        simulateTyping(dualInputs[0], data.dualNick); // Dual Nickname
+                        simulateTyping(dualInputs[1], data.dualSkin); // Dual Skin URL
                     }
-                    
+                }
+
+                // 4. Injeção no Client
+                if (window.client) {
                     if (window.client.connect) window.client.connect();
-                    
                     setTimeout(() => {
-                        if (window.client.spawn) window.client.spawn(nick);
+                        if (window.client.spawn) window.client.spawn(data.nick);
                     }, 500);
                 }
-            }, 100);
+            }, 150);
 
             overlay.remove();
             window.dispatchEvent(new Event('resize'));
