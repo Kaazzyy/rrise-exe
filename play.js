@@ -1,6 +1,6 @@
-const RAW_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/main.js';
+const MAIN_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/main.js';
 
-function startLauncher() {
+function init() {
     const btn = document.getElementById("playBtn");
     if (!btn) return;
 
@@ -8,42 +8,37 @@ function startLauncher() {
         const nick = document.getElementById("nickname").value || "Player";
         const skin = document.getElementById("skin").value || "";
 
-        // Guarda os dados exatamente onde o vendor/main esperam
         localStorage.setItem('nickname', nick);
         localStorage.setItem('skinUrl', skin);
         
-        btn.innerText = "STARTING ENGINE...";
+        btn.innerText = "INJECTING...";
         btn.disabled = true;
 
         try {
-            const mainCode = await fetch(`${RAW_URL}?t=${Date.now()}`).then(r => r.text());
-            
+            const response = await fetch(`${MAIN_URL}?t=${Date.now()}`);
+            const code = await response.text();
+
+            // Injeção via Blob: Isola a execução do motor pesado
+            const blob = new Blob([code], { type: 'application/javascript' });
+            const url = URL.createObjectURL(blob);
             const script = document.createElement('script');
-            script.textContent = `
-                (function() {
-                    try {
-                        // O teu vendor.js usa webpack, isto ajuda a estabilizar
-                        window.nickname = "${nick}";
-                        window.skinUrl = "${skin}";
-                        
-                        ${mainCode}
-                        
-                        console.log("[Eclipse] Main Engine Running");
-                        setTimeout(() => {
-                            const ui = document.getElementById('launcher-ui');
-                            if(ui) ui.style.display = 'none';
-                        }, 1000);
-                    } catch(e) {
-                        console.error("[Eclipse] Erro no Main:", e);
-                    }
-                })();
-            `;
-            document.body.appendChild(script);
-        } catch (err) {
-            btn.innerText = "DOWNLOAD ERROR";
-            console.error(err);
+            script.src = url;
+            
+            script.onload = () => {
+                console.log("[Eclipse] Motor Main carregado!");
+                setTimeout(() => {
+                    const ui = document.getElementById('launcher-wrapper');
+                    if (ui) ui.style.display = 'none';
+                    document.body.style.background = 'none';
+                }, 1500);
+            };
+
+            document.head.appendChild(script);
+        } catch (e) {
+            console.error("[Eclipse] Falha na injeção:", e);
+            btn.disabled = false;
         }
     };
 }
 
-setTimeout(startLauncher, 500);
+setTimeout(init, 300);
