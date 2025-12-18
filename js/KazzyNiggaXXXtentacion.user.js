@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Eclipse - Official Injector (Layout Fix)
-// @version      2.2.0
-// @description  Correção do posicionamento do Launcher
+// @name         Eclipse - Shadow DOM Injector
+// @version      3.0.0
+// @description  Isola o launcher de conflitos de CSS do site
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -18,26 +18,35 @@
                 fetch(`${RAW_BASE_URL}/play.js?t=${Date.now()}`).then(r => r.text())
             ]);
 
-            // Criar o container sem restrições de flex, apenas uma camada absoluta
-            const wrapper = document.createElement('div');
-            wrapper.id = "eclipse-main-wrapper";
-            // z-index altíssimo e pointer-events auto para os inputs funcionarem
-            wrapper.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:999999; pointer-events:none; overflow:hidden;";
-            
-            // Injetamos o HTML
-            wrapper.innerHTML = html;
-            document.documentElement.appendChild(wrapper);
+            // 1. Criar o Host do Shadow DOM
+            const host = document.createElement('div');
+            host.id = "eclipse-shadow-host";
+            host.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:9999999;";
+            document.documentElement.appendChild(host);
 
-            // Garantir que o launcher interno tem pointer-events para poderes clicar
-            const ui = wrapper.querySelector('#launcher-ui');
-            if(ui) ui.style.pointerEvents = "auto";
+            // 2. Criar a Raiz Sombria (Shadow Root)
+            const shadow = host.attachShadow({mode: 'open'});
 
-            // Injetar o play.js
+            // 3. Injetar o HTML dentro do Shadow DOM
+            // Importante: Re-injetar o Tailwind para funcionar dentro da bolha
+            shadow.innerHTML = `
+                <script src="https://cdn.tailwindcss.com"></script>
+                <style>
+                    :host { all: initial; } /* Reseta tudo o que vem de fora */
+                </style>
+                ${html}
+            `;
+
+            // 4. Injetar o play.js no contexto Global (window)
+            // Ele precisa estar fora do shadow para falar com o motor do jogo (window.client)
             const script = document.createElement('script');
-            script.textContent = playJs + `\n//# sourceURL=${RAW_BASE_URL}/play.js`;
+            script.textContent = `
+                window.eclipseShadow = document.querySelector('#eclipse-shadow-host').shadowRoot;
+                ${playJs}
+            `;
             document.body.appendChild(script);
 
-            console.log('[Eclipse] Launcher injetado e corrigido.');
+            console.log('[Eclipse] Shadow DOM ativo. Conflitos eliminados.');
         } catch (e) { console.error('[Eclipse] Erro:', e); }
     }
 
