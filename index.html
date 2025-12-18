@@ -1,24 +1,104 @@
-<div id="eclipse-ui-container" style="background: #111113; border: 1px solid #27272a; border-radius: 20px; padding: 30px; width: 380px; color: white; font-family: sans-serif; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
-    <div style="text-align: center; margin-bottom: 25px;">
-        <h1 style="margin: 0; font-size: 28px;">Eclipse</h1>
-        <p style="margin: 0; color: #71717a; font-size: 11px; text-transform: uppercase; letter-spacing: 2px;">Ad-Free Client</p>
+<style>
+    #eclipse-ui-container {
+        background: #111113 !important;
+        border: 1px solid #27272a !important;
+        border-radius: 20px !important;
+        padding: 30px !important;
+        width: 380px !important;
+        color: white !important;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8) !important;
+        box-sizing: border-box !important;
+        pointer-events: auto !important;
+    }
+
+    .input-wrapper {
+        margin-bottom: 16px !important;
+        text-align: left !important;
+    }
+
+    .input-wrapper label {
+        display: block !important;
+        font-size: 12px !important;
+        color: #a1a1aa !important;
+        margin-bottom: 6px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+
+    .input-wrapper input {
+        width: 100% !important;
+        background: #1c1c1f !important;
+        border: 1px solid #3f3f46 !important;
+        border-radius: 10px !important;
+        padding: 12px 14px !important;
+        color: white !important;
+        font-size: 14px !important;
+        outline: none !important;
+        transition: border-color 0.2s !important;
+        box-sizing: border-box !important;
+    }
+
+    .input-wrapper input:focus {
+        border-color: #7c3aed !important;
+    }
+
+    #playBtn {
+        width: 100% !important;
+        background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 16px !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        cursor: pointer !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+        transition: transform 0.1s, opacity 0.2s !important;
+        margin-top: 10px !important;
+    }
+
+    #playBtn:hover {
+        opacity: 0.9 !important;
+        transform: translateY(-1px) !important;
+    }
+
+    #playBtn:active {
+        transform: translateY(1px) !important;
+    }
+
+    .footer-text {
+        text-align: center !important;
+        font-size: 10px !important;
+        color: #3f3f46 !important;
+        margin-top: 25px !important;
+        font-family: monospace !important;
+    }
+</style>
+
+<div id="eclipse-ui-container">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -1px;">Eclipse</h1>
+        <p style="margin: 4px 0 0; color: #7c3aed; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Ad-Free Client</p>
     </div>
 
-    <div style="display: flex; flex-direction: column; gap: 15px;">
-        <div>
-            <label style="font-size: 12px; color: #a1a1aa; display: block; margin-bottom: 5px;">Nickname</label>
-            <input type="text" id="nickname" placeholder="Nickname..." style="width: 100%; background: #1c1c1f; border: 1px solid #3f3f46; border-radius: 10px; padding: 12px; color: white; outline: none; box-sizing: border-box;">
-        </div>
-
-        <div>
-            <label style="font-size: 12px; color: #a1a1aa; display: block; margin-bottom: 5px;">Skin URL</label>
-            <input type="text" id="skin" placeholder="https://..." style="width: 100%; background: #1c1c1f; border: 1px solid #3f3f46; border-radius: 10px; padding: 12px; color: white; outline: none; box-sizing: border-box;">
-        </div>
-
-        <button id="playBtn" style="width: 100%; background: #7c3aed; color: white; border: none; border-radius: 12px; padding: 15px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s;">
-            PLAY NOW
-        </button>
+    <div class="input-wrapper">
+        <label for="nickname">Nickname</label>
+        <input type="text" id="nickname" placeholder="Your name..." autocomplete="off" spellcheck="false">
     </div>
 
-    <p style="text-align: center; font-size: 10px; color: #3f3f46; margin-top: 20px;">v1.5 | Eclipse Project</p>
+    <div class="input-wrapper">
+        <label for="skin">Skin URL</label>
+        <input type="text" id="skin" placeholder="https://..." autocomplete="off" spellcheck="false">
+    </div>
+
+    <button id="playBtn">Play Now</button>
+
+    <div class="footer-text">
+        <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; opacity: 0.5;">
+            <span>[EU]</span><span>[NA]</span><span>[AS]</span>
+        </div>
+        v1.5 | ECLIPSE PROJECT
+    </div>
 </div>
