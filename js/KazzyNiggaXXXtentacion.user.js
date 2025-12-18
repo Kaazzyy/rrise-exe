@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Eclipse - UI Force Overhaul
-// @version      5.6.2
+// @version      5.6.3
 // @match        *://aetlis.io/*
 // @run-at       document-end
 // @grant        none
@@ -50,13 +50,13 @@
                     }
                 });
 
-                // --- INJEÇÃO DE CSS (CORRIGIDO) ---
+                // --- INJEÇÃO DE CSS ---
                 const style = document.createElement('style');
                 style.innerText = `
                     /* 1. Fundo escuro */
                     #overlay { background: rgba(5,5,8,0.8) !important; }
                     
-                    /* 2. REGRA GERAL (Aplica o roxo nos painéis principais) */
+                    /* 2. REGRA GERAL (Aplica o roxo nos painéis principais E NAS SKINS) */
                     main-container, [class*="container"], [class*="box"], .main-container {
                         background-color: #0d0d0f !important;
                         background-image: none !important;
@@ -65,17 +65,9 @@
                         box-shadow: 0 0 25px rgba(124, 58, 237, 0.4) !important;
                     }
 
-                    /* 3. EXCEÇÕES (REMOVE O ROXO ONDE NÃO DEVE ESTAR) */
+                    /* 3. EXCEÇÕES APENAS PARA RODAPÉ E PRIVACIDADE (Skins foram removidas daqui) */
                     
-                    /* SKINS: Remove borda da caixa de seleção de skins */
-                    [class*="skin"], #skin-list, .skin-list-container {
-                        border: none !important;
-                        box-shadow: none !important;
-                        background: transparent !important;
-                    }
-
                     /* PRIVACY / TERMS / FOOTER: Remove borda dos links lá em baixo */
-                    /* Remove do container que segura os links (usando :has para detetar se tem link de privacy) */
                     div:has(> a[href*="privacy"]), 
                     div:has(> a[href*="terms"]),
                     div:has(> .text-muted),
@@ -93,7 +85,7 @@
                         box-shadow: none !important;
                     }
 
-                    /* 4. BOTÕES (Mantém o estilo bonito) */
+                    /* 4. BOTÕES */
                     button, .play-btn, [class*="btn-primary"], .primary {
                         background: linear-gradient(135deg, #7c3aed, #4f46e5) !important;
                         border: none !important;
