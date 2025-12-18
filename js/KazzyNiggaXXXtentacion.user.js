@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Eclipse Launcher - Stable
+// @name         Eclipse Launcher - Emergency Fix
 // @match        *://aetlis.io/*
 // @grant        none
 // @run-at       document-start
@@ -9,28 +9,33 @@
     'use strict';
     const RAW_BASE = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main';
 
-    // Para o carregamento original imediatamente
-    window.stop();
+    window.stop(); // Para o site original
 
-    // 1. Limpa o DOM de forma segura
-    document.documentElement.innerHTML = '<head></head><body></body>';
+    // Cria um container isolado para a tua UI não ser apagada pelo jogo
+    const eclipseContainer = document.createElement('div');
+    eclipseContainer.id = 'eclipse-wrapper';
+    eclipseContainer.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; z-index:999999; background:#000;';
+    document.documentElement.appendChild(eclipseContainer);
 
-    const injectScript = async (name) => {
-        console.log(`[Eclipse] A carregar ${name}...`);
-        const code = await fetch(`${RAW_BASE}/${name}?t=${Date.now()}`).then(r => r.text());
-        const s = document.createElement('script');
-        s.textContent = code;
-        document.head.appendChild(s);
+    // Carrega a tua UI para dentro do container
+    const uiHtml = await fetch(`${RAW_BASE}/index.html?t=${Date.now()}`).then(r => r.text());
+    eclipseContainer.innerHTML = uiHtml;
+
+    const injectScript = (name) => {
+        return new Promise((resolve) => {
+            console.log(`[Eclipse] A injetar: ${name}`);
+            const s = document.createElement('script');
+            s.src = `${RAW_BASE}/${name}?t=${Date.now()}`;
+            s.onload = () => {
+                console.log(`[Eclipse] ${name} carregado.`);
+                resolve();
+            };
+            document.head.appendChild(s);
+        });
     };
 
-    // 2. Carrega o HTML da tua UI
-    const uiHtml = await fetch(`${RAW_BASE}/index.html?t=${Date.now()}`).then(r => r.text());
-    document.body.innerHTML = uiHtml;
-
-    // 3. ORDEM CRÍTICA: Vendor primeiro, Play depois
-    // O vendor.js que enviaste precisa estar carregado antes do play.js ser clicado
+    // Carrega os scripts na ordem correta
+    // Usamos .src em vez de .textContent para ficheiros grandes como o vendor.js
     await injectScript('vendor.js');
     await injectScript('play.js');
-
-    console.log('[Eclipse] Sistema pronto e Vendor injetado.');
 })();
