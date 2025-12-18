@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Keyboard Emulator Sync
-// @version      11.0.0
+// @name         Eclipse - Skin & Nick Sync Fix
+// @version      12.0.0
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -12,12 +12,10 @@
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
     function simulateTyping(element, value) {
+        if (!element) return;
         element.value = value;
-        // Dispara uma sequência completa de eventos para enganar o motor do jogo
-        const events = ['focus', 'keydown', 'keypress', 'input', 'keyup', 'change', 'blur'];
-        events.forEach(type => {
-            const event = new Event(type, { bubbles: true });
-            element.dispatchEvent(event);
+        ['input', 'change', 'blur'].forEach(type => {
+            element.dispatchEvent(new Event(type, { bubbles: true }));
         });
     }
 
@@ -47,33 +45,34 @@
             localStorage.setItem('nickname', nick);
             localStorage.setItem('skinUrl', skin);
 
-            // 1. Procurar o input original do jogo (que está escondido atrás do Eclipse)
-            // Tentamos vários seletores comuns nesse tipo de jogo
-            const realNickInput = document.querySelector('input[placeholder*="Nick"], #nickname:not(#eclipse-overlay #nickname), .nick-input');
-            const realSkinInput = document.querySelector('input[placeholder*="Skin"], #skin:not(#eclipse-overlay #skin), .skin-input');
+            // 1. Sincronizar Inputs Originais
+            const realNickInput = document.querySelector('input[placeholder*="Nick"], #nickname:not(#eclipse-overlay #nickname)');
+            const realSkinInput = document.querySelector('input[placeholder*="Skin"], #skinUrl, #skin:not(#eclipse-overlay #skin)');
+            
+            simulateTyping(realNickInput, nick);
+            simulateTyping(realSkinInput, skin);
 
-            if (realNickInput) simulateTyping(realNickInput, nick);
-            if (realSkinInput) simulateTyping(realSkinInput, skin);
-
+            // 2. Injeção Profunda no Client (Forçar carregamento da Skin)
             if (window.client) {
-                // Forçar no objeto de settings se ele existir
                 if (window.client.settings) {
                     window.client.settings.nickname = nick;
                     window.client.settings.skinUrl = skin;
+                    window.client.settings.skin = skin;
                 }
 
-                // Tentar o Spawn
+                // Tentar chamar a função de atualização de skin do próprio jogo
+                if (typeof window.client.setSkin === 'function') {
+                    window.client.setSkin(skin);
+                }
+
                 if (window.client.connect) window.client.connect();
                 
                 setTimeout(() => {
                     if (window.client.spawn) {
-                        window.client.spawn(nick);
-                    } else {
-                        // Se o spawn direto falhar, tentamos clicar no botão de play original
-                        const realPlayBtn = document.querySelector('button.play, #play-button, .btn-play');
-                        if (realPlayBtn) realPlayBtn.click();
+                        // Passamos o nick e a skin diretamente no spawn se o motor suportar
+                        window.client.spawn(nick, skin);
                     }
-                }, 400);
+                }, 500);
             }
 
             overlay.remove();
