@@ -1,12 +1,14 @@
 // Base URL for the game scripts
 const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main'; 
 
-// --- FUNÇÕES AUXILIARES ---
-function injectScriptText(text, sourceUrl, target = 'body') {
+function log(msg) { console.log('%c[Eclipse-Play]', 'color: #00ff00; font-weight: bold;', msg); }
+
+// Função que injeta o código de forma segura
+function injectScriptText(text, sourceUrl) {
     const s = document.createElement('script');
     s.type = 'text/javascript';
     s.textContent = text + `\n//# sourceURL=${sourceUrl}`;
-    document[target].appendChild(s); 
+    document.body.appendChild(s); 
 }
 
 async function fetchContent(path) {
@@ -14,68 +16,62 @@ async function fetchContent(path) {
         const res = await fetch(`${RAW_BASE_URL}/${path}?t=${Date.now()}`); 
         if (!res.ok) return null;
         return await res.text();
-    } catch (e) {
-        return null;
-    }
+    } catch (e) { return null; }
 }
 
-function hideLauncherUI() {
-    const launcherDiv = document.getElementById('launcher-ui'); 
-    if (launcherDiv) launcherDiv.style.display = 'none';
-    document.body.style.background = 'none'; 
-}
-
-
-// --- Lógica Principal do Launcher ---
 function initializeLauncher() {
-    console.log("[Eclipse] play.js: Initializing Launcher UI...");
+    log("A iniciar lógica do botão...");
 
     const playButton = document.getElementById("playBtn");
     const nickInput = document.getElementById("nickname");
     const skinInput = document.getElementById("skin");
 
-    if (!playButton) return; 
+    if (!playButton) {
+        log("ERRO: Botão 'playBtn' não encontrado no HTML!");
+        return; 
+    }
 
-    // O VENDOR.JS FOI INJETADO NO TAMPERMONKEY - ASSUMIMOS QUE ESTÁ OK
+    // 1. ATIVAR O BOTÃO
     playButton.disabled = false;
     playButton.innerText = "Play Now";
     playButton.style.opacity = "1";
     playButton.style.cursor = "pointer";
-    console.log("[Eclipse] System Ready. Button Active.");
-    
+    log("Botão ativado e pronto para clique.");
+
     // Carregar dados salvos
     if (localStorage.getItem('nickname')) nickInput.value = localStorage.getItem('nickname');
     if (localStorage.getItem('skinUrl')) skinInput.value = localStorage.getItem('skinUrl');
 
-    // Evento de Clique
+    // 2. EVENTO DE CLIQUE
     playButton.addEventListener('click', async () => {
+        log("Botão clicado! A preparar injeção do main.js...");
         playButton.disabled = true;
-        playButton.innerText = "Starting Game...";
+        playButton.innerText = "Starting...";
         
-        // A. Salvar Dados
         const nick = nickInput.value || "Eclipse User";
         const skin = skinInput.value || "";
         localStorage.setItem('nickname', nick);
         localStorage.setItem('skinUrl', skin); 
 
-        // B. Carregar o MAIN.JS
+        // Buscar o MAIN.JS
         const mainJsContent = await fetchContent('main.js');
         
         if (!mainJsContent) {
-            playButton.innerText = "ERROR: Main.js Failed";
-            document.getElementById('launcher-ui').style.display = 'flex';
+            log("ERRO: Não foi possível baixar o main.js!");
+            playButton.innerText = "Error: main.js not found";
             return;
         }
 
-        // C. Patching e Inicialização
-        const initializationCode = `
-            // 1. Patching de Nickname e Skin
+        log("Main.js baixado. A injetar...");
+
+        // Código de Inicialização que corre LOGO APÓS o main.js
+        const bootCode = `
+            console.log('[Eclipse] Forçando inicialização do motor de jogo...');
             localStorage.setItem('nickname', "${nick}");
             localStorage.setItem('skinUrl', "${skin}");
-
-            // 2. Tenta forçar o início do jogo (depois de um pequeno delay para o main.js correr)
+            
             setTimeout(() => {
-                // Tentar a chamada nativa de início do jogo
+                // Tenta as 3 formas comuns de iniciar o jogo no Vanis/Aetlis
                 if (window.client && typeof window.client.connect === 'function') {
                     window.client.connect(); 
                 } else if (typeof window.initGame === 'function') {
@@ -84,26 +80,18 @@ function initializeLauncher() {
                     window.startGame();
                 }
                 
-                // Limpeza final
-                hideLauncherUI();
-                
-            }, 100); 
+                // Esconde o launcher para mostrar o canvas do jogo
+                const ui = document.getElementById('launcher-ui');
+                if(ui) ui.style.display = 'none';
+                document.body.style.background = 'none';
+                console.log('[Eclipse] UI escondida. Jogo deve estar visível.');
+            }, 200);
         `;
-        
-        // D. Injeta o MAIN.JS + Código de Inicialização
-        // Envolvemos o main.js com o webpackJsonp se necessário (ajuda a ligar-se ao vendor.js)
-        const finalCode = `(window.webpackJsonp = window.webpackJsonp || []).push([["main"],{
-            "main_entry": function(e, t, n) {
-                ${mainJsContent}
-                // Executar código extra
-                ${initializationCode}
-            }
-        },[["main_entry"]]]);`;
 
-        injectScriptText(finalCode, `${RAW_BASE_URL}/main.js`);
-        console.log('[Eclipse] Jogo injetado com webpackJsonp patch.');
+        // Injeta tudo
+        injectScriptText(mainJsContent + bootCode, `${RAW_BASE_URL}/main.js`);
     });
 }
 
-// Inicia a lógica após o DOM estar pronto
+// Executa
 setTimeout(initializeLauncher, 100);
