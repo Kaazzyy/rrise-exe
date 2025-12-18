@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Ultimate Skin & Dual Fix
-// @version      16.0.0
+// @name         Eclipse - Deep Skin Injection
+// @version      18.0.0
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -14,8 +14,7 @@
     function forceSync(el, val) {
         if (!el || !val) return;
         el.value = val;
-        // Dispara todos os eventos para o Vue.js do jogo detetar a mudança
-        ['input', 'change', 'blur', 'keyup'].forEach(t => el.dispatchEvent(new Event(t, { bubbles: true })));
+        ['input', 'change', 'blur', 'keyup', 'paste'].forEach(t => el.dispatchEvent(new Event(t, { bubbles: true })));
     }
 
     async function init() {
@@ -41,37 +40,40 @@
 
             const mainSkin = inputs.skin.value.trim();
             
-            // 1. Verificar se a skin já existe para não criar duplicados
-            const hasSkin = Array.from(document.querySelectorAll('img.skin')).some(img => img.src.includes(mainSkin));
-            if (mainSkin !== "" && !hasSkin) {
-                const addBtn = document.querySelector('.add-skin, img[src*="skin-add.png"]');
-                if (addBtn) addBtn.click();
+            // 1. Lógica de Adicionar Skin (Verificação melhorada)
+            const addBtn = document.querySelector('.add-skin, img[src*="skin-add.png"]');
+            if (mainSkin !== "") {
+                const existingSkins = Array.from(document.querySelectorAll('.skin')).map(i => i.src);
+                if (!existingSkins.some(s => s.includes(mainSkin)) && addBtn) {
+                    addBtn.click();
+                }
             }
 
             setTimeout(() => {
-                // 2. Sincronizar Player 1 (Seletores Reforçados)
+                // 2. Sincronização de Inputs (P1 e Dual)
                 forceSync(document.querySelector('input[placeholder*="Nick"]:not(#eclipse-overlay input)'), inputs.nickname.value);
                 forceSync(document.querySelector('input[placeholder*="Skin"]:not(#eclipse-overlay input)'), mainSkin);
 
-                // 3. Sincronizar Dual (Multibox) - Procura profunda
                 const dualFields = document.querySelectorAll('input[placeholder*="Dual"]');
                 if (dualFields.length >= 2) {
                     forceSync(dualFields[0], inputs.dualNickname.value);
                     forceSync(dualFields[1], inputs.dualSkin.value);
-                } else {
-                    // Se não encontrar por placeholder, tenta pela classe que enviaste
-                    const altDual = document.querySelectorAll('.dual-section-content input');
-                    if (altDual.length >= 2) {
-                        forceSync(altDual[0], inputs.dualNickname.value);
-                        forceSync(altDual[1], inputs.dualSkin.value);
-                    }
                 }
 
-                if (window.client) {
-                    if (window.client.connect) window.client.connect();
-                    setTimeout(() => { if (window.client.spawn) window.client.spawn(inputs.nickname.value); }, 400);
+                // 3. INJEÇÃO DE SEGURANÇA NO CLIENT (Resolve a skin default)
+                if (window.client && window.client.settings) {
+                    window.client.settings.skinUrl = mainSkin;
+                    window.client.settings.skin = mainSkin;
+                    // Se o jogo tiver função de carregar skin, forçamos aqui
+                    if (typeof window.client.updateSkin === 'function') window.client.updateSkin(mainSkin);
                 }
-            }, 250);
+
+                if (window.client && window.client.connect) window.client.connect();
+                
+                setTimeout(() => { 
+                    if (window.client && window.client.spawn) window.client.spawn(inputs.nickname.value); 
+                }, 600);
+            }, 300);
 
             overlay.remove();
             window.dispatchEvent(new Event('resize'));
