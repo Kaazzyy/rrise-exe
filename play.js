@@ -11,67 +11,80 @@ async function fetchContent(path) {
 }
 
 function initializeLauncher() {
-    log("A verificar elementos do Launcher...");
-
     const playButton = document.getElementById("playBtn");
     const nickInput = document.getElementById("nickname");
     const skinInput = document.getElementById("skin");
+    const launcherUI = document.getElementById("launcher-ui");
 
-    if (!playButton || !nickInput) {
-        // Se o document.write ainda não terminou, tentamos de novo em 50ms
-        setTimeout(initializeLauncher, 50);
+    if (!playButton) {
+        setTimeout(initializeLauncher, 100);
         return;
     }
 
-    // --- CORREÇÃO DA SKIN E NICK ---
-    // Isto garante que ao abrir o launcher, os dados aparecem lá
-    const savedNick = localStorage.getItem('nickname') || localStorage.getItem('eclipse_nick');
-    const savedSkin = localStorage.getItem('skinUrl') || localStorage.getItem('eclipse_skin');
-    
-    if (savedNick) nickInput.value = savedNick;
-    if (savedSkin) skinInput.value = savedSkin;
-    // -------------------------------
+    // --- SINCRONIZAÇÃO DE DADOS ---
+    nickInput.value = localStorage.getItem('nickname') || "";
+    skinInput.value = localStorage.getItem('skinUrl') || "";
 
     playButton.onclick = async () => {
         const nick = nickInput.value || "Eclipse Player";
         const skin = skinInput.value || "";
 
-        // Salva para a próxima vez
         localStorage.setItem('nickname', nick);
         localStorage.setItem('skinUrl', skin);
 
         playButton.disabled = true;
-        playButton.innerText = "Loading main.js...";
+        playButton.innerText = "Downloading logic...";
 
-        // O Vendor.js já foi injetado pelo Tampermonkey, agora só falta o main.js
         const mainJs = await fetchContent('main.js');
-
         if (!mainJs) {
-            alert("Erro ao baixar main.js do GitHub!");
+            alert("Erro ao baixar main.js!");
             playButton.disabled = false;
             return;
         }
 
-        // Injetar Main.js e Iniciar o Jogo
-        const script = document.createElement('script');
-        script.textContent = mainJs + `
-            \n//# sourceURL=${RAW_BASE_URL}/main.js
-            setTimeout(() => {
-                if (window.client && window.client.connect) window.client.connect();
-                
-                // Esconde o UI do Launcher
-                const ui = document.getElementById('launcher-ui');
-                if(ui) ui.style.display = 'none';
-                
-                // Garante que o canvas ocupa o ecrã todo
-                window.dispatchEvent(new Event('resize'));
-            }, 100);
-        `;
-        document.body.appendChild(script);
+        log("Main.js obtido. A preparar transição...");
+
+        // --- AÇÃO PARA EVITAR CONGELAMENTO ---
+        // 1. Escondemos a UI IMEDIATAMENTE (se ela ficar por cima, o jogo parece congelado)
+        launcherUI.style.display = 'none';
         
-        playButton.innerText = "Enjoy!";
+        // 2. Garantimos que o background está preto para o jogo
+        document.body.style.background = "#000";
+
+        // 3. Injeção com "Safe Boot"
+        const script = document.createElement('script');
+        script.textContent = `
+            (function() {
+                try {
+                    console.log('[Eclipse] A injetar lógica principal...');
+                    ${mainJs}
+                    
+                    // Espera um fôlego para o main.js registar as funções
+                    setTimeout(() => {
+                        console.log('[Eclipse] A tentar conectar...');
+                        
+                        // Tenta forçar o arranque em diferentes instâncias
+                        if (window.client && typeof window.client.connect === 'function') {
+                            window.client.connect();
+                        } else if (window.game && window.game.init) {
+                            window.game.init();
+                        }
+                        
+                        // Força o resize do canvas para ele aparecer
+                        window.dispatchEvent(new Event('resize'));
+                        console.log('[Eclipse] Boot concluído.');
+                    }, 200);
+                } catch (e) {
+                    console.error('[Eclipse] Erro fatal no main.js:', e);
+                    document.getElementById('launcher-ui').style.display = 'flex';
+                    alert("O main.js do jogo deu erro. Vê a consola (F12).");
+                }
+            })();
+        `;
+        
+        document.body.appendChild(script);
     };
 }
 
-// Inicia a verificação
+// Inicia
 initializeLauncher();
