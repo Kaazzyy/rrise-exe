@@ -1,18 +1,12 @@
-// Base URL for the game scripts
+// play.js - Solução de Estabilidade e Hooks
 const RAW_BASE_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main'; 
 
-function log(msg) { console.log('%c[Eclipse-Play]', 'color: #00ff00; font-weight: bold;', msg); }
+function log(msg) { console.log('%c[Eclipse-Play]', 'color: #00ffff; font-weight: bold;', msg); }
 
-// Função que injeta o código de forma segura
-function injectScriptText(text, sourceUrl) {
-    const s = document.createElement('script');
-    s.type = 'text/javascript';
-    s.textContent = text + `\n//# sourceURL=${sourceUrl}`;
-    document.body.appendChild(s); 
-}
-
+// Busca o conteúdo dos ficheiros
 async function fetchContent(path) {
     try {
+        // Adiciona timestamp para evitar cache antiga do GitHub
         const res = await fetch(`${RAW_BASE_URL}/${path}?t=${Date.now()}`); 
         if (!res.ok) return null;
         return await res.text();
@@ -20,110 +14,103 @@ async function fetchContent(path) {
 }
 
 function initializeLauncher() {
-    log("A iniciar lógica do botão...");
+    log("Launcher a iniciar...");
 
     const playButton = document.getElementById("playBtn");
     const nickInput = document.getElementById("nickname");
     const skinInput = document.getElementById("skin");
+    const launcherUI = document.getElementById("launcher-ui");
 
-    if (!playButton) {
-        log("ERRO: Botão 'playBtn' não encontrado no HTML!");
+    if (!playButton || !nickInput) {
+        log("ERRO: Elementos do DOM não encontrados.");
         return; 
     }
 
-    // --- CORREÇÃO 1: Carregar dados salvos para os Inputs ---
-    // Isto resolve o problema da skin não aparecer no launcher
-    if (localStorage.getItem('nickname')) {
-        nickInput.value = localStorage.getItem('nickname');
-    }
-    if (localStorage.getItem('skinUrl')) {
-        skinInput.value = localStorage.getItem('skinUrl');
-    }
-    // -------------------------------------------------------
+    // 1. Restaurar dados salvos (se existirem)
+    if (localStorage.getItem('eclipse_nick')) nickInput.value = localStorage.getItem('eclipse_nick');
+    if (localStorage.getItem('eclipse_skin')) skinInput.value = localStorage.getItem('eclipse_skin');
 
-    // 1. ATIVAR O BOTÃO
+    // 2. Ativar botão
     playButton.disabled = false;
     playButton.innerText = "Play Now";
     
     playButton.addEventListener("click", async () => {
-        log("Botão Play clicado!");
-        
-        const nick = nickInput.value || "Eclipse User";
-        const skin = skinInput.value || "";
+        const userNick = nickInput.value || "Eclipse User";
+        const userSkin = skinInput.value || "";
 
-        // Feedback visual
+        // Salvar para a próxima vez (usamos chaves próprias para não conflitar com o jogo ainda)
+        localStorage.setItem('eclipse_nick', userNick);
+        localStorage.setItem('eclipse_skin', userSkin);
+
+        // Feedback Visual
         playButton.disabled = true;
-        playButton.innerText = "Loading Engine...";
+        playButton.innerText = "Downloading Engine...";
+        playButton.style.cursor = "wait";
 
-        // Baixar main.js
-        const mainJsContent = await fetchContent('js/main.js'); // Atenção ao caminho aqui, verifica se é 'js/main.js' ou apenas 'main.js' no teu repo
-        // Nota: No teu script original tinhas apenas 'main.js' no bootCode, mas no script.user.js tinhas 'js/main.js'.
-        // Vou assumir que está na raiz ou na pasta js. Se falhar, ajusta este caminho.
-        // Se o main.js está na raiz do GitHub, usa apenas 'main.js'.
-        
-        // Vamos tentar buscar na raiz primeiro, como estava no teu play.js original:
-        const finalMainContent = await fetchContent('main.js');
+        // 3. Baixar o main.js ANTES de mexer na tela
+        // NOTA: Tenta baixar de 'js/main.js' primeiro (estrutura padrão), fallback para raiz
+        let mainJsContent = await fetchContent('js/main.js');
+        if (!mainJsContent) mainJsContent = await fetchContent('main.js');
 
-        if (!finalMainContent) {
-            alert("Erro crítico: Não foi possível baixar o main.js!");
-            playButton.innerText = "Error: main.js failed";
+        if (!mainJsContent) {
+            alert("Erro: Falha ao baixar main.js do GitHub.");
+            playButton.innerText = "Download Failed";
             playButton.disabled = false;
             return;
         }
 
-        log("Main.js baixado. A preparar injeção...");
+        playButton.innerText = "Injecting...";
 
-        // --- CORREÇÃO 2: Boot Code Inteligente ---
-        // Em vez de esperar 200ms e rezar para funcionar, ele verifica se o jogo carregou.
-        const bootCode = `
-            console.log('[Eclipse] A guardar configurações...');
-            localStorage.setItem('nickname', "${nick}");
-            localStorage.setItem('skinUrl', "${skin}");
+        // 4. HOOKS DE SISTEMA (A Magia acontece aqui)
+        // Intercetamos o localStorage para garantir que o jogo recebe o nick,
+        // independentemente de quando ele o pede.
+        const originalGetItem = Storage.prototype.getItem;
+        Storage.prototype.getItem = function(key) {
+            if (key === 'nickname') return userNick;
+            if (key === 'skinUrl') return userSkin;
+            return originalGetItem.apply(this, arguments);
+        };
+        
+        // Também forçamos a escrita direta para garantir
+        localStorage.setItem('nickname', userNick);
+        localStorage.setItem('skinUrl', userSkin);
+
+        // 5. Preparar o Ambiente e Esconder UI
+        // Esconder a UI ANTES de injetar evita crash de GPU/Canvas
+        launcherUI.style.transition = "opacity 0.5s";
+        launcherUI.style.opacity = "0";
+        setTimeout(() => { launcherUI.style.display = 'none'; }, 500);
+
+        log("A injetar main.js...");
+
+        // 6. Injeção Segura
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        // Adiciona um pequeno delay no código injetado para dar tempo ao DOM de respirar
+        script.textContent = mainJsContent + `
+            \n//# sourceURL=eclipse_main.js
+            console.log('[Eclipse] Engine Injetada.');
             
-            // Função recursiva que espera o motor do jogo carregar
-            function waitForGameEngine(attempts) {
-                if (attempts > 100) { // Tenta por 10 segundos (100 * 100ms)
-                    alert("Erro: O jogo demorou demasiado a iniciar. Recarregue a página (F5).");
-                    return;
+            // Força o navegador a disparar eventos de carregamento caso o jogo dependa deles
+            setTimeout(() => {
+                window.dispatchEvent(new Event('load'));
+                window.dispatchEvent(new Event('DOMContentLoaded'));
+                
+                // Tenta iniciar conexão se o objeto client existir
+                if (window.client && window.client.connect) {
+                    console.log('[Eclipse] A conectar manualmente via window.client...');
+                    window.client.connect();
                 }
-
-                // Verifica se as funções globais do jogo já existem
-                const gameReady = (window.client && typeof window.client.connect === 'function') || 
-                                  (typeof window.initGame === 'function') ||
-                                  (typeof window.startGame === 'function');
-
-                if (gameReady) {
-                    console.log('[Eclipse] Motor detetado! A conectar...');
-                    
-                    // Inicia o jogo
-                    if (window.client && window.client.connect) window.client.connect();
-                    else if (window.initGame) window.initGame();
-                    else if (window.startGame) window.startGame();
-
-                    // Só esconde o UI se o jogo realmente iniciou
-                    setTimeout(() => {
-                        const ui = document.getElementById('launcher-ui');
-                        if(ui) ui.style.display = 'none';
-                        document.body.style.background = '#000'; // Garante fundo preto p/ canvas
-                        // Disparar redimensionamento para garantir que o canvas ajusta
-                        window.dispatchEvent(new Event('resize'));
-                    }, 100);
-
-                } else {
-                    // Se não estiver pronto, espera 100ms e tenta de novo
-                    console.log('[Eclipse] À espera do main.js... tentativa ' + attempts);
-                    setTimeout(() => waitForGameEngine(attempts + 1), 100);
-                }
-            }
-
-            // Começa a verificação
-            waitForGameEngine(0);
+            }, 100);
         `;
-
-        // Injeta o main.js + o código de boot
-        injectScriptText(finalMainContent + bootCode, `${RAW_BASE_URL}/main.js`);
+        
+        document.body.appendChild(script);
     });
 }
 
-// Executa
-setTimeout(initializeLauncher, 100);
+// Inicia a lógica
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeLauncher);
+} else {
+    initializeLauncher();
+}
