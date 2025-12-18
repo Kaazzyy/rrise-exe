@@ -1,82 +1,60 @@
 <style>
-    /* LAUNCHER ECLIPSE (O que já funciona) */
+    /* O Teu Launcher (Mantido igual) */
     #eclipse-ui-container {
-        background: #0d0d0f !important;
+        background: #0b0b0d !important;
         border: 2px solid #7c3aed !important;
         border-radius: 20px !important;
         padding: 30px !important;
         width: 380px !important;
         color: white !important;
-        font-family: 'Inter', sans-serif !important;
-        box-shadow: 0 0 40px rgba(124, 58, 237, 0.4) !important;
+        font-family: 'Space Grotesk', sans-serif !important;
+        box-shadow: 0 0 40px rgba(124, 58, 237, 0.3) !important;
     }
 
-    /* --- OVERRIDE TOTAL DO MENU DO JOGO --- */
-    
-    /* Fundo do Overlay (Onde as estrelas aparecem) */
-    body.eclipse-mode #overlay {
-        background: radial-gradient(circle, rgba(20, 10, 35, 0.8) 0%, rgba(5, 5, 7, 0.95) 100%) !important;
+    /* MUDANÇA NO MENU DO JOGO (INGAME) */
+    /* Ativamos isto quando o launcher fecha */
+    body.eclipse-active #overlay {
+        background: rgba(5, 5, 8, 0.9) !important; /* Fundo do menu mais escuro e sólido */
         backdrop-filter: blur(15px) !important;
     }
 
-    /* O Contentor Principal (Onde estão os lobbies e o play) */
-    body.eclipse-mode main-container,
-    body.eclipse-mode .main-container,
-    body.eclipse-mode box-container {
-        background: rgba(15, 15, 20, 0.7) !important;
-        border: 1px solid rgba(124, 58, 237, 0.4) !important;
-        border-radius: 15px !important;
-        box-shadow: 0 0 30px rgba(0, 0, 0, 0.7), inset 0 0 15px rgba(124, 58, 237, 0.1) !important;
+    /* O Painel Central do Aetlis */
+    body.eclipse-active main-container {
+        background: rgba(20, 20, 25, 0.7) !important;
+        border: 1px solid #7c3aed !important;
+        border-radius: 12px !important;
+        box-shadow: 0 0 25px rgba(124, 58, 237, 0.2) !important;
     }
 
-    /* Estilização das Listas (Lobbies) */
-    body.eclipse-mode .server-list, 
-    body.eclipse-mode .list-container {
-        background: transparent !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
-    }
-
-    /* Inputs do Jogo */
-    body.eclipse-mode input[type="text"], 
-    body.eclipse-mode .input-text,
-    body.eclipse-mode #nickname,
-    body.eclipse-mode #skinUrl {
-        background: rgba(0, 0, 0, 0.3) !important;
-        border: 1px solid #27272a !important;
-        border-radius: 8px !important;
-        color: #fff !important;
-        padding: 10px !important;
-    }
-
-    /* BOTÃO PLAY (O destaque) */
-    body.eclipse-mode .play-btn, 
-    body.eclipse-mode button.primary,
-    body.eclipse-mode .btn-play {
-        background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%) !important;
-        border: none !important;
-        box-shadow: 0 0 20px rgba(124, 58, 237, 0.5) !important;
-        transition: 0.3s !important;
+    /* Botão Play do Jogo */
+    body.eclipse-active .play-btn, 
+    body.eclipse-active button.primary {
+        background: linear-gradient(to right, #7c3aed, #4f46e5) !important;
         color: white !important;
+        border: none !important;
+        text-transform: uppercase !important;
+        font-weight: 900 !important;
+        box-shadow: 0 5px 15px rgba(124, 58, 237, 0.4) !important;
     }
 
-    /* Esconder elementos desnecessários */
-    body.eclipse-mode social-links, 
-    body.eclipse-mode .social-container {
-        display: none !important;
+    /* Inputs originais do jogo (Nick/Skin) */
+    body.eclipse-active input.input-text {
+        background: #16161a !important;
+        border: 1px solid #27272a !important;
+        color: #7c3aed !important;
     }
 </style>
 
 <div id="eclipse-ui-container">
-    <h2 style="text-align:center; margin-bottom:20px; letter-spacing:2px;">ECLIPSE v3.6</h2>
-    <div class="input-wrapper">
-        <input type="text" id="nickname" placeholder="Nick">
-        <input type="text" id="skin" placeholder="Skin URL" style="margin-top:10px;">
+    <h2 style="text-align:center; letter-spacing:3px;">ECLIPSE</h2>
+    <p style="text-align:center; font-size:10px; color:#7c3aed; margin-top:-10px;">PREMIUM UI OVERHAUL</p>
+    
+    <div style="margin-top:20px;">
+        <input type="text" id="nickname" placeholder="Nick" style="width:100%; padding:10px; background:#16161a; border:1px solid #333; color:white; border-radius:8px;">
+        <input type="text" id="skin" placeholder="Skin URL" style="width:100%; padding:10px; background:#16161a; border:1px solid #333; color:white; border-radius:8px; margin-top:10px;">
     </div>
-    <div style="margin-top:20px; border-top:1px solid #222; padding-top:20px;">
-        <input type="text" id="dualNickname" placeholder="Dual Nick">
-        <input type="text" id="dualSkin" placeholder="Dual Skin URL" style="margin-top:10px;">
-    </div>
-    <button id="playBtn" style="width:100%; padding:15px; margin-top:20px; background:#7c3aed; color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold;">
-        SYNC & TRANSFORM MENU
+
+    <button id="playBtn" style="width:100%; padding:15px; background:#7c3aed; color:white; border:none; border-radius:10px; margin-top:20px; font-weight:bold; cursor:pointer;">
+        APPLY VISUALS
     </button>
 </div>
