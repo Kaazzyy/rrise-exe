@@ -1,69 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap');
-        body { margin: 0; padding: 0; }
         #eclipse-ui-container {
             background: #0d0d0f !important;
             border: 2px solid #7c3aed !important;
-            border-radius: 20px !important;
-            padding: 30px !important;
-            width: 360px !important;
+            border-radius: 15px !important;
+            padding: 25px !important;
+            width: 350px !important;
             color: white !important;
             font-family: 'Space Grotesk', sans-serif !important;
-            box-shadow: 0 0 40px rgba(124, 58, 237, 0.4) !important;
-            box-sizing: border-box !important;
+            box-shadow: 0 0 30px rgba(124, 58, 237, 0.4) !important;
         }
-        .title-section { text-align: center !important; margin-bottom: 25px !important; }
-        .title-section h1 { margin: 0 !important; font-size: 30px !important; color: white !important; }
-        .title-section span { color: #7c3aed !important; font-size: 10px !important; font-weight: 800 !important; letter-spacing: 4px !important; text-transform: uppercase; }
-        .field-group { margin-bottom: 15px !important; }
-        .field-group label { display: block !important; font-size: 10px !important; color: #7c3aed !important; font-weight: 800 !important; text-transform: uppercase; margin-bottom: 5px !important; }
-        input {
-            width: 100% !important;
-            background: #16161a !important;
-            border: 1px solid #27272a !important;
-            border-radius: 8px !important;
-            padding: 12px !important;
-            color: white !important;
-            outline: none !important;
-            box-sizing: border-box !important;
-        }
-        .dual-box { margin-top: 20px !important; padding-top: 20px !important; border-top: 1px solid #27272a !important; }
-        #btn-activate {
-            width: 100% !important;
-            background: #7c3aed !important;
-            color: white !important;
-            border: none !important;
-            border-radius: 12px !important;
-            padding: 16px !important;
-            font-weight: 700 !important;
-            cursor: pointer !important;
-            text-transform: uppercase !important;
-        }
+        .title { text-align: center; margin-bottom: 20px; }
+        .title h1 { margin: 0; font-size: 26px; letter-spacing: -1px; }
+        .input-group { margin-bottom: 12px; }
+        .input-group label { display: block; font-size: 10px; color: #7c3aed; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; }
+        input { width: 100%; background: #16161a; border: 1px solid #333; border-radius: 8px; padding: 10px; color: white; outline: none; box-sizing: border-box; }
+        input:focus { border-color: #7c3aed; }
+        #btn-activate { width: 100%; padding: 15px; background: #7c3aed; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 10px; text-transform: uppercase; }
     </style>
 </head>
 <body>
     <div id="eclipse-ui-container">
-        <div class="title-section">
-            <h1>ECLIPSE</h1>
-            <span>ULTIMATE INJECTOR</span>
-        </div>
-        <div class="field-group">
-            <label>Main Player</label>
+        <div class="title"><h1>ECLIPSE</h1><span style="font-size:10px; color:#7c3aed;">UI OVERHAUL v5.7</span></div>
+        <div class="input-group">
+            <label>Main Identity</label>
             <input type="text" id="main-nick" placeholder="Nickname">
-            <input type="text" id="main-skin" placeholder="Skin URL" style="margin-top: 8px !important;">
+            <input type="text" id="main-skin" placeholder="Skin URL" style="margin-top:5px;">
         </div>
-        <div class="dual-box">
-            <div class="field-group">
+        <div style="margin-top:15px; border-top:1px solid #222; padding-top:15px;">
+            <div class="input-group">
                 <label>Dual Identity</label>
                 <input type="text" id="dual-nick" placeholder="Dual Nick">
-                <input type="text" id="dual-skin" placeholder="Dual Skin URL" style="margin-top: 8px !important;">
+                <input type="text" id="dual-skin" placeholder="Dual Skin URL" style="margin-top:5px;">
             </div>
         </div>
-        <button id="btn-activate">Apply & Start</button>
+        <button id="btn-activate">Apply Overhaul</button>
     </div>
 </body>
 </html>
