@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Anti-Duplicate Skin System
-// @version      24.0.0
+// @name         Eclipse - Multibox Smart Sync
+// @version      25.0.0
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -12,7 +12,7 @@
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
     function simulateTyping(element, value) {
-        if (!element) return;
+        if (!element || value === undefined) return;
         element.value = value;
         ['input', 'change', 'blur'].forEach(type => {
             element.dispatchEvent(new Event(type, { bubbles: true }));
@@ -25,66 +25,75 @@
 
         const overlay = document.createElement('div');
         overlay.id = "eclipse-overlay";
-        overlay.style.cssText = "position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px);";
+        overlay.style.cssText = "position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px);";
         overlay.innerHTML = html;
         document.body.appendChild(overlay);
 
         const btn = overlay.querySelector('#playBtn');
-        const nInp = overlay.querySelector('#nickname');
-        const sInp = overlay.querySelector('#skin');
+        const fields = {
+            nick: overlay.querySelector('#nickname'),
+            skin: overlay.querySelector('#skin'),
+            dNick: overlay.querySelector('#dualNickname'),
+            dSkin: overlay.querySelector('#dualSkin')
+        };
 
-        nInp.value = localStorage.getItem('eclipse_nick') || "";
-        sInp.value = localStorage.getItem('eclipse_skin') || "";
+        // Load saved data
+        Object.keys(fields).forEach(k => fields[k].value = localStorage.getItem('eclipse_' + k) || "");
 
         btn.onclick = () => {
-            const nick = nInp.value || "EclipsePlayer";
-            const newSkin = sInp.value.trim();
+            const vals = {
+                nick: fields.nick.value,
+                skin: fields.skin.value.trim(),
+                dNick: fields.dNick.value,
+                dSkin: fields.dSkin.value.trim()
+            };
             
-            localStorage.setItem('eclipse_nick', nick);
-            localStorage.setItem('eclipse_skin', newSkin);
+            Object.keys(vals).forEach(k => localStorage.setItem('eclipse_' + k, vals[k]));
 
-            if (newSkin !== "") {
-                // 1. Verificar se a skin já existe em QUALQUER slot
+            // --- PROTEÇÃO E SELEÇÃO DE SKIN (Lógica v24) ---
+            if (vals.skin !== "") {
                 const allSkins = Array.from(document.querySelectorAll('.skin:not(.add-skin)'));
-                let existingSlot = allSkins.find(img => img.src && img.src.includes(newSkin));
+                let existingSlot = allSkins.find(img => img.src && img.src.includes(vals.skin));
 
                 if (existingSlot) {
-                    // Se já existe, apenas clicamos nesse slot para selecioná-lo
-                    console.log("[Eclipse] Skin já existe no inventário. Selecionando...");
                     existingSlot.click();
                 } else {
-                    // 2. Se não existe, verificar se o slot ATUAL precisa de proteção
                     const currentSelected = document.querySelector('.skin.selected, .skin-item.selected img');
-                    const currentSrc = currentSelected ? currentSelected.src : "";
-                    const isDefault = currentSrc.includes("aetlis1") || currentSrc === "";
-
+                    const isDefault = currentSelected ? currentSelected.src.includes("aetlis1") : true;
                     if (!isDefault) {
-                        // O slot atual tem uma skin importante, criamos novo slot
                         const addBtn = document.querySelector('.add-skin, img[src*="skin-add.png"]');
-                        if (addBtn) {
-                            console.log("[Eclipse] Criando novo slot para skin inédita...");
-                            addBtn.click();
-                        }
+                        if (addBtn) addBtn.click();
                     }
                 }
             }
 
-            // Delay para garantir que o slot correto (novo ou existente) está ativo
+            // --- SINCRONIZAÇÃO TOTAL ---
             setTimeout(() => {
-                const realNick = document.querySelector('input[placeholder*="Nick"], #nickname:not(#eclipse-overlay #nickname)');
-                const realSkin = document.querySelector('input[placeholder*="Skin"], #skinUrl, #skin:not(#eclipse-overlay #skin)');
-                
-                simulateTyping(realNick, nick);
-                simulateTyping(realSkin, newSkin);
+                // 1. Sincronizar Main Player
+                const mainNickInp = document.querySelector('input[placeholder*="Nick"]:not(#eclipse-overlay input)');
+                const mainSkinInp = document.querySelector('input[placeholder*="Skin"]:not(#eclipse-overlay input)');
+                simulateTyping(mainNickInp, vals.nick);
+                simulateTyping(mainSkinInp, vals.skin);
 
+                // 2. Sincronizar Dual Player (Usando os seletores exatos do Aetlis)
+                const dualSection = document.querySelector('.dual-section:nth-of-type(2)'); // Segunda secção (Identity)
+                if (dualSection) {
+                    const dualNickField = dualSection.querySelector('input[placeholder="Dual Nickname"]');
+                    const dualSkinField = dualSection.querySelector('input[placeholder="Dual Skin URL"]');
+                    
+                    if (dualNickField) simulateTyping(dualNickField, vals.dNick);
+                    if (dualSkinField) simulateTyping(dualSkinField, vals.dSkin);
+                }
+
+                // 3. Conectar e Spawn
                 if (window.client) {
                     if (window.client.settings) {
-                        window.client.settings.nickname = nick;
-                        window.client.settings.skinUrl = newSkin;
+                        window.client.settings.nickname = vals.nick;
+                        window.client.settings.skinUrl = vals.skin;
                     }
                     if (window.client.connect) window.client.connect();
                     setTimeout(() => {
-                        if (window.client.spawn) window.client.spawn(nick);
+                        if (window.client.spawn) window.client.spawn(vals.nick);
                     }, 500);
                 }
             }, 200);
