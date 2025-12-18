@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Smart Sync Filter
-// @version      26.0.0
+// @name         Eclipse - Deep Dual Sync
+// @version      27.0.0
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -12,9 +12,10 @@
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
     function simulateTyping(element, value) {
-        if (!element || value === undefined) return;
+        if (!element || value === undefined || value === "") return;
+        element.focus();
         element.value = value;
-        ['input', 'change', 'blur'].forEach(type => {
+        ['input', 'change', 'blur', 'keyup'].forEach(type => {
             element.dispatchEvent(new Event(type, { bubbles: true }));
         });
     }
@@ -49,53 +50,47 @@
             
             Object.keys(vals).forEach(k => localStorage.setItem('eclipse_' + k, vals[k]));
 
-            // Lógica de Validação: Só processa skin se houver um link válido
+            // Lógica de Skin Principal (v26 estável)
             const isValidSkin = vals.skin.startsWith('http');
-
             if (isValidSkin) {
                 const allSkins = Array.from(document.querySelectorAll('.skin:not(.add-skin)'));
-                let existingSlot = allSkins.find(img => img.src && img.src.includes(vals.skin));
-
-                if (existingSlot) {
-                    existingSlot.click();
-                } else {
-                    const currentSelected = document.querySelector('.skin.selected, .skin-item.selected img');
-                    const isDefault = currentSelected ? currentSelected.src.includes("aetlis1") : true;
-                    if (!isDefault) {
-                        const addBtn = document.querySelector('.add-skin, img[src*="skin-add.png"]');
-                        if (addBtn) addBtn.click();
+                let exists = allSkins.find(img => img.src && img.src.includes(vals.skin));
+                if (exists) { exists.click(); } else {
+                    const curr = document.querySelector('.skin.selected, .skin-item.selected img');
+                    if (curr && !curr.src.includes("aetlis1")) {
+                        const add = document.querySelector('.add-skin, img[src*="skin-add.png"]');
+                        if (add) add.click();
                     }
                 }
             }
 
+            // --- SYNC PROCESS ---
             setTimeout(() => {
-                // Sincronizar Nick sempre
-                simulateTyping(document.querySelector('input[placeholder*="Nick"]:not(#eclipse-overlay input)'), vals.nick);
+                // 1. Main Player
+                simulateTyping(document.querySelector('input[placeholder*="Nickname"]:not(#eclipse-overlay input)'), vals.nick);
+                if (isValidSkin) simulateTyping(document.querySelector('input[placeholder*="Skin URL"]:not(#eclipse-overlay input)'), vals.skin);
+
+                // 2. DUAL PLAYER (A peça do puzzle)
+                // Procuramos especificamente pelos atributos data que enviaste
+                const dualInputs = document.querySelectorAll('input[data-v-dual-controls].input-text');
                 
-                // Sincronizar Skin APENAS se for válida (não apaga a atual se estiver vazio)
-                if (isValidSkin) {
-                    simulateTyping(document.querySelector('input[placeholder*="Skin"]:not(#eclipse-overlay input)'), vals.skin);
+                if (dualInputs.length >= 2) {
+                    console.log("[Eclipse] Dual Inputs encontrados!");
+                    simulateTyping(dualInputs[0], vals.dNick); // Primeiro input: Nickname
+                    simulateTyping(dualInputs[1], vals.dSkin); // Segundo input: Skin URL
+                } else {
+                    // Busca alternativa por placeholder exato
+                    const dNickField = document.querySelector('input[placeholder="Dual Nickname"]');
+                    const dSkinField = document.querySelector('input[placeholder="Dual Skin URL"]');
+                    simulateTyping(dNickField, vals.dNick);
+                    simulateTyping(dSkinField, vals.dSkin);
                 }
 
-                // Sincronizar Dual (Mesma lógica de segurança)
-                const dualSection = document.querySelector('.dual-section:nth-of-type(2)');
-                if (dualSection) {
-                    const dNickField = dualSection.querySelector('input[placeholder="Dual Nickname"]');
-                    const dSkinField = dualSection.querySelector('input[placeholder="Dual Skin URL"]');
-                    
-                    if (dNickField) simulateTyping(dNickField, vals.dNick);
-                    if (dSkinField && vals.dSkin.startsWith('http')) simulateTyping(dSkinField, vals.dSkin);
-                }
-
-                if (window.client) {
-                    if (window.client.settings) {
-                        window.client.settings.nickname = vals.nick;
-                        if (isValidSkin) window.client.settings.skinUrl = vals.skin;
-                    }
-                    if (window.client.connect) window.client.connect();
+                if (window.client && window.client.connect) {
+                    window.client.connect();
                     setTimeout(() => { if (window.client.spawn) window.client.spawn(vals.nick); }, 500);
                 }
-            }, 200);
+            }, 250);
 
             overlay.remove();
             window.dispatchEvent(new Event('resize'));
