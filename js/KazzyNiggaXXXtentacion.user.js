@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Skin Protection System
-// @version      23.0.0
+// @name         Eclipse - Anti-Duplicate Skin System
+// @version      24.0.0
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -10,7 +10,6 @@
 (function() {
     'use strict';
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
-    const DEFAULT_SKIN_URL = "https://skins.aetlis.io/s/aetlis1";
 
     function simulateTyping(element, value) {
         if (!element) return;
@@ -31,46 +30,52 @@
         document.body.appendChild(overlay);
 
         const btn = overlay.querySelector('#playBtn');
-        const nickInp = overlay.querySelector('#nickname');
-        const skinInp = overlay.querySelector('#skin');
+        const nInp = overlay.querySelector('#nickname');
+        const sInp = overlay.querySelector('#skin');
 
-        nickInp.value = localStorage.getItem('eclipse_nick') || "";
-        skinInp.value = localStorage.getItem('eclipse_skin') || "";
+        nInp.value = localStorage.getItem('eclipse_nick') || "";
+        sInp.value = localStorage.getItem('eclipse_skin') || "";
 
         btn.onclick = () => {
-            const nick = nickInp.value || "EclipsePlayer";
-            const newSkin = skinInp.value.trim() || "";
+            const nick = nInp.value || "EclipsePlayer";
+            const newSkin = sInp.value.trim();
             
             localStorage.setItem('eclipse_nick', nick);
             localStorage.setItem('eclipse_skin', newSkin);
 
-            // --- LÓGICA DE PROTEÇÃO DE SKIN ---
             if (newSkin !== "") {
-                // 1. Verificar a skin selecionada atualmente no jogo
-                const currentSelectedSkinImg = document.querySelector('.skin.selected, .skin-item.selected img');
-                const currentSkinSrc = currentSelectedSkinImg ? currentSelectedSkinImg.src : "";
+                // 1. Verificar se a skin já existe em QUALQUER slot
+                const allSkins = Array.from(document.querySelectorAll('.skin:not(.add-skin)'));
+                let existingSlot = allSkins.find(img => img.src && img.src.includes(newSkin));
 
-                // 2. Se a skin atual NÃO for a default E for diferente da nova que queremos colocar
-                const isDefault = currentSkinSrc.includes("aetlis1");
-                const isAlreadySelected = currentSkinSrc.includes(newSkin);
+                if (existingSlot) {
+                    // Se já existe, apenas clicamos nesse slot para selecioná-lo
+                    console.log("[Eclipse] Skin já existe no inventário. Selecionando...");
+                    existingSlot.click();
+                } else {
+                    // 2. Se não existe, verificar se o slot ATUAL precisa de proteção
+                    const currentSelected = document.querySelector('.skin.selected, .skin-item.selected img');
+                    const currentSrc = currentSelected ? currentSelected.src : "";
+                    const isDefault = currentSrc.includes("aetlis1") || currentSrc === "";
 
-                if (!isDefault && !isAlreadySelected) {
-                    // Protegemos a skin antiga criando um novo slot
-                    const addSkinBtn = document.querySelector('.add-skin, img[src*="skin-add.png"]');
-                    if (addSkinBtn) {
-                        console.log("[Eclipse] Skin antiga detetada. Criando novo slot...");
-                        addSkinBtn.click();
+                    if (!isDefault) {
+                        // O slot atual tem uma skin importante, criamos novo slot
+                        const addBtn = document.querySelector('.add-skin, img[src*="skin-add.png"]');
+                        if (addBtn) {
+                            console.log("[Eclipse] Criando novo slot para skin inédita...");
+                            addBtn.click();
+                        }
                     }
                 }
             }
 
-            // Aguarda um curto espaço de tempo para o slot (se criado) estar pronto
+            // Delay para garantir que o slot correto (novo ou existente) está ativo
             setTimeout(() => {
-                const realNickInput = document.querySelector('input[placeholder*="Nick"], #nickname:not(#eclipse-overlay #nickname)');
-                const realSkinInput = document.querySelector('input[placeholder*="Skin"], #skinUrl, #skin:not(#eclipse-overlay #skin)');
+                const realNick = document.querySelector('input[placeholder*="Nick"], #nickname:not(#eclipse-overlay #nickname)');
+                const realSkin = document.querySelector('input[placeholder*="Skin"], #skinUrl, #skin:not(#eclipse-overlay #skin)');
                 
-                simulateTyping(realNickInput, nick);
-                simulateTyping(realSkinInput, newSkin);
+                simulateTyping(realNick, nick);
+                simulateTyping(realSkin, newSkin);
 
                 if (window.client) {
                     if (window.client.settings) {
@@ -78,22 +83,16 @@
                         window.client.settings.skinUrl = newSkin;
                     }
                     if (window.client.connect) window.client.connect();
-                    
                     setTimeout(() => {
                         if (window.client.spawn) window.client.spawn(nick);
                     }, 500);
                 }
-            }, 150);
+            }, 200);
 
             overlay.remove();
             window.dispatchEvent(new Event('resize'));
         };
     }
 
-    const checkBody = setInterval(() => {
-        if (document.body) {
-            clearInterval(checkBody);
-            init();
-        }
-    }, 100);
+    const check = setInterval(() => { if (document.body) { clearInterval(check); init(); } }, 100);
 })();
