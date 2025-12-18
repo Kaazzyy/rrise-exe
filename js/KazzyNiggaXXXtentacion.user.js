@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Multibox Smart Sync
-// @version      25.0.0
+// @name         Eclipse - Smart Sync Filter
+// @version      26.0.0
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -25,7 +25,7 @@
 
         const overlay = document.createElement('div');
         overlay.id = "eclipse-overlay";
-        overlay.style.cssText = "position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px);";
+        overlay.style.cssText = "position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px);";
         overlay.innerHTML = html;
         document.body.appendChild(overlay);
 
@@ -37,7 +37,6 @@
             dSkin: overlay.querySelector('#dualSkin')
         };
 
-        // Load saved data
         Object.keys(fields).forEach(k => fields[k].value = localStorage.getItem('eclipse_' + k) || "");
 
         btn.onclick = () => {
@@ -50,8 +49,10 @@
             
             Object.keys(vals).forEach(k => localStorage.setItem('eclipse_' + k, vals[k]));
 
-            // --- PROTEÇÃO E SELEÇÃO DE SKIN (Lógica v24) ---
-            if (vals.skin !== "") {
+            // Lógica de Validação: Só processa skin se houver um link válido
+            const isValidSkin = vals.skin.startsWith('http');
+
+            if (isValidSkin) {
                 const allSkins = Array.from(document.querySelectorAll('.skin:not(.add-skin)'));
                 let existingSlot = allSkins.find(img => img.src && img.src.includes(vals.skin));
 
@@ -67,34 +68,32 @@
                 }
             }
 
-            // --- SINCRONIZAÇÃO TOTAL ---
             setTimeout(() => {
-                // 1. Sincronizar Main Player
-                const mainNickInp = document.querySelector('input[placeholder*="Nick"]:not(#eclipse-overlay input)');
-                const mainSkinInp = document.querySelector('input[placeholder*="Skin"]:not(#eclipse-overlay input)');
-                simulateTyping(mainNickInp, vals.nick);
-                simulateTyping(mainSkinInp, vals.skin);
-
-                // 2. Sincronizar Dual Player (Usando os seletores exatos do Aetlis)
-                const dualSection = document.querySelector('.dual-section:nth-of-type(2)'); // Segunda secção (Identity)
-                if (dualSection) {
-                    const dualNickField = dualSection.querySelector('input[placeholder="Dual Nickname"]');
-                    const dualSkinField = dualSection.querySelector('input[placeholder="Dual Skin URL"]');
-                    
-                    if (dualNickField) simulateTyping(dualNickField, vals.dNick);
-                    if (dualSkinField) simulateTyping(dualSkinField, vals.dSkin);
+                // Sincronizar Nick sempre
+                simulateTyping(document.querySelector('input[placeholder*="Nick"]:not(#eclipse-overlay input)'), vals.nick);
+                
+                // Sincronizar Skin APENAS se for válida (não apaga a atual se estiver vazio)
+                if (isValidSkin) {
+                    simulateTyping(document.querySelector('input[placeholder*="Skin"]:not(#eclipse-overlay input)'), vals.skin);
                 }
 
-                // 3. Conectar e Spawn
+                // Sincronizar Dual (Mesma lógica de segurança)
+                const dualSection = document.querySelector('.dual-section:nth-of-type(2)');
+                if (dualSection) {
+                    const dNickField = dualSection.querySelector('input[placeholder="Dual Nickname"]');
+                    const dSkinField = dualSection.querySelector('input[placeholder="Dual Skin URL"]');
+                    
+                    if (dNickField) simulateTyping(dNickField, vals.dNick);
+                    if (dSkinField && vals.dSkin.startsWith('http')) simulateTyping(dSkinField, vals.dSkin);
+                }
+
                 if (window.client) {
                     if (window.client.settings) {
                         window.client.settings.nickname = vals.nick;
-                        window.client.settings.skinUrl = vals.skin;
+                        if (isValidSkin) window.client.settings.skinUrl = vals.skin;
                     }
                     if (window.client.connect) window.client.connect();
-                    setTimeout(() => {
-                        if (window.client.spawn) window.client.spawn(vals.nick);
-                    }, 500);
+                    setTimeout(() => { if (window.client.spawn) window.client.spawn(vals.nick); }, 500);
                 }
             }, 200);
 
