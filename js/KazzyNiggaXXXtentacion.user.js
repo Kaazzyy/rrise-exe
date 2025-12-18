@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Focused UI v6.2
-// @version      6.2.0
+// @name         Eclipse - Precision UI v6.3
+// @version      6.3.0
 // @match        *://aetlis.io/*
 // @grant        none
 // ==/UserScript==
@@ -30,52 +30,55 @@
 
                 const style = document.createElement('style');
                 style.innerText = `
-                    #overlay { background: rgba(0,0,0,0.4) !important; backdrop-filter: none !important; }
-                    
-                    /* PAINÉIS PRINCIPAIS (Roxo e Preto) */
-                    main-container, .main-container, box-container {
+                    /* 1. VOLTAR COM O ROXO NOS CONTAINERS PRINCIPAIS (v5.6 Style) */
+                    main-container, .main-container, box-container, .box-container {
                         background-color: #0d0d0f !important;
-                        background-image: none !important;
                         border: 2px solid #7c3aed !important;
                         border-radius: 15px !important;
                         box-shadow: 0 0 25px rgba(124, 58, 237, 0.4) !important;
                     }
 
-                    /* REMOVER BORDAS DE LINKS E REDES SOCIAIS */
-                    .bottom-links, .social-links, .terms-link, [class*="footer"], .policy-container, 
-                    a[href*="discord"], a[href*="youtube"], a[href*="twitter"], .privacy-policy {
+                    /* 2. REMOVER APENAS O QUE PEDISTE (Sem Borda e Sem Roxo em volta) */
+                    .bottom-links, 
+                    .social-links, 
+                    .privacy-policy, 
+                    .terms-link, 
+                    .policy-container,
+                    [class*="footer"] a,
+                    .social-links a {
                         border: none !important;
-                        background: transparent !important;
                         box-shadow: none !important;
+                        background: transparent !important;
+                        outline: none !important;
                     }
 
-                    /* AJUSTE DAS SKINS (Círculo Perfeito) */
-                    .skin-item, .perk-item, [class*="skin-container"] {
-                        border: 1px solid #7c3aed !important;
+                    /* 3. AJUSTE DAS SKINS (Círculo Perfeito e Ajustado) */
+                    .skin-item, .perk-item, .skin-container {
+                        border: 1.5px solid #7c3aed !important;
                         border-radius: 50% !important;
                         background: transparent !important;
-                        box-shadow: 0 0 8px rgba(124, 58, 237, 0.5) !important;
                         overflow: hidden !important;
                         padding: 0 !important;
+                        box-shadow: 0 0 10px rgba(124, 58, 237, 0.3) !important;
                     }
                     
                     .skin-item img { border-radius: 50% !important; }
 
-                    /* BOTÃO PLAY */
+                    /* 4. HUD FIX (Jogo Visível) */
+                    #overlay { background: rgba(0,0,0,0.4) !important; backdrop-filter: none !important; }
+                    
+                    /* 5. BOTÃO PLAY */
                     .play-btn, .primary {
-                        background: linear-gradient(135deg, #7c3aed, #4f46e5) !important;
+                        background: #7c3aed !important;
                         border: none !important;
-                        border-radius: 8px !important;
                     }
 
-                    /* MINIMAP (Mantemos apenas uma borda muito fina e discreta) */
-                    #minimap, .minimap-container {
-                        border: 1px solid rgba(124, 58, 237, 0.5) !important;
-                        border-radius: 4px !important;
-                    }
+                    /* 6. ÍCONES DO TOPO (Settings, etc) */
+                    .tabs-container i, .header-icon { color: #7c3aed !important; }
                 `;
                 document.head.appendChild(style);
 
+                // Sync Dados
                 if (data.n2) localStorage.setItem('dualNickname', data.n2);
                 if (data.s2) localStorage.setItem('dualSkinUrl', data.s2);
                 
