@@ -1,15 +1,12 @@
 // ==UserScript==
-// @name         Eclipse - UI Force Overhaul
-// @version      5.6.4
+// @name         Eclipse - Full Modal Fix v7.0
+// @version      7.0.0
 // @match        *://aetlis.io/*
-// @run-at       document-end
 // @grant        none
 // ==/UserScript==
 
 (function() {
     'use strict';
-    
-    // --- CONFIGURAÇÃO ---
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
     async function loadEclipse() {
@@ -17,100 +14,81 @@
             const response = await fetch(`${GITHUB_URL}?t=${Date.now()}`);
             const html = await response.text();
 
-            // --- CRIAR O LAUNCHER ---
             const launcher = document.createElement('div');
             launcher.id = "eclipse-launcher";
-            launcher.style.cssText = "position:fixed; inset:0; z-index:9999999; background:rgba(0,0,0,0.95); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);";
+            launcher.style.cssText = "position:fixed; inset:0; z-index:9999999; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);";
             launcher.innerHTML = html;
             document.body.appendChild(launcher);
 
-            // --- AÇÃO DO BOTÃO ACTIVATE ---
             launcher.querySelector('#btn-activate').onclick = function() {
-                const data = {
-                    n1: document.getElementById('main-nick').value,
-                    s1: document.getElementById('main-skin').value,
-                    n2: document.getElementById('dual-nick').value,
-                    s2: document.getElementById('dual-skin').value
-                };
-
-                if (data.n2) localStorage.setItem('dualNickname', data.n2);
-                if (data.s2) localStorage.setItem('dualSkinUrl', data.s2);
-
-                document.querySelectorAll('input').forEach(i => {
-                    if (i.placeholder?.toLowerCase().includes('nick')) { 
-                        i.value = data.n1; 
-                        i.dispatchEvent(new Event('input', { bubbles: true })); 
-                    }
-                    if (i.placeholder?.toLowerCase().includes('skin')) { 
-                        i.value = data.s1; 
-                        i.dispatchEvent(new Event('input', { bubbles: true })); 
-                    }
-                });
-
-                // --- INJEÇÃO DE CSS ---
                 const style = document.createElement('style');
                 style.innerText = `
-                    /* 1. Fundo escuro */
-                    #overlay { background: rgba(5,5,8,0.8) !important; }
-                    
-                    /* 2. REGRA GERAL (Painéis Quadrados/Arredondados) */
-                    main-container, [class*="container"], [class*="box"], .main-container {
+                    /* 1. ESTILO GLOBAL PARA TODOS OS CONTAINERS E MODALS */
+                    main-container, .main-container, box-container, .modal .wrapper, .modal .content {
                         background-color: #0d0d0f !important;
-                        background-image: none !important;
                         border: 2px solid #7c3aed !important;
                         border-radius: 15px !important;
                         box-shadow: 0 0 25px rgba(124, 58, 237, 0.4) !important;
-                    }
-
-                    /* 3. AJUSTE ESPECÍFICO PARA SKINS (Redondas) */
-                    /* Força o contorno a ser um círculo perfeito para acompanhar a skin */
-                    [class*="skin"], .skin-preview, img[src*="skin"] {
-                        border-radius: 50% !important; /* Transforma o quadrado em círculo */
-                        border: 1px solid #7c3aed !important;
-                        box-shadow: 0 0 15px rgba(124, 58, 237, 0.5) !important;
-                        background-color: transparent !important; /* Remove fundo preto quadrado se houver */
-                    }
-
-                    /* 4. EXCEÇÕES (Remove roxo do Privacy/Terms) */
-                    div:has(> a[href*="privacy"]), 
-                    div:has(> a[href*="terms"]),
-                    div:has(> .text-muted),
-                    footer, .footer, #footer,
-                    [class*="social"], [class*="links"] {
-                        border: none !important;
-                        box-shadow: none !important;
-                        background: transparent !important;
-                        border-radius: 0 !important;
-                    }
-
-                    a[href*="privacy"], a[href*="terms"], .text-muted {
-                        border: none !important;
-                        background: transparent !important;
-                        box-shadow: none !important;
-                    }
-
-                    /* 5. BOTÕES */
-                    button, .play-btn, [class*="btn-primary"], .primary {
-                        background: linear-gradient(135deg, #7c3aed, #4f46e5) !important;
-                        border: none !important;
                         color: white !important;
-                        box-shadow: 0 4px 10px rgba(124, 58, 237, 0.5) !important;
-                        border-radius: 8px !important;
                     }
 
-                    /* 6. IN-GAME */
-                    body.playing #overlay { 
-                        backdrop-filter: none !important; 
-                        background: transparent !important; 
+                    /* 2. CORREÇÃO ESPECÍFICA PARA MODALS (Settings, Keyboard, etc.) */
+                    .modal .container, .modal .section, .modal .header {
+                        background: transparent !important;
+                        border-color: #27272a !important;
+                        color: white !important;
                     }
+
+                    .modal .header { 
+                        color: #7c3aed !important; 
+                        font-weight: bold !important;
+                        border-bottom: 1px solid rgba(124, 58, 237, 0.2) !important;
+                    }
+
+                    /* 3. REMOVER BORDAS DE LINKS E REDES SOCIAIS (O que pediste antes) */
+                    .bottom-links, .social-links, .privacy-policy, .terms-link, .policy-container, [class*="footer"] {
+                        border: none !important;
+                        background: transparent !important;
+                        box-shadow: none !important;
+                    }
+
+                    /* 4. INPUTS E SLIDERS DENTRO DOS MODALS */
+                    input[type="text"], input[type="range"], .bind, .vanis-button {
+                        background: #16161a !important;
+                        border: 1px solid #7c3aed !important;
+                        color: white !important;
+                        border-radius: 5px !important;
+                    }
+
+                    .vanis-button:hover { background: #7c3aed !important; }
+
+                    /* 5. SKINS (Circulares) */
+                    .skin-item, .perk-item, .skin-container {
+                        border: 1.5px solid #7c3aed !important;
+                        border-radius: 50% !important;
+                        overflow: hidden !important;
+                    }
+                    .skin-item img { border-radius: 50% !important; }
+
+                    /* 6. HUD FIX */
+                    #overlay { background: rgba(0,0,0,0.4) !important; backdrop-filter: none !important; }
+                    .play-btn { background: #7c3aed !important; border: none !important; }
                 `;
                 document.head.appendChild(style);
 
-                document.body.classList.add('eclipse-active');
+                // Sincronização de Nick/Skin
+                const data = {
+                    n1: document.getElementById('main-nick').value,
+                    s1: document.getElementById('main-skin').value
+                };
+                document.querySelectorAll('input').forEach(i => {
+                    if (i.placeholder?.toLowerCase().includes('nick')) { i.value = data.n1; i.dispatchEvent(new Event('input', { bubbles: true })); }
+                    if (i.placeholder?.toLowerCase().includes('skin')) { i.value = data.s1; i.dispatchEvent(new Event('input', { bubbles: true })); }
+                });
+
                 launcher.remove();
             };
-        } catch (err) { console.error("Erro Eclipse:", err); }
+        } catch (err) { console.error(err); }
     }
-
     setTimeout(loadEclipse, 1000);
 })();
