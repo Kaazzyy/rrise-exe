@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - God Mode Sync
-// @version      20.0.0
+// @name         Eclipse - Smart Skin Engine
+// @version      21.0.0
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -11,13 +11,12 @@
     'use strict';
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
-    // Função para forçar o valor em elementos do Vue.js
-    function setNativeValue(el, value) {
+    function injectData(el, value) {
         if (!el) return;
-        const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-        setter.call(el, value);
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-        el.dispatchEvent(new Event('change', { bubbles: true }));
+        el.focus();
+        el.value = value;
+        // Dispara a sequência de eventos que o Vue/React costumam monitorizar
+        ['input', 'change', 'keyup', 'blur'].forEach(t => el.dispatchEvent(new Event(t, { bubbles: true })));
     }
 
     async function init() {
@@ -26,62 +25,53 @@
 
         const overlay = document.createElement('div');
         overlay.id = "eclipse-overlay";
-        overlay.style.cssText = "position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(8px);";
+        overlay.style.cssText = "position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);";
         overlay.innerHTML = html;
         document.body.appendChild(overlay);
 
         const btn = overlay.querySelector('#playBtn');
-        const inputs = {
-            nick: overlay.querySelector('#nickname'),
-            skin: overlay.querySelector('#skin'),
-            dNick: overlay.querySelector('#dualNickname'),
-            dSkin: overlay.querySelector('#dualSkin')
-        };
+        const nInput = overlay.querySelector('#nickname');
+        const sInput = overlay.querySelector('#skin');
 
-        // Carregar do Storage
-        Object.keys(inputs).forEach(k => inputs[k].value = localStorage.getItem('eclipse_'+k) || "");
+        nInput.value = localStorage.getItem('eclipse_nick') || "";
+        sInput.value = localStorage.getItem('eclipse_skin') || "";
 
         btn.onclick = () => {
-            const vals = {
-                nick: inputs.nick.value,
-                skin: inputs.skin.value,
-                dNick: inputs.dNick.value,
-                dSkin: inputs.dSkin.value
-            };
-            
-            Object.keys(vals).forEach(k => localStorage.setItem('eclipse_'+k, vals[k]));
+            const nick = nInput.value;
+            const skin = sInput.value.trim();
 
-            // 1. ADICIONAR SLOT DE SKIN (Se não existir)
-            const addBtn = document.querySelector('.add-skin, img[src*="skin-add.png"]');
-            const hasSkin = Array.from(document.querySelectorAll('img.skin')).some(img => img.src.includes(vals.skin));
-            if (vals.skin && !hasSkin && addBtn) addBtn.click();
+            localStorage.setItem('eclipse_nick', nick);
+            localStorage.setItem('eclipse_skin', skin);
 
-            // 2. SINCRONIZAÇÃO AGRESSIVA
+            // --- DETEÇÃO DE SKIN PRESENTE ---
+            // Procuramos por todas as imagens de skin no contentor do jogo
+            const allSkins = Array.from(document.querySelectorAll('img.skin, .skin-item img'));
+            const alreadyExists = allSkins.some(img => img.src && (img.src.includes(skin) || skin.includes(img.src)));
+
+            if (skin !== "" && !alreadyExists) {
+                const addBtn = document.querySelector('.add-skin, img[src*="skin-add.png"], .btn-add-skin');
+                if (addBtn) addBtn.click();
+            }
+
+            // Aguarda o slot abrir/ser criado
             setTimeout(() => {
-                // Main Player
-                setNativeValue(document.querySelector('input[placeholder*="Nickname"]:not(#eclipse-overlay input)'), vals.nick);
-                setNativeValue(document.querySelector('input[placeholder*="Skin URL"]:not(#eclipse-overlay input)'), vals.skin);
+                const gameNick = document.querySelector('input[placeholder*="Nick"]:not(#eclipse-overlay input)');
+                const gameSkin = document.querySelector('input[placeholder*="Skin"]:not(#eclipse-overlay input)');
 
-                // Dual Player (Multibox)
-                const dualFields = document.querySelectorAll('input[placeholder*="Dual"]');
-                if (dualFields.length >= 2) {
-                    setNativeValue(dualFields[0], vals.dNick);
-                    setNativeValue(dualFields[1], vals.dSkin);
+                injectData(gameNick, nick);
+                injectData(gameSkin, skin);
+
+                // Força o objeto do cliente para garantir que o Nick vai no spawn
+                if (window.client && window.client.settings) {
+                    window.client.settings.nickname = nick;
+                    window.client.settings.skinUrl = skin;
                 }
 
-                // 3. INJEÇÃO NO CORE DO CLIENTE
-                if (window.client) {
-                    // Sobrescrever propriedades de forma permanente nesta sessão
-                    if (window.client.settings) {
-                        Object.defineProperty(window.client.settings, 'nickname', { value: vals.nick, writable: true });
-                        Object.defineProperty(window.client.settings, 'skinUrl', { value: vals.skin, writable: true });
-                    }
-                    
-                    if (window.client.connect) window.client.connect();
-                    setTimeout(() => { 
-                        if (window.client.spawn) window.client.spawn(vals.nick); 
-                    }, 400);
-                }
+                if (window.client && window.client.connect) window.client.connect();
+                
+                setTimeout(() => {
+                    if (window.client && window.client.spawn) window.client.spawn(nick);
+                }, 500);
             }, 300);
 
             overlay.remove();
