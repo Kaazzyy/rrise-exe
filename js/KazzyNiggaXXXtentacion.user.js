@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Eclipse - UI Force Overhaul
-// @version      5.6.1
+// @version      5.6.2
 // @match        *://aetlis.io/*
 // @run-at       document-end
 // @grant        none
@@ -8,23 +8,24 @@
 
 (function() {
     'use strict';
-    // Link direto para o teu HTML no GitHub
+    
+    // --- CONFIGURAÇÃO ---
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
     async function loadEclipse() {
         try {
-            // Adiciona timestamp para evitar cache (?t=...)
+            // Adiciona timestamp para evitar cache
             const response = await fetch(`${GITHUB_URL}?t=${Date.now()}`);
             const html = await response.text();
 
-            // Cria o Launcher (Menu Inicial Eclipse)
+            // --- CRIAR O LAUNCHER ---
             const launcher = document.createElement('div');
             launcher.id = "eclipse-launcher";
             launcher.style.cssText = "position:fixed; inset:0; z-index:9999999; background:rgba(0,0,0,0.95); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);";
             launcher.innerHTML = html;
             document.body.appendChild(launcher);
 
-            // Lógica do botão "Activate"
+            // --- AÇÃO DO BOTÃO ACTIVATE ---
             launcher.querySelector('#btn-activate').onclick = function() {
                 const data = {
                     n1: document.getElementById('main-nick').value,
@@ -33,11 +34,11 @@
                     s2: document.getElementById('dual-skin').value
                 };
 
-                // Salvar dados do Dual no LocalStorage (para o script do Dual ler depois se necessário)
+                // Salvar dados Dual
                 if (data.n2) localStorage.setItem('dualNickname', data.n2);
                 if (data.s2) localStorage.setItem('dualSkinUrl', data.s2);
 
-                // Preencher Nick/Skin Principal no Aetlis automaticamente
+                // Preencher inputs do jogo
                 document.querySelectorAll('input').forEach(i => {
                     if (i.placeholder?.toLowerCase().includes('nick')) { 
                         i.value = data.n1; 
@@ -49,13 +50,13 @@
                     }
                 });
 
-                // --- INJEÇÃO DE CSS (ESTILO ECLIPSE) ---
+                // --- INJEÇÃO DE CSS (CORRIGIDO) ---
                 const style = document.createElement('style');
                 style.innerText = `
-                    /* Fundo escuro atrás do jogo */
+                    /* 1. Fundo escuro */
                     #overlay { background: rgba(5,5,8,0.8) !important; }
                     
-                    /* ESTILO PRINCIPAL (Mantém as bordas roxas nos painéis principais) */
+                    /* 2. REGRA GERAL (Aplica o roxo nos painéis principais) */
                     main-container, [class*="container"], [class*="box"], .main-container {
                         background-color: #0d0d0f !important;
                         background-image: none !important;
@@ -64,25 +65,35 @@
                         box-shadow: 0 0 25px rgba(124, 58, 237, 0.4) !important;
                     }
 
-                    /* --- CORREÇÃO: REMOVER BORDAS DO RODAPÉ, SOCIAIS E PRIVACIDADE --- */
-                    /* Esta regra cancela o roxo para as partes de baixo (Privacy, Discord, etc) */
-                    footer, .footer, #footer,
-                    [class*="social"], [class*="links"], 
-                    .text-muted, a[href*="privacy"], a[href*="terms"] {
-                        background: transparent !important;
+                    /* 3. EXCEÇÕES (REMOVE O ROXO ONDE NÃO DEVE ESTAR) */
+                    
+                    /* SKINS: Remove borda da caixa de seleção de skins */
+                    [class*="skin"], #skin-list, .skin-list-container {
                         border: none !important;
+                        box-shadow: none !important;
+                        background: transparent !important;
+                    }
+
+                    /* PRIVACY / TERMS / FOOTER: Remove borda dos links lá em baixo */
+                    /* Remove do container que segura os links (usando :has para detetar se tem link de privacy) */
+                    div:has(> a[href*="privacy"]), 
+                    div:has(> a[href*="terms"]),
+                    div:has(> .text-muted),
+                    footer, .footer, #footer,
+                    [class*="social"], [class*="links"] {
+                        border: none !important;
+                        box-shadow: none !important;
+                        background: transparent !important;
+                    }
+
+                    /* Remove borda direta dos links de texto */
+                    a[href*="privacy"], a[href*="terms"], .text-muted {
+                        border: none !important;
+                        background: transparent !important;
                         box-shadow: none !important;
                     }
 
-                    /* Remove borda se houver containers específicos dentro do footer */
-                    footer [class*="container"], .footer [class*="container"] {
-                         border: none !important;
-                         box-shadow: none !important;
-                         background: transparent !important;
-                    }
-                    /* ------------------------------------------------------------- */
-
-                    /* Estilo dos Botões (Play, Settings, etc) */
+                    /* 4. BOTÕES (Mantém o estilo bonito) */
                     button, .play-btn, [class*="btn-primary"], .primary {
                         background: linear-gradient(135deg, #7c3aed, #4f46e5) !important;
                         border: none !important;
@@ -90,7 +101,7 @@
                         box-shadow: 0 4px 10px rgba(124, 58, 237, 0.5) !important;
                     }
 
-                    /* Ajuste In-Game (Remove o borrão/fundo quando começas a jogar) */
+                    /* 5. IN-GAME */
                     body.playing #overlay { 
                         backdrop-filter: none !important; 
                         background: transparent !important; 
@@ -98,15 +109,11 @@
                 `;
                 document.head.appendChild(style);
 
-                // Marca o body como ativo
                 document.body.classList.add('eclipse-active');
-
-                // Remove o launcher da tela
                 launcher.remove();
             };
-        } catch (err) { console.error("Erro ao carregar Eclipse:", err); }
+        } catch (err) { console.error("Erro Eclipse:", err); }
     }
 
-    // Aguarda 1 segundo para garantir que o site carregou antes de injetar
     setTimeout(loadEclipse, 1000);
 })();
