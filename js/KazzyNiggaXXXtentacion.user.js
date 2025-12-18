@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name         Eclipse - Ultimate Injector (Screen Fix)
-// @version      4.3.0
-// @description  Força o menu a ficar visível e centralizado sem scroll
+// @name         Eclipse - Final Emergency Fix
+// @version      5.0.0
+// @description  Força centralização absoluta e remove lixo do site original
 // @author       Kazzy
 // @match        *://aetlis.io/*
-// @run-at       document-start
+// @run-at       document-end
 // ==/UserScript==
 
 (function() {
@@ -15,58 +15,43 @@
         try {
             const html = await fetch(`${RAW_BASE_URL}/index.html?t=${Date.now()}`).then(r => r.text());
 
+            // 1. Limpar estilos do body original que podem estar a empurrar o menu
+            document.body.style.margin = "0";
+            document.body.style.padding = "0";
+            document.body.style.overflow = "hidden";
+
+            // 2. Criar o Host do Launcher
             const host = document.createElement('div');
-            host.id = "eclipse-shadow-host";
-            // Inset: 0 garante que ele cola em todas as bordas (Top, Bottom, Left, Right)
-            host.style.cssText = "position:fixed; inset:0; width:100vw; height:100vh; z-index:9999999; pointer-events:none;";
-            document.documentElement.appendChild(host);
-
-            const shadow = host.attachShadow({mode: 'open'});
+            host.id = "eclipse-host";
+            // Usamos Fixed + Flex para garantir centro absoluto independente do site
+            host.style.cssText = `
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                z-index: 2147483647 !important;
+                background: rgba(0, 0, 0, 0.85) !important;
+            `;
             
-            shadow.innerHTML = `
-                <style>
-                    :host { all: initial; }
-                    
-                    /* Container principal que cobre a tela toda */
-                    .fullscreen-overlay {
-                        position: fixed;
-                        inset: 0;
-                        width: 100vw;
-                        height: 100vh;
-                        display: flex !important;
-                        align-items: center !important;
-                        justify-content: center !important;
-                        background: rgba(0, 0, 0, 0.8);
-                        pointer-events: auto;
-                        overflow: hidden;
-                    }
-
-                    /* O teu painel de login */
-                    #launcher-ui { 
-                        width: 90%;
-                        max-width: 420px;
-                        background: #18181b; /* Cor zinc-900 */
-                        border-radius: 1rem;
-                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-                        padding: 2rem;
-                        display: block !important;
-                    }
-                </style>
+            // 3. Injetar o HTML (Limpando as classes que podem dar conflito no topo)
+            host.innerHTML = `
                 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-                
-                <div class="fullscreen-overlay">
-                    <div id="launcher-ui">
-                        ${html}
-                    </div>
+                <div style="width: 100%; max-width: 450px; padding: 20px;">
+                    ${html}
                 </div>
             `;
+            document.body.appendChild(host);
 
-            // Lógica do botão
-            const playBtn = shadow.getElementById('playBtn');
+            // 4. Lógica do Botão
+            const playBtn = host.querySelector('#playBtn');
+            const nickInp = host.querySelector('#nickname');
+            const skinInp = host.querySelector('#skin');
+
             if (playBtn) {
-                const nickInp = shadow.getElementById('nickname');
-                const skinInp = shadow.getElementById('skin');
-                
                 nickInp.value = localStorage.getItem('nickname') || "";
                 skinInp.value = localStorage.getItem('skinUrl') || "";
 
@@ -75,24 +60,21 @@
                     localStorage.setItem('nickname', nick);
                     localStorage.setItem('skinUrl', skinInp.value);
 
+                    // Tentar dar spawn
                     if (window.client) {
                         if (window.client.settings) window.client.settings.nickname = nick;
                         if (window.client.connect) window.client.connect();
                         setTimeout(() => { if (window.client.spawn) window.client.spawn(nick); }, 500);
                     }
 
-                    host.style.opacity = "0";
-                    host.style.transition = "0.4s";
-                    setTimeout(() => host.remove(), 400);
+                    // Fechar e limpar
+                    host.remove();
+                    window.dispatchEvent(new Event('resize'));
                 };
             }
         } catch (e) { console.error('Eclipse Error:', e); }
     }
 
-    const check = setInterval(() => {
-        if (document.body) {
-            clearInterval(check);
-            loadEclipse();
-        }
-    }, 50);
+    // Pequeno atraso para garantir que o body do jogo não apague o nosso launcher
+    setTimeout(loadEclipse, 500);
 })();
