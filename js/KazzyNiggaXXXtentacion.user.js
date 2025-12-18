@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Skin & Nick Sync Fix
-// @version      12.0.0
+// @name         Eclipse - Skin Protection System
+// @version      23.0.0
 // @author       Kazzy
 // @match        *://aetlis.io/*
 // @run-at       document-start
@@ -10,6 +10,7 @@
 (function() {
     'use strict';
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
+    const DEFAULT_SKIN_URL = "https://skins.aetlis.io/s/aetlis1";
 
     function simulateTyping(element, value) {
         if (!element) return;
@@ -38,42 +39,51 @@
 
         btn.onclick = () => {
             const nick = nickInp.value || "EclipsePlayer";
-            const skin = skinInp.value || "";
+            const newSkin = skinInp.value.trim() || "";
             
             localStorage.setItem('eclipse_nick', nick);
-            localStorage.setItem('eclipse_skin', skin);
-            localStorage.setItem('nickname', nick);
-            localStorage.setItem('skinUrl', skin);
+            localStorage.setItem('eclipse_skin', newSkin);
 
-            // 1. Sincronizar Inputs Originais
-            const realNickInput = document.querySelector('input[placeholder*="Nick"], #nickname:not(#eclipse-overlay #nickname)');
-            const realSkinInput = document.querySelector('input[placeholder*="Skin"], #skinUrl, #skin:not(#eclipse-overlay #skin)');
-            
-            simulateTyping(realNickInput, nick);
-            simulateTyping(realSkinInput, skin);
+            // --- LÓGICA DE PROTEÇÃO DE SKIN ---
+            if (newSkin !== "") {
+                // 1. Verificar a skin selecionada atualmente no jogo
+                const currentSelectedSkinImg = document.querySelector('.skin.selected, .skin-item.selected img');
+                const currentSkinSrc = currentSelectedSkinImg ? currentSelectedSkinImg.src : "";
 
-            // 2. Injeção Profunda no Client (Forçar carregamento da Skin)
-            if (window.client) {
-                if (window.client.settings) {
-                    window.client.settings.nickname = nick;
-                    window.client.settings.skinUrl = skin;
-                    window.client.settings.skin = skin;
-                }
+                // 2. Se a skin atual NÃO for a default E for diferente da nova que queremos colocar
+                const isDefault = currentSkinSrc.includes("aetlis1");
+                const isAlreadySelected = currentSkinSrc.includes(newSkin);
 
-                // Tentar chamar a função de atualização de skin do próprio jogo
-                if (typeof window.client.setSkin === 'function') {
-                    window.client.setSkin(skin);
-                }
-
-                if (window.client.connect) window.client.connect();
-                
-                setTimeout(() => {
-                    if (window.client.spawn) {
-                        // Passamos o nick e a skin diretamente no spawn se o motor suportar
-                        window.client.spawn(nick, skin);
+                if (!isDefault && !isAlreadySelected) {
+                    // Protegemos a skin antiga criando um novo slot
+                    const addSkinBtn = document.querySelector('.add-skin, img[src*="skin-add.png"]');
+                    if (addSkinBtn) {
+                        console.log("[Eclipse] Skin antiga detetada. Criando novo slot...");
+                        addSkinBtn.click();
                     }
-                }, 500);
+                }
             }
+
+            // Aguarda um curto espaço de tempo para o slot (se criado) estar pronto
+            setTimeout(() => {
+                const realNickInput = document.querySelector('input[placeholder*="Nick"], #nickname:not(#eclipse-overlay #nickname)');
+                const realSkinInput = document.querySelector('input[placeholder*="Skin"], #skinUrl, #skin:not(#eclipse-overlay #skin)');
+                
+                simulateTyping(realNickInput, nick);
+                simulateTyping(realSkinInput, newSkin);
+
+                if (window.client) {
+                    if (window.client.settings) {
+                        window.client.settings.nickname = nick;
+                        window.client.settings.skinUrl = newSkin;
+                    }
+                    if (window.client.connect) window.client.connect();
+                    
+                    setTimeout(() => {
+                        if (window.client.spawn) window.client.spawn(nick);
+                    }, 500);
+                }
+            }, 150);
 
             overlay.remove();
             window.dispatchEvent(new Event('resize'));
