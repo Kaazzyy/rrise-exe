@@ -1,83 +1,82 @@
 <style>
-    /* 1. O TEU LAUNCHER (ECLIPSE) */
+    /* LAUNCHER ECLIPSE (O que já funciona) */
     #eclipse-ui-container {
-        background: #09090b !important;
+        background: #0d0d0f !important;
         border: 2px solid #7c3aed !important;
-        border-radius: 24px !important;
-        padding: 35px !important;
-        width: 400px !important;
-        color: white !important;
-        font-family: 'Space Grotesk', sans-serif !important;
-        box-shadow: 0 0 50px rgba(124, 58, 237, 0.4) !important;
-    }
-
-    /* 2. REESTILIZAÇÃO DOS COMPONENTES ORIGINAIS (Conforme o teu index.html) */
-    body.eclipse-mode #overlay {
-        background: rgba(5, 5, 7, 0.85) !important; /* Fundo do menu mais escuro */
-        backdrop-filter: blur(12px) !important;
-    }
-
-    /* Transforma o container principal num painel flutuante */
-    body.eclipse-mode main-container {
-        background: rgba(15, 15, 20, 0.6) !important;
-        border: 1px solid rgba(124, 58, 237, 0.3) !important;
         border-radius: 20px !important;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.8) !important;
-        padding: 20px !important;
+        padding: 30px !important;
+        width: 380px !important;
+        color: white !important;
+        font-family: 'Inter', sans-serif !important;
+        box-shadow: 0 0 40px rgba(124, 58, 237, 0.4) !important;
     }
 
-    /* Estilização dos inputs originais do jogo */
+    /* --- OVERRIDE TOTAL DO MENU DO JOGO --- */
+    
+    /* Fundo do Overlay (Onde as estrelas aparecem) */
+    body.eclipse-mode #overlay {
+        background: radial-gradient(circle, rgba(20, 10, 35, 0.8) 0%, rgba(5, 5, 7, 0.95) 100%) !important;
+        backdrop-filter: blur(15px) !important;
+    }
+
+    /* O Contentor Principal (Onde estão os lobbies e o play) */
+    body.eclipse-mode main-container,
+    body.eclipse-mode .main-container,
+    body.eclipse-mode box-container {
+        background: rgba(15, 15, 20, 0.7) !important;
+        border: 1px solid rgba(124, 58, 237, 0.4) !important;
+        border-radius: 15px !important;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.7), inset 0 0 15px rgba(124, 58, 237, 0.1) !important;
+    }
+
+    /* Estilização das Listas (Lobbies) */
+    body.eclipse-mode .server-list, 
+    body.eclipse-mode .list-container {
+        background: transparent !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
+
+    /* Inputs do Jogo */
     body.eclipse-mode input[type="text"], 
-    body.eclipse-mode .input-text {
-        background: #121214 !important;
-        border: 1px solid #2d2d30 !important;
+    body.eclipse-mode .input-text,
+    body.eclipse-mode #nickname,
+    body.eclipse-mode #skinUrl {
+        background: rgba(0, 0, 0, 0.3) !important;
+        border: 1px solid #27272a !important;
         border-radius: 8px !important;
-        color: #eee !important;
-        transition: 0.3s;
+        color: #fff !important;
+        padding: 10px !important;
     }
 
-    body.eclipse-mode input:focus {
-        border-color: #7c3aed !important;
-        box-shadow: 0 0 10px rgba(124, 58, 237, 0.2) !important;
-    }
-
-    /* Botão Play do Aetlis */
+    /* BOTÃO PLAY (O destaque) */
     body.eclipse-mode .play-btn, 
-    body.eclipse-mode button.primary {
+    body.eclipse-mode button.primary,
+    body.eclipse-mode .btn-play {
         background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%) !important;
         border: none !important;
-        border-radius: 12px !important;
-        font-weight: 900 !important;
-        letter-spacing: 1px !important;
-        text-transform: uppercase !important;
+        box-shadow: 0 0 20px rgba(124, 58, 237, 0.5) !important;
+        transition: 0.3s !important;
+        color: white !important;
     }
 
-    /* Esconder o Social Links original se quiseres algo mais limpo */
-    body.eclipse-mode social-links {
-        opacity: 0.5;
-        filter: grayscale(1);
+    /* Esconder elementos desnecessários */
+    body.eclipse-mode social-links, 
+    body.eclipse-mode .social-container {
+        display: none !important;
     }
 </style>
 
 <div id="eclipse-ui-container">
-    <div style="text-align: center; margin-bottom: 25px;">
-        <h1 style="margin: 0; font-size: 32px; font-weight: 900; letter-spacing: -1px;">ECLIPSE</h1>
-        <div style="color: #7c3aed; font-size: 10px; font-weight: 800; letter-spacing: 3px;">AETLIS EDITION</div>
-    </div>
-
+    <h2 style="text-align:center; margin-bottom:20px; letter-spacing:2px;">ECLIPSE v3.6</h2>
     <div class="input-wrapper">
-        <label style="font-size: 10px; color: #7c3aed; font-weight: bold; text-transform: uppercase;">Identity</label>
-        <input type="text" id="nickname" placeholder="Nickname">
-        <input type="text" id="skin" placeholder="Skin URL" style="margin-top: 8px;">
+        <input type="text" id="nickname" placeholder="Nick">
+        <input type="text" id="skin" placeholder="Skin URL" style="margin-top:10px;">
     </div>
-
-    <div style="margin-top: 20px; border-top: 1px solid #27272a; padding-top: 20px;">
-        <label style="font-size: 10px; color: #7c3aed; font-weight: bold; text-transform: uppercase;">Dual Multibox</label>
-        <input type="text" id="dualNickname" placeholder="Dual Nick" style="margin-top: 10px;">
-        <input type="text" id="dualSkin" placeholder="Dual Skin URL" style="margin-top: 8px;">
+    <div style="margin-top:20px; border-top:1px solid #222; padding-top:20px;">
+        <input type="text" id="dualNickname" placeholder="Dual Nick">
+        <input type="text" id="dualSkin" placeholder="Dual Skin URL" style="margin-top:10px;">
     </div>
-
-    <button id="playBtn" style="width: 100%; padding: 16px; margin-top: 25px; background: #7c3aed; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;">
-        ACTIVATE INTERFACE
+    <button id="playBtn" style="width:100%; padding:15px; margin-top:20px; background:#7c3aed; color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold;">
+        SYNC & TRANSFORM MENU
     </button>
 </div>
