@@ -21,7 +21,7 @@ function initializeLauncher() {
         return;
     }
 
-    // --- SINCRONIZAÇÃO DE DADOS ---
+    // Sincronização automática (já confirmaste que funciona)
     nickInput.value = localStorage.getItem('nickname') || "";
     skinInput.value = localStorage.getItem('skinUrl') || "";
 
@@ -33,58 +33,54 @@ function initializeLauncher() {
         localStorage.setItem('skinUrl', skin);
 
         playButton.disabled = true;
-        playButton.innerText = "Downloading logic...";
+        playButton.innerText = "Bypassing Assets...";
 
         const mainJs = await fetchContent('main.js');
-        if (!mainJs) {
-            alert("Erro ao baixar main.js!");
-            playButton.disabled = false;
-            return;
-        }
+        if (!mainJs) return alert("Erro ao baixar main.js!");
 
-        log("Main.js obtido. A preparar transição...");
-
-        // --- AÇÃO PARA EVITAR CONGELAMENTO ---
-        // 1. Escondemos a UI IMEDIATAMENTE (se ela ficar por cima, o jogo parece congelado)
+        // ESCONDER UI IMEDIATAMENTE
         launcherUI.style.display = 'none';
-        
-        // 2. Garantimos que o background está preto para o jogo
         document.body.style.background = "#000";
 
-        // 3. Injeção com "Safe Boot"
         const script = document.createElement('script');
         script.textContent = `
             (function() {
+                // --- BYPASS DE ERROS DE ASSETS ---
+                // Se o jogo tentar carregar um som/imagem que dê 404, não deixa crashar
+                window.addEventListener('error', function(e) {
+                    if (e.target.tagName === 'IMG' || e.target.tagName === 'AUDIO') {
+                        console.warn('[Eclipse] Asset ignorado para evitar crash:', e.target.src);
+                        e.preventDefault();
+                    }
+                }, true);
+
                 try {
-                    console.log('[Eclipse] A injetar lógica principal...');
-                    ${mainJs}
+                    // Garantir que o nickname está onde o main.js espera
+                    window.nickname = "${nick}";
+                    window.skinUrl = "${skin}";
                     
-                    // Espera um fôlego para o main.js registar as funções
+                    ${mainJs}
+
                     setTimeout(() => {
-                        console.log('[Eclipse] A tentar conectar...');
+                        console.log('[Eclipse] Verificando sanidade do motor...');
                         
-                        // Tenta forçar o arranque em diferentes instâncias
+                        // Tenta forçar o renderizador se a tela estiver preta
+                        if (window.PIXI && window.PIXI.utils) {
+                             window.dispatchEvent(new Event('resize'));
+                        }
+
                         if (window.client && typeof window.client.connect === 'function') {
                             window.client.connect();
-                        } else if (window.game && window.game.init) {
-                            window.game.init();
                         }
-                        
-                        // Força o resize do canvas para ele aparecer
-                        window.dispatchEvent(new Event('resize'));
-                        console.log('[Eclipse] Boot concluído.');
-                    }, 200);
+                    }, 500);
+
                 } catch (e) {
-                    console.error('[Eclipse] Erro fatal no main.js:', e);
-                    document.getElementById('launcher-ui').style.display = 'flex';
-                    alert("O main.js do jogo deu erro. Vê a consola (F12).");
+                    console.error('[Eclipse] Erro no Boot:', e);
                 }
             })();
         `;
-        
         document.body.appendChild(script);
     };
 }
 
-// Inicia
 initializeLauncher();
