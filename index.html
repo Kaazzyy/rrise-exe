@@ -1,142 +1,74 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
+<style>
+    /* 1. TEU LAUNCHER (O que já funciona) */
+    #eclipse-ui-container {
+        background: #0d0d0f !important;
+        border: 2px solid #7c3aed !important;
+        border-radius: 20px !important;
+        padding: 30px !important;
+        width: 380px !important;
+        color: white !important;
+        font-family: 'Space Grotesk', sans-serif !important;
+        box-shadow: 0 0 40px rgba(124, 58, 237, 0.4) !important;
+    }
 
-        #eclipse-ui-container {
-            background: #0d0d0f !important;
-            border: 2px solid #7c3aed !important;
-            border-radius: 20px !important;
-            padding: 30px !important;
-            width: 380px !important;
-            color: white !important;
-            font-family: 'Space Grotesk', sans-serif !important;
-            box-shadow: 0 0 40px rgba(124, 58, 237, 0.4) !important;
-            box-sizing: border-box !important;
-            text-align: left !important;
-        }
+    /* 2. REMOVER/MUDAR UI ORIGINAL (Quando ativo) */
+    body.eclipse-overhaul #overlay {
+        background: rgba(8, 8, 10, 0.85) !important;
+        backdrop-filter: blur(15px) !important; /* Efeito Vidro */
+    }
 
-        .eclipse-title {
-            text-align: center !important;
-            margin-bottom: 25px !important;
-        }
+    /* Mudar a cor de TODOS os painéis do jogo (Lobbies, Perfil, etc) */
+    body.eclipse-overhaul main-container, 
+    body.eclipse-overhaul box-container,
+    body.eclipse-overhaul .main-container {
+        background: rgba(15, 15, 20, 0.9) !important;
+        border: 1px solid #7c3aed !important;
+        border-radius: 12px !important;
+        box-shadow: 0 0 20px rgba(124, 58, 237, 0.2) !important;
+    }
 
-        .eclipse-title h1 {
-            margin: 0 !important;
-            font-size: 32px !important;
-            letter-spacing: -1px !important;
-            font-weight: 700 !important;
-        }
+    /* Mudar Botões do Jogo para Roxo/RGB */
+    body.eclipse-overhaul .play-btn, 
+    body.eclipse-overhaul button.primary,
+    body.eclipse-overhaul .btn {
+        background: linear-gradient(135deg, #7c3aed, #4f46e5) !important;
+        border: none !important;
+        color: white !important;
+        font-weight: bold !important;
+        text-transform: uppercase !important;
+    }
 
-        .eclipse-title span {
-            color: #7c3aed !important;
-            font-size: 10px !important;
-            font-weight: 800 !important;
-            letter-spacing: 4px !important;
-            text-transform: uppercase !important;
-        }
+    /* Mudar Inputs do Jogo */
+    body.eclipse-overhaul input.input-text,
+    body.eclipse-overhaul .input-group input {
+        background: #111114 !important;
+        border: 1px solid #27272a !important;
+        color: #7c3aed !important;
+    }
 
-        .input-group {
-            margin-bottom: 15px !important;
-        }
+    /* Esconder o fundo original (Estrelas) se quiseres um look mais limpo */
+    body.eclipse-overhaul #starfield {
+        opacity: 0.3 !important;
+    }
+</style>
 
-        .input-group label {
-            display: block !important;
-            font-size: 10px !important;
-            color: #7c3aed !important;
-            font-weight: 800 !important;
-            text-transform: uppercase !important;
-            margin-bottom: 5px !important;
-        }
-
-        .input-group input {
-            width: 100% !important;
-            background: #16161a !important;
-            border: 1px solid #27272a !important;
-            border-radius: 8px !important;
-            padding: 12px !important;
-            color: white !important;
-            outline: none !important;
-            box-sizing: border-box !important;
-            font-size: 13px !important;
-            transition: border-color 0.3s !important;
-        }
-
-        .input-group input:focus {
-            border-color: #7c3aed !important;
-        }
-
-        .dual-section {
-            margin-top: 20px !important;
-            padding-top: 20px !important;
-            border-top: 1px solid #27272a !important;
-        }
-
-        #btn-activate {
-            width: 100% !important;
-            background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%) !important;
-            color: white !important;
-            border: none !important;
-            border-radius: 12px !important;
-            padding: 16px !important;
-            font-weight: 800 !important;
-            cursor: pointer !important;
-            margin-top: 10px !important;
-            text-transform: uppercase !important;
-            letter-spacing: 1px !important;
-            transition: transform 0.2s, box-shadow 0.2s !important;
-        }
-
-        #btn-activate:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 5px 15px rgba(124, 58, 237, 0.4) !important;
-        }
-
-        /* Override no Menu do Jogo (Apenas Visual) */
-        .eclipse-active-mode #overlay {
-            background: rgba(5, 5, 8, 0.9) !important;
-            backdrop-filter: blur(15px) !important;
-        }
-
-        .eclipse-active-mode main-container {
-            border: 1px solid #7c3aed !important;
-            background: rgba(15, 15, 20, 0.8) !important;
-        }
-    </style>
-</head>
-<body>
-    <div id="eclipse-ui-container">
-        <div class="eclipse-title">
-            <h1>ECLIPSE</h1>
-            <span>Project v4.2</span>
-        </div>
-
-        <div class="input-group">
-            <label>Main Nickname</label>
-            <input type="text" id="nick-main" placeholder="Enter name...">
-        </div>
-        <div class="input-group">
-            <label>Main Skin URL</label>
-            <input type="text" id="skin-main" placeholder="https://...">
-        </div>
-
-        <div class="dual-section">
-            <div class="input-group">
-                <label>Dual Nickname</label>
-                <input type="text" id="nick-dual" placeholder="Second name...">
-            </div>
-            <div class="input-group">
-                <label>Dual Skin URL</label>
-                <input type="text" id="skin-dual" placeholder="Second skin...">
-            </div>
-        </div>
-
-        <button id="btn-activate">Sync & Unlock</button>
-        
-        <div style="text-align: center; margin-top: 15px; font-size: 9px; color: #3f3f46; font-family: monospace;">
-            STABLE BUILD | BY KAZZY
-        </div>
+<div id="eclipse-ui-container">
+    <div style="text-align:center; margin-bottom:20px;">
+        <h1 style="margin:0;">ECLIPSE</h1>
+        <span style="color:#7c3aed; font-size:10px; letter-spacing:3px;">SYSTEM OVERHAUL</span>
     </div>
-</body>
-</html>
+
+    <div class="input-group">
+        <input type="text" id="nick-main" placeholder="Nickname">
+        <input type="text" id="skin-main" placeholder="Skin URL" style="margin-top:5px;">
+    </div>
+    
+    <div style="margin-top:15px; border-top:1px solid #222; padding-top:15px;">
+        <input type="text" id="nick-dual" placeholder="Dual Nick">
+        <input type="text" id="skin-dual" placeholder="Dual Skin URL" style="margin-top:5px;">
+    </div>
+
+    <button id="btn-activate" style="width:100%; padding:15px; margin-top:20px; background:#7c3aed; color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold;">
+        APPLY OVERHAUL
+    </button>
+</div>
