@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Skin Circle Adjust v6.1
-// @version      6.1.0
+// @name         Eclipse - Focused UI v6.2
+// @version      6.2.0
 // @match        *://aetlis.io/*
 // @grant        none
 // ==/UserScript==
@@ -32,8 +32,8 @@
                 style.innerText = `
                     #overlay { background: rgba(0,0,0,0.4) !important; backdrop-filter: none !important; }
                     
-                    /* PAINÉIS GERAIS (v5.6 Base) */
-                    main-container, [class*="container"], [class*="box"], .main-container {
+                    /* PAINÉIS PRINCIPAIS (Roxo e Preto) */
+                    main-container, .main-container, box-container {
                         background-color: #0d0d0f !important;
                         background-image: none !important;
                         border: 2px solid #7c3aed !important;
@@ -41,23 +41,37 @@
                         box-shadow: 0 0 25px rgba(124, 58, 237, 0.4) !important;
                     }
 
-                    /* AJUSTE ESPECÍFICO PARA AS SKINS (Círculo Perfeito) */
-                    .skin-item, .perk-item, [class*="skin-container"] {
-                        border: 1px solid #7c3aed !important; /* Borda mais fina */
-                        border-radius: 50% !important;      /* Força o formato circular */
+                    /* REMOVER BORDAS DE LINKS E REDES SOCIAIS */
+                    .bottom-links, .social-links, .terms-link, [class*="footer"], .policy-container, 
+                    a[href*="discord"], a[href*="youtube"], a[href*="twitter"], .privacy-policy {
+                        border: none !important;
                         background: transparent !important;
-                        box-shadow: 0 0 10px rgba(124, 58, 237, 0.5) !important;
-                        overflow: hidden !important;
-                    }
-                    
-                    .skin-item img {
-                        border-radius: 50% !important;
+                        box-shadow: none !important;
                     }
 
-                    /* BOTÕES E PLAY */
-                    button, .play-btn, .primary {
+                    /* AJUSTE DAS SKINS (Círculo Perfeito) */
+                    .skin-item, .perk-item, [class*="skin-container"] {
+                        border: 1px solid #7c3aed !important;
+                        border-radius: 50% !important;
+                        background: transparent !important;
+                        box-shadow: 0 0 8px rgba(124, 58, 237, 0.5) !important;
+                        overflow: hidden !important;
+                        padding: 0 !important;
+                    }
+                    
+                    .skin-item img { border-radius: 50% !important; }
+
+                    /* BOTÃO PLAY */
+                    .play-btn, .primary {
                         background: linear-gradient(135deg, #7c3aed, #4f46e5) !important;
                         border: none !important;
+                        border-radius: 8px !important;
+                    }
+
+                    /* MINIMAP (Mantemos apenas uma borda muito fina e discreta) */
+                    #minimap, .minimap-container {
+                        border: 1px solid rgba(124, 58, 237, 0.5) !important;
+                        border-radius: 4px !important;
                     }
                 `;
                 document.head.appendChild(style);
