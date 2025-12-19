@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse Singularity - v28.2.0
-// @version      28.2.0
+// @name         Eclipse Singularity - v28.3.0
+// @version      28.3.0
 // @match        *://aetlis.io/*
 // @grant        none
 // ==/UserScript==
@@ -9,7 +9,6 @@
     'use strict';
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
-    // FUNÇÕES DE INTERFACE
     window.eclipseTab = (id, el) => {
         document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -41,26 +40,26 @@
                 s2: document.getElementById('dual-skin').value
             };
 
-            // 1. APLICAR CSS (FIX DE BORDAS v5.6.4 + MODALS)
+            // 1. LIMPEZA TOTAL DE BORDAS (Lógica v5.6.4)
             const style = document.createElement('style');
             style.innerText = `
-                /* MODALS */
+                /* MODALS CORE */
                 .modal .wrapper, .modal .content, .container, .fade-box {
                     background: #08080a !important;
                     border: 2px solid #7c3aed !important;
                     border-radius: 20px !important;
                 }
-                
-                /* FIX ABSOLUTO PARA PRIVACY/TERMS (Inspirado na v5.6.4) */
-                .privacy-policy, .terms-link, .bottom-links, .social-links, 
-                [class*="social"], [class*="links"], .text-muted, a[href*="privacy"] {
+
+                /* REMOVER BORDAS PRIVACY/TERMS (Exato como v5.6.4) */
+                [class*="social"], [class*="links"], .privacy-policy, .terms-link, .text-muted, a[href*="privacy"] {
                     border: none !important;
                     background: transparent !important;
                     box-shadow: none !important;
-                    padding: 0 !important;
+                    outline: none !important;
                 }
-
-                /* REMOVER CONTORNO DO CONTAINER DE BAIXO */
+                
+                /* Forçar remoção de bordas em seletores específicos do Aetlis */
+                .bottom-links { border: none !important; background: none !important; }
                 [data-v-0eaeaf66] .bottom-links { border: none !important; }
 
                 /* FIX BOTÕES INTERNOS */
@@ -68,8 +67,8 @@
             `;
             document.head.appendChild(style);
 
-            // 2. FUNÇÃO DE SYNC REPETITIVA (Para vencer o Dual do jogo)
-            const syncInputs = () => {
+            // 2. DUAL SYNC PERSISTENTE (Resolve o problema de não dar o Dual)
+            const forceSync = () => {
                 document.querySelectorAll('input').forEach(i => {
                     const ph = (i.placeholder || "").toLowerCase();
                     const isDual = i.closest('[data-v-dual-controls]') || ph.includes('minion');
@@ -82,12 +81,14 @@
                         if (ph.includes('skin')) i.value = data.s1;
                     }
                     i.dispatchEvent(new Event('input', { bubbles: true }));
+                    i.dispatchEvent(new Event('change', { bubbles: true }));
                 });
             };
 
-            // Executa agora e daqui a 500ms quando o menu do jogo abrir totalmente
-            syncInputs();
-            setTimeout(syncInputs, 500);
+            // Injeta 3 vezes para garantir que o Vue.js do jogo não apague os valores
+            forceSync();
+            setTimeout(forceSync, 200);
+            setTimeout(forceSync, 600);
 
             wrap.remove();
         };
