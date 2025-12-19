@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse - Modal & Color Overhaul v7.5
-// @version      7.5.0
+// @name         Eclipse - Control & Switch Fix v7.6
+// @version      7.6.0
 // @match        *://aetlis.io/*
 // @grant        none
 // ==/UserScript==
@@ -23,68 +23,82 @@
             launcher.querySelector('#btn-activate').onclick = function() {
                 const style = document.createElement('style');
                 style.innerText = `
-                    /* 1. FUNDO E BORDAS DOS MODALS (Settings, Keyboard, etc) */
+                    /* 1. FUNDO DOS MODALS */
                     .modal .wrapper, .modal .content, .modal .container, .fade-box {
-                        background-color: #0d0d0f !important;
-                        background-image: none !important;
+                        background: #0d0d0f !important;
                         border: 2px solid #7c3aed !important;
                         border-radius: 15px !important;
                         box-shadow: 0 0 30px rgba(124, 58, 237, 0.4) !important;
-                        color: white !important;
                     }
 
-                    /* 2. SUBSTITUIÇÃO DO LARANJA PELO CIANO NEON (Sliders, Switches, Dots) */
-                    /* Sliders */
-                    input[type="range"]::-webkit-slider-thumb { background: #00f2ff !important; box-shadow: 0 0 10px #00f2ff !important; }
-                    input[type="range"] { background: #1a1a1f !important; }
-                    
-                    /* Switches (p-switch) */
-                    .p-switch input:checked + .state label:after { background-color: #00f2ff !important; }
-                    .pretty input:checked ~ .state label:after { background-color: #00f2ff !important; }
-                    
-                    /* Bolinhas de Notificação / Status */
+                    /* 2. SLIDERS (Barra e Bolinha) */
+                    input[type="range"] {
+                        -webkit-appearance: none;
+                        background: #1a1a1f !important;
+                        border: 1px solid #333 !important;
+                        border-radius: 10px;
+                        height: 8px;
+                    }
+                    input[type="range"]::-webkit-slider-thumb {
+                        -webkit-appearance: none;
+                        width: 18px;
+                        height: 18px;
+                        background: #7c3aed !important;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        box-shadow: 0 0 10px #7c3aed !important;
+                    }
+
+                    /* 3. P-SWITCH (Interruptores) */
+                    .pretty.p-switch input:checked ~ .state label:after {
+                        background-color: #7c3aed !important;
+                        box-shadow: 0 0 12px #7c3aed !important;
+                    }
+                    .pretty.p-switch .state label:before {
+                        border-color: #333 !important;
+                        background: #16161a !important;
+                    }
+
+                    /* 4. BOLINHAS E NOTIFICAÇÕES (Roxo Vibrante) */
                     .notification-dot, .status-dot, .orange-dot, 
                     [style*="background-color: rgb(255, 165, 0)"], 
                     [style*="background: orange"] { 
-                        background-color: #00f2ff !important; 
-                        box-shadow: 0 0 12px #00f2ff !important; 
+                        background-color: #a855f7 !important; 
+                        box-shadow: 0 0 15px #a855f7 !important; 
                     }
 
-                    /* 3. TEXTO E HEADERS DENTRO DOS MODALS */
-                    .modal .header, .modal .title { 
-                        color: #7c3aed !important; 
-                        text-transform: uppercase; 
-                        font-weight: bold;
-                        border-bottom: 1px solid #222 !important;
-                    }
-                    .modal .section { border-bottom: 1px solid #1a1a1f !important; }
-
-                    /* 4. BOTÕES INTERNOS E BINDS */
-                    .bind, .vanis-button, .action-btn {
-                        background: #16161a !important;
+                    /* 5. TABS E SELETORES (Region/Tabs) */
+                    .tabs-container, .region-selector {
                         border: 1px solid #7c3aed !important;
-                        color: #00f2ff !important;
-                        border-radius: 6px !important;
+                        background: #111 !important;
+                        border-radius: 8px !important;
+                        overflow: hidden;
                     }
-                    .bind:hover, .vanis-button:hover { background: #7c3aed !important; color: white !important; }
-
-                    /* 5. REMOVER BORDAS EXTERNAS (Policy, Social) */
-                    .privacy-policy, .terms-link, .bottom-links, .social-links {
-                        border: none !important;
-                        background: transparent !important;
-                        box-shadow: none !important;
+                    .tabs-container button.active, .region-selector .active {
+                        background: #7c3aed !important;
+                        color: white !important;
                     }
 
-                    /* 6. FIX SKINS (Circulares) */
+                    /* 6. SKINS CIRCULARES */
                     .skin-item, .perk-item, .skin-container {
                         border: 1.5px solid #7c3aed !important;
                         border-radius: 50% !important;
                     }
                     .skin-item img { border-radius: 50% !important; }
 
-                    /* 7. HUD FIX */
-                    #overlay { background: rgba(0,0,0,0.5) !important; backdrop-filter: none !important; }
-                    .play-btn { background: linear-gradient(135deg, #7c3aed, #00f2ff) !important; border: none !important; }
+                    /* 7. REMOVER BORDAS EXTERNAS */
+                    .privacy-policy, .terms-link, .bottom-links, .social-links {
+                        border: none !important;
+                        background: transparent !important;
+                        box-shadow: none !important;
+                    }
+
+                    /* 8. BOTÃO PLAY */
+                    .play-btn { 
+                        background: linear-gradient(135deg, #7c3aed, #4f46e5) !important; 
+                        border: none !important; 
+                        box-shadow: 0 0 15px rgba(124, 58, 237, 0.5) !important;
+                    }
                 `;
                 document.head.appendChild(style);
                 launcher.remove();
