@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse Singularity - Hybrid Fix
-// @version      28.1.0
+// @name         Eclipse Singularity - v28.2.0
+// @version      28.2.0
 // @match        *://aetlis.io/*
 // @grant        none
 // ==/UserScript==
@@ -9,6 +9,7 @@
     'use strict';
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
+    // FUNÇÕES DE INTERFACE
     window.eclipseTab = (id, el) => {
         document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -33,59 +34,60 @@
         document.body.appendChild(wrap);
 
         wrap.querySelector('#btn-activate').onclick = () => {
-            const style = document.createElement('style');
-            style.innerText = `
-                /* 1. MODALS */
-                .modal .wrapper, .modal .content, .container, .fade-box {
-                    background: #08080a !important;
-                    border: 2px solid #7c3aed !important;
-                    border-radius: 20px !important;
-                }
-
-                /* 2. LOGICA v5.6.4 - REMOVER BORDAS DO PRIVACY/TERMS */
-                [class*="social"], [class*="links"], .privacy-policy, .terms-link, .text-muted, a[href*="privacy"], a[href*="terms"] {
-                    border: none !important;
-                    background: transparent !important;
-                    box-shadow: none !important;
-                    border-radius: 0 !important;
-                }
-
-                /* 3. FIX INTERNOS */
-                .bind, .vanis-button { background: #111 !important; border: 1px solid #7c3aed !important; color: #7c3aed !important; }
-                .p-switch input:checked + .state label:after { background-color: #7c3aed !important; }
-            `;
-            document.head.appendChild(style);
-
-            // SYNC DUAL + MAIN
-            const d = {
+            const data = {
                 n1: document.getElementById('main-nick').value,
                 s1: document.getElementById('main-skin').value,
                 n2: document.getElementById('dual-nick').value,
                 s2: document.getElementById('dual-skin').value
             };
 
-            // Função para injetar valor com força no Vue/React do jogo
-            const forceInput = (el, val) => {
-                if(!el) return;
-                el.value = val;
-                el.dispatchEvent(new Event('input', { bubbles: true }));
-                el.dispatchEvent(new Event('change', { bubbles: true }));
-                // Disparar o "input" novamente após um mini-delay para garantir o Dual
-                setTimeout(() => el.dispatchEvent(new Event('input', { bubbles: true })), 50);
+            // 1. APLICAR CSS (FIX DE BORDAS v5.6.4 + MODALS)
+            const style = document.createElement('style');
+            style.innerText = `
+                /* MODALS */
+                .modal .wrapper, .modal .content, .container, .fade-box {
+                    background: #08080a !important;
+                    border: 2px solid #7c3aed !important;
+                    border-radius: 20px !important;
+                }
+                
+                /* FIX ABSOLUTO PARA PRIVACY/TERMS (Inspirado na v5.6.4) */
+                .privacy-policy, .terms-link, .bottom-links, .social-links, 
+                [class*="social"], [class*="links"], .text-muted, a[href*="privacy"] {
+                    border: none !important;
+                    background: transparent !important;
+                    box-shadow: none !important;
+                    padding: 0 !important;
+                }
+
+                /* REMOVER CONTORNO DO CONTAINER DE BAIXO */
+                [data-v-0eaeaf66] .bottom-links { border: none !important; }
+
+                /* FIX BOTÕES INTERNOS */
+                .bind, .vanis-button { background: #111 !important; border: 1px solid #7c3aed !important; color: #7c3aed !important; }
+            `;
+            document.head.appendChild(style);
+
+            // 2. FUNÇÃO DE SYNC REPETITIVA (Para vencer o Dual do jogo)
+            const syncInputs = () => {
+                document.querySelectorAll('input').forEach(i => {
+                    const ph = (i.placeholder || "").toLowerCase();
+                    const isDual = i.closest('[data-v-dual-controls]') || ph.includes('minion');
+
+                    if (isDual) {
+                        if (ph.includes('nick')) i.value = data.n2;
+                        if (ph.includes('skin')) i.value = data.s2;
+                    } else {
+                        if (ph.includes('nick')) i.value = data.n1;
+                        if (ph.includes('skin')) i.value = data.s1;
+                    }
+                    i.dispatchEvent(new Event('input', { bubbles: true }));
+                });
             };
 
-            document.querySelectorAll('input').forEach(i => {
-                const ph = (i.placeholder || "").toLowerCase();
-                const isDual = i.closest('[data-v-dual-controls]') || ph.includes('minion');
-
-                if (isDual) {
-                    if (ph.includes('nick')) forceInput(i, d.n2);
-                    if (ph.includes('skin')) forceInput(i, d.s2);
-                } else {
-                    if (ph.includes('nick')) forceInput(i, d.n1);
-                    if (ph.includes('skin')) forceInput(i, d.s1);
-                }
-            });
+            // Executa agora e daqui a 500ms quando o menu do jogo abrir totalmente
+            syncInputs();
+            setTimeout(syncInputs, 500);
 
             wrap.remove();
         };
