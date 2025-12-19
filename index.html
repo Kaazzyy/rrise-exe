@@ -36,8 +36,8 @@
         .nav-item.hidden { display: none; }
         
         .main-content { flex: 1; padding: 45px; position: relative; display: flex; flex-direction: column; }
-        .tab-page { display: none; animation: fadeIn 0.3s ease; }
-        .tab-page.active { display: block; }
+        .tab-page { display: none; animation: fadeIn 0.3s ease; flex-direction: column; height: 100%; }
+        .tab-page.active { display: flex; }
         
         h2 { margin: 0 0 25px 0; font-weight: 800; font-size: 28px; letter-spacing: -1px; }
         label { font-size: 10px; color: #7c3aed; font-weight: 800; display: block; margin-bottom: 8px; letter-spacing: 1.5px; text-transform: uppercase; }
@@ -58,9 +58,16 @@
         }
         #btn-activate:hover { background: #8b5cf6; transform: translateY(-2px); box-shadow: 0 10px 30px rgba(124, 58, 237, 0.3); }
         
+        /* Estilos de Preview */
+        .skin-preview-container {
+            display: flex; flex-direction: column; align-items: center;
+            margin-top: 20px; opacity: 0; transition: 0.3s;
+        }
+        .skin-preview-container.visible { opacity: 1; }
+
         .skin-circle { 
-            width: 150px; height: 150px; border-radius: 50%; 
-            border: 3px solid #7c3aed; margin: 10px auto 20px; 
+            width: 120px; height: 120px; border-radius: 50%; 
+            border: 3px solid #7c3aed; margin-bottom: 15px;
             overflow: hidden; background: #000; box-shadow: 0 0 30px rgba(124,58,237,0.2);
         }
         .skin-circle img { width: 100%; height: 100%; object-fit: cover; }
@@ -78,9 +85,9 @@
             <div class="nav-item active" onclick="window.eclipseTab('player', this)">PLAYER</div>
             <div class="nav-item" onclick="window.eclipseTab('dual', this)">DUAL</div>
             <div class="nav-item" onclick="window.eclipseTab('visuals', this)">VISUALS</div>
-            <div class="nav-item hidden" id="nav-skin-tab" onclick="window.eclipseTab('skin-preview', this)">SKIN PREVIEW</div>
+            <div class="nav-item hidden" id="nav-skin-tab" onclick="window.eclipseTab('skin-preview', this)">MAIN PREVIEW</div>
         </nav>
-        <div class="version-tag">v30.0.0 ARCHITECT</div>
+        <div class="version-tag">v31.0.0 DUALVIEW</div>
     </div>
     
     <div class="main-content">
@@ -89,7 +96,7 @@
             <label>Main Nickname</label>
             <input type="text" id="main-nick" placeholder="Enter Nickname...">
             <label>Skin Asset URL</label>
-            <input type="text" id="main-skin" placeholder="Paste Skin URL..." oninput="window.checkSkin(this.value)">
+            <input type="text" id="main-skin" placeholder="Paste Skin URL..." oninput="window.checkSkin(this.value, 'main')">
         </div>
         
         <div id="tab-dual" class="tab-page">
@@ -97,23 +104,30 @@
             <label>Minion Nickname</label>
             <input type="text" id="dual-nick" placeholder="Dual Nickname...">
             <label>Minion Skin Asset</label>
-            <input type="text" id="dual-skin" placeholder="Dual Skin URL...">
+            <input type="text" id="dual-skin" placeholder="Dual Skin URL..." oninput="window.checkSkin(this.value, 'dual')">
+            
+            <div id="dual-skin-preview-box" class="skin-preview-container">
+                 <div class="skin-circle"><img id="dual-skin-img" src=""></div>
+                 <span style="font-size:10px; color:#7c3aed; font-weight:600;">DUAL ASSET LOADED</span>
+            </div>
         </div>
         
         <div id="tab-visuals" class="tab-page">
-            <h2>System Visuals</h2>
+            <h2>Visuals v31</h2>
             <p style="color:#666; font-size:14px; line-height:1.6;">
-                Applying deep CSS injection for Modals and removing legacy borders from legal terms.
+                Separating Main Container styles from Modals. Applying Glassmorphism to main interface.
             </p>
             <div style="margin-top:20px; padding:15px; background:rgba(124,58,237,0.05); border:1px solid rgba(124,58,237,0.1); border-radius:12px; color:#7c3aed; font-size:12px; font-weight:600;">
-                ACTIVE: v5.6.4 Legacy Protocol
+                ACTIVE: Hybrid Glass Protocol
             </div>
         </div>
         
         <div id="tab-skin-preview" class="tab-page">
-            <h2>Asset Preview</h2>
-            <div class="skin-circle"><img id="skin-img-preview" src=""></div>
-            <p style="text-align:center; color:#555; font-size:12px;">Skin source loaded successfully.</p>
+            <h2>Main Preview</h2>
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1;">
+                <div class="skin-circle" style="width:150px; height:150px;"><img id="skin-img-preview" src=""></div>
+                <p style="text-align:center; color:#555; font-size:12px; margin-top:20px;">Main skin source loaded successfully.</p>
+            </div>
         </div>
         
         <button id="btn-activate">INJECT SYSTEM</button>
