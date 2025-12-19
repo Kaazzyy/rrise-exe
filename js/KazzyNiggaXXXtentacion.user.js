@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse Singularity - Ultimate Fix
-// @version      28.0.0
+// @name         Eclipse Singularity - Hybrid Fix
+// @version      28.1.0
 // @match        *://aetlis.io/*
 // @grant        none
 // ==/UserScript==
@@ -19,7 +19,7 @@
     window.checkSkin = (v) => {
         const nav = document.getElementById('nav-skin-tab');
         const img = document.getElementById('skin-img-preview');
-        if (v.startsWith('http')) { nav.classList.remove('hidden'); img.src = v; }
+        if (v && v.startsWith('http')) { nav.classList.remove('hidden'); img.src = v; }
         else { nav.classList.add('hidden'); }
     };
 
@@ -42,14 +42,12 @@
                     border-radius: 20px !important;
                 }
 
-                /* 2. PRIVACY / TERMS - LIMPANDO TUDO */
-                .privacy-policy, .terms-link, .bottom-links, .social-links, 
-                .policy-container, .terms-container, .text-muted, 
-                [data-v-0eaeaf66] .bottom-links, a[href*="privacy"] {
+                /* 2. LOGICA v5.6.4 - REMOVER BORDAS DO PRIVACY/TERMS */
+                [class*="social"], [class*="links"], .privacy-policy, .terms-link, .text-muted, a[href*="privacy"], a[href*="terms"] {
                     border: none !important;
                     background: transparent !important;
                     box-shadow: none !important;
-                    outline: none !important;
+                    border-radius: 0 !important;
                 }
 
                 /* 3. FIX INTERNOS */
@@ -58,31 +56,35 @@
             `;
             document.head.appendChild(style);
 
-            // SYNC AGRESSIVO
-            const vals = {
+            // SYNC DUAL + MAIN
+            const d = {
                 n1: document.getElementById('main-nick').value,
                 s1: document.getElementById('main-skin').value,
                 n2: document.getElementById('dual-nick').value,
                 s2: document.getElementById('dual-skin').value
             };
 
-            const inputs = document.querySelectorAll('input');
-            inputs.forEach(input => {
-                const placeholder = (input.placeholder || "").toLowerCase();
-                const isDualContainer = input.closest('[data-v-dual-controls]') || placeholder.includes('minion');
+            // Função para injetar valor com força no Vue/React do jogo
+            const forceInput = (el, val) => {
+                if(!el) return;
+                el.value = val;
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+                // Disparar o "input" novamente após um mini-delay para garantir o Dual
+                setTimeout(() => el.dispatchEvent(new Event('input', { bubbles: true })), 50);
+            };
 
-                if (isDualContainer) {
-                    if (placeholder.includes('nick')) input.value = vals.n2;
-                    if (placeholder.includes('skin')) input.value = vals.s2;
+            document.querySelectorAll('input').forEach(i => {
+                const ph = (i.placeholder || "").toLowerCase();
+                const isDual = i.closest('[data-v-dual-controls]') || ph.includes('minion');
+
+                if (isDual) {
+                    if (ph.includes('nick')) forceInput(i, d.n2);
+                    if (ph.includes('skin')) forceInput(i, d.s2);
                 } else {
-                    if (placeholder.includes('nick')) input.value = vals.n1;
-                    if (placeholder.includes('skin')) input.value = vals.s1;
+                    if (ph.includes('nick')) forceInput(i, d.n1);
+                    if (ph.includes('skin')) forceInput(i, d.s1);
                 }
-                
-                // Força o jogo a reconhecer que o texto mudou
-                input.dispatchEvent(new Event('input', { bubbles: true }));
-                input.dispatchEvent(new Event('change', { bubbles: true }));
-                input.dispatchEvent(new Event('blur', { bubbles: true }));
             });
 
             wrap.remove();
