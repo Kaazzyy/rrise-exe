@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse Obsidian Flux - v36.0.0
-// @version      36.0.0
+// @name         Eclipse Obsidian Flux - v37.0.0
+// @version      37.0.0
 // @match        *://aetlis.io/*
 // @grant        none
 // ==/UserScript==
@@ -9,89 +9,128 @@
     'use strict';
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
-    // UI Logic (Dashboard)
-    window.eclipseTab = (id, el) => {
-        document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById('tab-' + id).classList.add('active');
-        el.classList.add('active');
+    // --- LÓGICA DO MENU DE CONTEXTO ---
+    const createContextMenu = () => {
+        const menu = document.createElement('div');
+        menu.id = 'eclipse-context-menu';
+        menu.style.cssText = `
+            position: fixed; display: none; z-index: 10000000;
+            background: rgba(10, 10, 15, 0.95); border: 1px solid #7c3aed;
+            border-radius: 12px; padding: 8px 0; min-width: 160px;
+            backdrop-filter: blur(15px); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        `;
+        document.body.appendChild(menu);
+        return menu;
     };
 
-    window.checkSkin = (v, type) => {
-        const img = document.getElementById(type === 'main' ? 'preview-main-img' : 'preview-dual-img');
-        if (v?.startsWith('http')) { img.src = v; img.classList.add('loaded'); }
-        else { img.classList.remove('loaded'); }
-        const m = document.getElementById('main-skin').value, d = document.getElementById('dual-skin').value;
-        const nav = document.getElementById('nav-skin-tab');
-        if (m?.startsWith('http') || d?.startsWith('http')) nav.classList.remove('hidden'); else nav.classList.add('hidden');
+    const contextMenu = createContextMenu();
+
+    window.addEventListener('contextmenu', (e) => {
+        // Verifica se clicou num player (geralmente uma imagem de skin ou o nick na lista)
+        const target = e.target.closest('.skin-item, .player-row, .leaderboard-item, img[src*="skin"]');
+        if (target) {
+            e.preventDefault();
+            const skinUrl = target.src || target.querySelector('img')?.src || "";
+            
+            contextMenu.innerHTML = `
+                <style>
+                    .ctx-item { padding: 10px 15px; color: #ccc; cursor: pointer; font-family: 'Outfit', sans-serif; font-size: 13px; transition: 0.2s; }
+                    .ctx-item:hover { background: rgba(124, 58, 237, 0.2); color: #7c3aed; }
+                    .ctx-sep { height: 1px; background: rgba(255,255,255,0.05); margin: 5px 0; }
+                </style>
+                <div class="ctx-item" onclick="window.eclipseAction('hide', '${skinUrl}')">Hide Skin</div>
+                <div class="ctx-item" onclick="window.eclipseAction('show', '${skinUrl}')">Show Skin</div>
+                <div class="ctx-sep"></div>
+                <div class="ctx-item" onclick="window.eclipseAction('spectate')">Spectate</div>
+                <div class="ctx-item" onclick="window.eclipseAction('copy', '${skinUrl}')">Copy Skin</div>
+                <div class="ctx-item" onclick="window.eclipseAction('yoink', '${skinUrl}')">Yoink Skin</div>
+                <div class="ctx-sep"></div>
+                <div class="ctx-item" style="color:#ff4444" onclick="window.eclipseAction('block')">Block</div>
+            `;
+            
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = `${e.pageX}px`;
+            contextMenu.style.top = `${e.pageY}px`;
+        } else {
+            contextMenu.style.display = 'none';
+        }
+    });
+
+    window.addEventListener('click', () => contextMenu.style.display = 'none');
+
+    // Funções das Ações
+    window.eclipseAction = (type, url) => {
+        switch(type) {
+            case 'copy':
+                navigator.clipboard.writeText(url);
+                break;
+            case 'hide':
+                const style = document.createElement('style');
+                style.innerText = `img[src="${url}"] { display: none !important; }`;
+                document.head.appendChild(style);
+                break;
+            case 'yoink':
+                // Abre o launcher e coloca a skin no campo da Main
+                window.showLauncher();
+                setTimeout(() => {
+                    const input = document.getElementById('main-skin');
+                    if(input) { input.value = url; window.checkSkin(url, 'main'); }
+                }, 500);
+                break;
+            case 'spectate':
+                if(confirm("Deseja entrar em modo Spectator neste player?")) {
+                    // Lógica de spectate depende da API do jogo, simulando tecla de atalho
+                    window.dispatchEvent(new KeyboardEvent('keydown', { key: 's' }));
+                }
+                break;
+        }
     };
 
+    // --- LAUNCHER E VISUAIS (FIX DO TRAÇO) ---
     async function showLauncher() {
-        // Se já existir um launcher aberto, não abre outro
         if (document.getElementById('eclipse-main-wrap')) return;
-
         const res = await fetch(`${GITHUB_URL}?t=${Date.now()}`);
         const html = await res.text();
         const wrap = document.createElement('div');
         wrap.id = "eclipse-main-wrap";
-        wrap.style.cssText = "position:fixed; inset:0; z-index:9999999; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); backdrop-filter:blur(15px); animation: fadeIn 0.3s ease;";
+        wrap.style.cssText = "position:fixed; inset:0; z-index:9999999; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); backdrop-filter:blur(15px);";
         wrap.innerHTML = html;
         document.body.appendChild(wrap);
-
-        wrap.querySelector('#btn-activate').onclick = () => {
-            applyStyles();
-            doSync();
-            wrap.remove();
-        };
+        wrap.querySelector('#btn-activate').onclick = () => { applyStyles(); wrap.remove(); };
     }
+    window.showLauncher = showLauncher;
 
     function applyStyles() {
-        if (document.getElementById('eclipse-styles')) return;
         const style = document.createElement('style');
-        style.id = 'eclipse-styles';
         style.innerText = `
-            /* BOTÃO DE SETTINGS (Hambúrguer) */
+            /* REMOVER O TRAÇO ACIMA DO MENU */
+            .main-container::before, .main-container::after, hr, .separator { display: none !important; }
+            
+            /* TRIGGER DASHBOARD */
             #eclipse-launcher-trigger {
                 position: fixed; top: 20px; right: 20px; z-index: 9999;
-                width: 45px; height: 45px; background: rgba(124, 58, 237, 0.2);
+                width: 45px; height: 45px; background: rgba(124, 58, 237, 0.15);
                 border: 1px solid #7c3aed; border-radius: 12px;
-                display: flex; flex-direction: column; align-items: center; justify-content: center;
-                gap: 5px; cursor: pointer; transition: 0.3s; backdrop-filter: blur(10px);
+                display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; cursor: pointer;
             }
-            #eclipse-launcher-trigger:hover { background: #7c3aed; transform: scale(1.1); box-shadow: 0 0 20px rgba(124, 58, 237, 0.5); }
-            .bar { width: 22px; height: 2px; background: white; border-radius: 2px; }
+            .bar { width: 20px; height: 2px; background: white; }
 
-            /* VISUAL FLUIDO PARA MODALS */
-            .modal .wrapper {
-                background: rgba(10, 10, 15, 0.9) !important;
-                border: 2px solid #7c3aed !important;
-                border-radius: 24px !important;
-                backdrop-filter: blur(20px) !important;
-                box-shadow: 0 0 40px rgba(124, 58, 237, 0.2) !important;
+            /* REDESIGN CONTAINERS */
+            .center-container, .right-container, .left-container {
+                background: rgba(8, 8, 12, 0.95) !important;
+                border: 1px solid #7c3aed !important;
+                border-radius: 25px 5px 25px 5px !important;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.8) !important;
             }
 
-            /* REDESIGN DOS CONTAINERS PRINCIPAIS (image_3d27c5.png) */
-            .center-container, .right-container, .left-container, main-container > div {
-                background: linear-gradient(145deg, rgba(15,15,20,0.9), rgba(5,5,5,0.95)) !important;
-                border: 1px solid rgba(124, 58, 237, 0.4) !important;
-                border-radius: 30px 5px 30px 5px !important;
-                backdrop-filter: blur(15px) !important;
-                box-shadow: 0 20px 50px rgba(0,0,0,0.9) !important;
-            }
-
-            #play-button, .play-btn {
-                background: linear-gradient(135deg, #7c3aed, #5b21b6) !important;
-                border-radius: 15px !important; box-shadow: 0 4px 15px rgba(124,58,237,0.4) !important;
-            }
+            /* FIX SKIN ITEM */
+            .skin-item { border: 2px solid #7c3aed !important; border-radius: 50% !important; overflow: hidden; }
 
             /* PRIVACY CLEANUP */
-            .privacy-tos, .bottom-links, social-links, [class*="social"], [class*="links"] { border: none !important; background: transparent !important; }
-            
-            @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+            .privacy-tos, .bottom-links { border: none !important; background: transparent !important; }
         `;
         document.head.appendChild(style);
         
-        // Adicionar o botão visualmente
         if (!document.getElementById('eclipse-launcher-trigger')) {
             const btn = document.createElement('div');
             btn.id = 'eclipse-launcher-trigger';
@@ -101,32 +140,5 @@
         }
     }
 
-    function doSync() {
-        const vals = { 
-            n1: document.getElementById('main-nick')?.value || "", 
-            s1: document.getElementById('main-skin')?.value || "",
-            n2: document.getElementById('dual-nick')?.value || "", 
-            s2: document.getElementById('dual-skin')?.value || "" 
-        };
-        
-        const inject = () => {
-            document.querySelectorAll('input').forEach(input => {
-                const ph = (input.placeholder || "").toLowerCase();
-                const isDual = input.closest('[data-v-dual-controls]') || ph.includes('minion');
-                let target = isDual ? (ph.includes('nick') ? vals.n2 : (ph.includes('skin') ? vals.s2 : null)) :
-                                      (ph.includes('nick') || ph.includes('name') ? vals.n1 : (ph.includes('skin') || ph.includes('url') ? vals.s1 : null));
-                if (target) {
-                    input.value = target;
-                    input.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-            });
-        };
-        inject(); setTimeout(inject, 500);
-    }
-
-    // Inicialização
-    setTimeout(() => {
-        showLauncher();
-        applyStyles(); // Garante que o botão e o estilo básico apareçam
-    }, 1000);
+    setTimeout(() => { applyStyles(); showLauncher(); }, 1000);
 })();
