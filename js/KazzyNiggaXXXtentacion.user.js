@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Eclipse Singularity - Final Fix
+// @name         Eclipse Singularity - Ultimate Fix
 // @version      28.0.0
 // @match        *://aetlis.io/*
 // @grant        none
@@ -9,7 +9,6 @@
     'use strict';
     const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
 
-    // FUNÇÕES GLOBAIS
     window.eclipseTab = (id, el) => {
         document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -34,47 +33,56 @@
         document.body.appendChild(wrap);
 
         wrap.querySelector('#btn-activate').onclick = () => {
-            const s = document.createElement('style');
-            s.innerText = `
-                /* 1. FIX MODALS & CONTAINERS */
+            const style = document.createElement('style');
+            style.innerText = `
+                /* 1. MODALS */
                 .modal .wrapper, .modal .content, .container, .fade-box {
                     background: #08080a !important;
                     border: 2px solid #7c3aed !important;
                     border-radius: 20px !important;
                 }
 
-                /* 2. REMOVER O CONTORNO QUE TAPA O PRIVACY/TERMS */
-                .privacy-policy, .terms-link, .bottom-links, .social-links, [class*="policy"], [class*="terms"] {
+                /* 2. PRIVACY / TERMS - LIMPANDO TUDO */
+                .privacy-policy, .terms-link, .bottom-links, .social-links, 
+                .policy-container, .terms-container, .text-muted, 
+                [data-v-0eaeaf66] .bottom-links, a[href*="privacy"] {
                     border: none !important;
                     background: transparent !important;
                     box-shadow: none !important;
-                    padding: 5px !important;
+                    outline: none !important;
                 }
 
-                /* 3. FIX INTERNOS (BIND & SWITCH) */
+                /* 3. FIX INTERNOS */
                 .bind, .vanis-button { background: #111 !important; border: 1px solid #7c3aed !important; color: #7c3aed !important; }
                 .p-switch input:checked + .state label:after { background-color: #7c3aed !important; }
-                input[type="range"]::-webkit-slider-thumb { background: #7c3aed !important; }
             `;
-            document.head.appendChild(s);
+            document.head.appendChild(style);
 
-            // SYNC INTELIGENTE (MAIN & DUAL)
-            const n1 = document.getElementById('main-nick').value;
-            const s1 = document.getElementById('main-skin').value;
-            const n2 = document.getElementById('dual-nick').value;
-            const s2 = document.getElementById('dual-skin').value;
+            // SYNC AGRESSIVO
+            const vals = {
+                n1: document.getElementById('main-nick').value,
+                s1: document.getElementById('main-skin').value,
+                n2: document.getElementById('dual-nick').value,
+                s2: document.getElementById('dual-skin').value
+            };
 
-            document.querySelectorAll('input').forEach(i => {
-                const ph = i.placeholder?.toLowerCase() || "";
-                // Sync Player 1
-                if (ph.includes('nick') && !i.closest('.row')) { i.value = n1; i.dispatchEvent(new Event('input', {bubbles:true})); }
-                if (ph.includes('skin') && !i.closest('.row')) { i.value = s1; i.dispatchEvent(new Event('input', {bubbles:true})); }
-                // Sync Dual (Minion) - Procura por inputs dentro de containers de Dual
-                if (ph.includes('minion') || i.closest('[data-v-dual-controls]')) {
-                    if (ph.includes('nick')) i.value = n2;
-                    if (ph.includes('skin')) i.value = s2;
-                    i.dispatchEvent(new Event('input', {bubbles:true}));
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                const placeholder = (input.placeholder || "").toLowerCase();
+                const isDualContainer = input.closest('[data-v-dual-controls]') || placeholder.includes('minion');
+
+                if (isDualContainer) {
+                    if (placeholder.includes('nick')) input.value = vals.n2;
+                    if (placeholder.includes('skin')) input.value = vals.s2;
+                } else {
+                    if (placeholder.includes('nick')) input.value = vals.n1;
+                    if (placeholder.includes('skin')) input.value = vals.s1;
                 }
+                
+                // Força o jogo a reconhecer que o texto mudou
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                input.dispatchEvent(new Event('blur', { bubbles: true }));
             });
 
             wrap.remove();
