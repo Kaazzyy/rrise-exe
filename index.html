@@ -1,152 +1,119 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        
-        body { margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-
-        #eclipse-ui-container {
-            background: rgba(10, 10, 12, 0.9);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(124, 58, 237, 0.3);
-            border-radius: 30px;
-            padding: 40px;
-            width: 400px;
-            color: white;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 
-                        0 0 30px rgba(124, 58, 237, 0.1);
-            animation: eclipse-intro 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            box-sizing: border-box;
-        }
-
-        @keyframes eclipse-intro {
-            from { opacity: 0; transform: scale(0.9) translateY(20px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 38px;
-            font-weight: 800;
-            letter-spacing: -2px;
-            background: linear-gradient(135deg, #ffffff 30%, #7c3aed 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .header p {
-            margin: 5px 0 0;
-            font-size: 9px;
-            text-transform: uppercase;
-            letter-spacing: 6px;
-            color: #7c3aed;
-            font-weight: 600;
-            opacity: 0.8;
-        }
-
-        .identity-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .identity-card:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(124, 58, 237, 0.4);
-            transform: translateY(-2px);
-        }
-
-        .tag {
-            font-size: 10px;
-            font-weight: 800;
-            color: #7c3aed;
-            margin-bottom: 15px;
-            display: block;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        input {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 14px 18px;
-            color: white;
-            font-size: 14px;
-            margin-bottom: 10px;
-            box-sizing: border-box;
-            outline: none;
-            transition: all 0.2s ease;
-        }
-
-        input:last-child { margin-bottom: 0; }
-
-        input:focus {
-            border-color: #7c3aed;
-            background: rgba(124, 58, 237, 0.05);
-            box-shadow: 0 0 15px rgba(124, 58, 237, 0.2);
-        }
-
-        #btn-activate {
-            width: 100%;
-            background: #7c3aed;
-            color: white;
-            border: none;
-            border-radius: 16px;
-            padding: 20px;
-            font-size: 16px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 25px rgba(124, 58, 237, 0.3);
-        }
-
-        #btn-activate:hover {
-            background: #8b5cf6;
-            transform: scale(1.02);
-            box-shadow: 0 15px 35px rgba(124, 58, 237, 0.4);
-        }
-
-        #btn-activate:active {
-            transform: scale(0.98);
-        }
-    </style>
-</head>
-<body>
-    <div id="eclipse-ui-container">
-        <div class="header">
-            <h1>ECLIPSE</h1>
-            <p>Nebula System</p>
+<div id="eclipse-dashboard">
+    <div class="side-bar">
+        <div class="logo">
+            <div class="logo-icon">E</div>
+            <span>ECLIPSE</span>
         </div>
-
-        <div class="identity-card">
-            <span class="tag">Primary Identity</span>
-            <input type="text" id="main-nick" placeholder="Username">
-            <input type="text" id="main-skin" placeholder="Skin URL (Optional)">
+        <nav>
+            <div class="nav-item active" onclick="switchTab('player')">PLAYER</div>
+            <div class="nav-item" onclick="switchTab('dual')">DUAL</div>
+            <div class="nav-item" onclick="switchTab('visuals')">VISUALS</div>
+        </nav>
+        <div class="system-status">
+            <span class="status-dot"></span> SYSTEM READY
         </div>
-
-        <div class="identity-card">
-            <span class="tag">Dual Identity</span>
-            <input type="text" id="dual-nick" placeholder="Dual Nickname">
-            <input type="text" id="dual-skin" placeholder="Dual Skin URL">
-        </div>
-
-        <button id="btn-activate">Initialize System</button>
     </div>
-</body>
-</html>
+
+    <div class="main-content">
+        <div id="tab-player" class="tab-page active">
+            <h2>Player Profile</h2>
+            <div class="input-group">
+                <label>NICKNAME</label>
+                <input type="text" id="main-nick" placeholder="Enter name...">
+            </div>
+            <div class="input-group">
+                <label>SKIN SOURCE</label>
+                <input type="text" id="main-skin" placeholder="URL or Name...">
+            </div>
+        </div>
+
+        <div id="tab-dual" class="tab-page">
+            <h2>Dual Identity</h2>
+            <input type="text" id="dual-nick" placeholder="Dual Nick...">
+            <input type="text" id="dual-skin" placeholder="Dual Skin URL...">
+        </div>
+
+        <button id="btn-activate">INITIALIZE ECLIPSE</button>
+    </div>
+</div>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap');
+    
+    #eclipse-dashboard {
+        display: flex;
+        width: 650px;
+        height: 450px;
+        background: #08080a;
+        border-radius: 24px;
+        border: 1px solid rgba(124, 58, 237, 0.2);
+        overflow: hidden;
+        font-family: 'Outfit', sans-serif;
+        color: white;
+        box-shadow: 0 50px 100px rgba(0,0,0,0.8);
+    }
+
+    .side-bar {
+        width: 180px;
+        background: rgba(124, 58, 237, 0.03);
+        border-right: 1px solid rgba(124, 58, 237, 0.1);
+        padding: 30px 20px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 40px; }
+    .logo-icon { 
+        width: 32px; height: 32px; background: #7c3aed; 
+        border-radius: 8px; display: flex; align-items: center; 
+        justify-content: center; font-weight: 800; 
+    }
+
+    .nav-item {
+        padding: 12px 15px;
+        border-radius: 10px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        color: #555;
+        transition: 0.3s;
+    }
+    .nav-item.active { background: rgba(124, 58, 237, 0.1); color: #7c3aed; }
+    .nav-item:hover:not(.active) { color: #fff; }
+
+    .main-content { flex: 1; padding: 40px; position: relative; }
+    
+    h2 { font-size: 24px; font-weight: 800; margin-top: 0; letter-spacing: -1px; }
+    
+    .input-group { margin-bottom: 20px; }
+    label { font-size: 10px; color: #7c3aed; font-weight: 800; letter-spacing: 1px; display: block; margin-bottom: 8px; }
+    
+    input {
+        width: 100%;
+        background: #111;
+        border: 1px solid #222;
+        padding: 14px;
+        border-radius: 12px;
+        color: white;
+        transition: 0.3s;
+    }
+    input:focus { border-color: #7c3aed; background: #15101a; outline: none; }
+
+    #btn-activate {
+        position: absolute;
+        bottom: 40px; right: 40px; left: 40px;
+        padding: 16px;
+        background: #7c3aed;
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 10px 20px rgba(124, 58, 237, 0.3);
+    }
+
+    .tab-page { display: none; }
+    .tab-page.active { display: block; animation: fadeIn 0.4s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+</style>
