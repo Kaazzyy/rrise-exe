@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Eclipse Singularity - v31.0.0
-// @version      31.0.0
+// @name         Eclipse Singularity - v32.0.0
+// @version      32.0.0
 // @match        *://aetlis.io/*
 // @grant        none
 // ==/UserScript==
@@ -17,19 +17,28 @@
         el.classList.add('active');
     };
 
-    // Nova função checkSkin que suporta Main e Dual
+    // NOVA LÓGICA DE PREVIEW UNIFICADO
     window.checkSkin = (v, type) => {
-        const isUrl = v && v.startsWith('http');
-        if (type === 'main') {
-            const nav = document.getElementById('nav-skin-tab');
-            const img = document.getElementById('skin-img-preview');
-            if (isUrl) { nav.classList.remove('hidden'); img.src = v; }
-            else { nav.classList.add('hidden'); }
-        } else if (type === 'dual') {
-            const box = document.getElementById('dual-skin-preview-box');
-            const img = document.getElementById('dual-skin-img');
-            if (isUrl) { box.classList.add('visible'); img.src = v; }
-            else { box.classList.remove('visible'); }
+        // 1. Atualiza a imagem específica na aba de preview
+        const imgId = type === 'main' ? 'preview-main-img' : 'preview-dual-img';
+        const imgEl = document.getElementById(imgId);
+        // Usa placeholder se estiver vazio para não mostrar ícone de imagem quebrada
+        imgEl.src = (v && v.startsWith('http')) ? v : "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
+        // 2. Verifica o estado global para mostrar/esconder a aba na sidebar
+        const mainVal = document.getElementById('main-skin').value;
+        const dualVal = document.getElementById('dual-skin').value;
+        const nav = document.getElementById('nav-skin-tab');
+
+        // Se QUALQUER UMA das skins tiver um link válido, mostra a aba
+        if ((mainVal && mainVal.startsWith('http')) || (dualVal && dualVal.startsWith('http'))) {
+            nav.classList.remove('hidden');
+        } else {
+            nav.classList.add('hidden');
+            // Se a aba estiver ativa e for escondida, volta para a aba Player
+            if (nav.classList.contains('active')) {
+                 document.querySelector('[onclick*="player"]').click();
+            }
         }
     };
 
@@ -43,32 +52,29 @@
         document.body.appendChild(wrap);
 
         wrap.querySelector('#btn-activate').onclick = () => {
+            // MANTÉM O TEU ESTILO DE VISUAIS SEPARADOS (MODALS vs CONTAINERS)
             const style = document.createElement('style');
             style.innerText = `
-                /* --- 1. ESTILO DOS MODALS (Settings, Keyboard) - MANTIDO v30 --- */
+                /* --- 1. ESTILO DOS MODALS (Sólido) --- */
                 .modal .wrapper {
                     background: #08080a !important;
                     border: 2px solid #7c3aed !important;
                     border-radius: 20px !important;
                     box-shadow: 0 0 50px rgba(124, 58, 237, 0.2) !important;
                 }
-                /* Limpar conteúdo interno dos modals */
-                .modal .content, .modal .container, .fade-box {
-                    background: transparent !important;
-                    border: none !important; box-shadow: none !important;
-                }
+                .modal .content, .modal .container, .fade-box { background: transparent !important; border: none !important; box-shadow: none !important; }
                 .modal .header, .section .header { color: #7c3aed !important; border-bottom: 1px solid #222 !important; }
 
-                /* --- 2. NOVO ESTILO PARA CONTAINERS PRINCIPAIS (Lobbies, Skin, etc.) --- */
+                /* --- 2. ESTILO PARA CONTAINERS PRINCIPAIS (Glassmorphism) --- */
                 main-container, .main-container, .left-container, .right-container, .center-container {
-                    background: rgba(15, 15, 20, 0.85) !important; /* Mais translúcido */
-                    border: 1px solid rgba(124, 58, 237, 0.6) !important; /* Borda mais fina */
+                    background: rgba(15, 15, 20, 0.85) !important;
+                    border: 1px solid rgba(124, 58, 237, 0.6) !important;
                     border-radius: 24px !important;
                     box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 20px rgba(124, 58, 237, 0.15) !important;
-                    backdrop-filter: blur(20px) !important; /* Efeito de vidro forte */
+                    backdrop-filter: blur(20px) !important;
                 }
 
-                /* --- 3. LIMPEZA DE BORDAS (Privacy/Terms) --- */
+                /* --- 3. LIMPEZA DE BORDAS --- */
                 [class*="social"], [class*="links"], .privacy-policy, .terms-link, .text-muted, a[href*="privacy"], a[href*="terms"], .bottom-links {
                     border: none !important; background: transparent !important; box-shadow: none !important; outline: none !important;
                 }
@@ -81,7 +87,7 @@
             `;
             document.head.appendChild(style);
 
-            // SYNC ENGINE (Mantido da v30 para garantir funcionamento)
+            // SYNC ENGINE (Mantido)
             const data = {
                 n1: document.getElementById('main-nick').value,
                 s1: document.getElementById('main-skin').value,
