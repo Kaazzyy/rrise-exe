@@ -7,7 +7,7 @@
         body { margin: 0; padding: 0; font-family: 'Outfit', sans-serif; background: transparent; overflow: hidden; }
         
         #eclipse-dashboard { 
-            display: flex; width: 720px; height: 500px; 
+            display: flex; width: 750px; height: 520px; /* Aumentei ligeiramente para caber tudo */
             background: #08080a; border-radius: 28px; 
             border: 1px solid rgba(124, 58, 237, 0.3); 
             overflow: hidden; color: white; 
@@ -58,19 +58,39 @@
         }
         #btn-activate:hover { background: #8b5cf6; transform: translateY(-2px); box-shadow: 0 10px 30px rgba(124, 58, 237, 0.3); }
         
-        /* Estilos de Preview */
-        .skin-preview-container {
-            display: flex; flex-direction: column; align-items: center;
-            margin-top: 20px; opacity: 0; transition: 0.3s;
+        /* --- NOVOS ESTILOS PARA O PREVIEW UNIFICADO --- */
+        .preview-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            margin-top: 30px;
+            flex: 1;
         }
-        .skin-preview-container.visible { opacity: 1; }
+
+        .preview-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .preview-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: #7c3aed;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
 
         .skin-circle { 
-            width: 120px; height: 120px; border-radius: 50%; 
-            border: 3px solid #7c3aed; margin-bottom: 15px;
+            width: 130px; height: 130px; border-radius: 50%; 
+            border: 3px solid #7c3aed;
             overflow: hidden; background: #000; box-shadow: 0 0 30px rgba(124,58,237,0.2);
+            transition: 0.3s;
         }
-        .skin-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .skin-circle img { width: 100%; height: 100%; object-fit: cover; opacity: 0.5; transition: 0.3s; }
+        /* Quando a imagem carrega, fica com opacidade total */
+        .skin-circle img[src^="http"] { opacity: 1; }
         
         .version-tag { margin-top: auto; font-size: 10px; color: #333; font-weight: 800; letter-spacing: 1px; }
         
@@ -85,9 +105,9 @@
             <div class="nav-item active" onclick="window.eclipseTab('player', this)">PLAYER</div>
             <div class="nav-item" onclick="window.eclipseTab('dual', this)">DUAL</div>
             <div class="nav-item" onclick="window.eclipseTab('visuals', this)">VISUALS</div>
-            <div class="nav-item hidden" id="nav-skin-tab" onclick="window.eclipseTab('skin-preview', this)">MAIN PREVIEW</div>
+            <div class="nav-item hidden" id="nav-skin-tab" onclick="window.eclipseTab('skin-preview', this)">SKIN PREVIEW</div>
         </nav>
-        <div class="version-tag">v31.0.0 DUALVIEW</div>
+        <div class="version-tag">v32.0.0 UNIFIED</div>
     </div>
     
     <div class="main-content">
@@ -105,29 +125,38 @@
             <input type="text" id="dual-nick" placeholder="Dual Nickname...">
             <label>Minion Skin Asset</label>
             <input type="text" id="dual-skin" placeholder="Dual Skin URL..." oninput="window.checkSkin(this.value, 'dual')">
-            
-            <div id="dual-skin-preview-box" class="skin-preview-container">
-                 <div class="skin-circle"><img id="dual-skin-img" src=""></div>
-                 <span style="font-size:10px; color:#7c3aed; font-weight:600;">DUAL ASSET LOADED</span>
-            </div>
         </div>
         
         <div id="tab-visuals" class="tab-page">
-            <h2>Visuals v31</h2>
+            <h2>Visuals v32</h2>
             <p style="color:#666; font-size:14px; line-height:1.6;">
-                Separating Main Container styles from Modals. Applying Glassmorphism to main interface.
+                Hybrid Glass Protocol active for main containers. Modals retain solid dark theme.
             </p>
             <div style="margin-top:20px; padding:15px; background:rgba(124,58,237,0.05); border:1px solid rgba(124,58,237,0.1); border-radius:12px; color:#7c3aed; font-size:12px; font-weight:600;">
-                ACTIVE: Hybrid Glass Protocol
+                SYSTEM READY
             </div>
         </div>
         
         <div id="tab-skin-preview" class="tab-page">
-            <h2>Main Preview</h2>
-            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1;">
-                <div class="skin-circle" style="width:150px; height:150px;"><img id="skin-img-preview" src=""></div>
-                <p style="text-align:center; color:#555; font-size:12px; margin-top:20px;">Main skin source loaded successfully.</p>
+            <h2>Asset Previews</h2>
+            
+            <div class="preview-container">
+                <div class="preview-box">
+                    <span class="preview-label">MAIN MAIN</span>
+                    <div class="skin-circle">
+                        <img id="preview-main-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+                    </div>
+                </div>
+
+                <div class="preview-box">
+                    <span class="preview-label">DUAL DUAL</span>
+                    <div class="skin-circle">
+                        <img id="preview-dual-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+                    </div>
+                </div>
             </div>
+
+            <p style="text-align:center; color:#555; font-size:12px;">Review your selected assets before injection.</p>
         </div>
         
         <button id="btn-activate">INJECT SYSTEM</button>
