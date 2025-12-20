@@ -6,33 +6,40 @@
         /* Importar fonte */
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap');
 
-        /* --- ISOLAMENTO DO DASHBOARD --- */
-        /* Isto impede que o CSS do Aetlis estrague o teu menu */
-        #eclipse-dashboard {
-            all: initial; /* Reseta todas as propriedades herdadas */
+        /* --- WRAPPER PARA CENTRALIZAR --- */
+        /* Garante que o menu flutua no meio do ecrã */
+        #eclipse-wrapper {
+            position: fixed !important;
+            top: 0; left: 0; width: 100vw; height: 100vh;
             display: flex;
-            width: 750px;
-            height: 520px;
-            background: #08080a;
-            border-radius: 28px;
-            border: 1px solid rgba(124, 58, 237, 0.3);
-            overflow: hidden;
-            color: white;
-            box-shadow: 0 50px 100px rgba(0,0,0,0.9);
-            font-family: 'Outfit', sans-serif; /* Reaplica a fonte */
-            position: relative;
-            z-index: 99999;
-            box-sizing: border-box;
-            line-height: normal;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999999 !important;
+            pointer-events: none; /* Deixa clicar no jogo se clicar fora do menu */
         }
 
-        /* Garante que tudo dentro do dashboard use o box-model correto e fonte certa */
+        /* --- O DASHBOARD EM SI --- */
+        #eclipse-dashboard {
+            pointer-events: auto; /* Reativa cliques dentro do menu */
+            display: flex !important;
+            width: 750px !important;
+            height: 520px !important;
+            background: #08080a !important;
+            border-radius: 28px !important;
+            border: 1px solid rgba(124, 58, 237, 0.3) !important;
+            color: white !important;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.9) !important;
+            font-family: 'Outfit', sans-serif !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+            opacity: 1 !important;
+        }
+
+        /* Reset para elementos internos */
         #eclipse-dashboard * {
             box-sizing: border-box;
             font-family: 'Outfit', sans-serif;
-            text-transform: none;
-            text-decoration: none;
-            line-height: 1.5;
+            line-height: 1.4;
         }
 
         /* --- SIDEBAR --- */
@@ -53,22 +60,15 @@
         }
 
         .logo-icon {
-            width: 36px;
-            height: 36px;
+            width: 36px; height: 36px;
             background: #7c3aed;
             border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 18px;
-            color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 18px; color: white;
         }
 
         .logo-text {
-            font-weight: 800;
-            font-size: 20px;
-            color: white;
+            font-weight: 800; font-size: 20px; color: white;
             letter-spacing: -0.5px;
         }
 
@@ -82,23 +82,12 @@
             font-weight: 600;
             font-size: 13px;
             transition: 0.2s;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
+            display: flex; align-items: center;
         }
 
-        .nav-item:hover {
-            color: white;
-            background: rgba(255,255,255,0.05);
-        }
-
-        .nav-item.active {
-            background: rgba(124, 58, 237, 0.1);
-            color: #7c3aed;
-            font-weight: 800;
-        }
-
-        .nav-item.hidden { display: none; }
+        .nav-item:hover { color: white; background: rgba(255,255,255,0.05); }
+        .nav-item.active { background: rgba(124, 58, 237, 0.1); color: #7c3aed; font-weight: 800; }
+        .nav-item.hidden { display: none !important; }
 
         /* --- CONTEÚDO PRINCIPAL --- */
         .main-content {
@@ -108,53 +97,100 @@
             display: flex;
             flex-direction: column;
             overflow-y: auto;
+            background: transparent;
         }
 
         .tab-page {
-            display: none;
-            animation: fadeIn 0.3s ease;
+            display: none; /* Oculto por padrão */
             flex-direction: column;
+            width: 100%;
             height: 100%;
         }
 
-        .tab-page.active { display: flex; }
+        /* Esta classe 'active' é adicionada pelo JS para mostrar a aba */
+        .tab-page.active { display: flex !important; }
 
         h2 {
             margin: 0 0 25px 0;
-            font-weight: 800;
-            font-size: 28px;
-            letter-spacing: -1px;
-            color: white;
+            font-weight: 800; font-size: 28px;
+            letter-spacing: -1px; color: white;
         }
 
-        /* --- INPUTS E LABELS --- */
+        /* --- INPUTS --- */
         label {
-            font-size: 11px;
-            color: #7c3aed;
-            font-weight: 800;
-            display: block;
-            margin-bottom: 8px;
-            letter-spacing: 1.2px;
-            text-transform: uppercase;
+            font-size: 11px; color: #7c3aed; font-weight: 800;
+            display: block; margin-bottom: 8px;
+            letter-spacing: 1.2px; text-transform: uppercase;
         }
 
+        /* O !important aqui impede que o Aetlis estrague os inputs */
         input[type="text"], input[type="number"] {
-            width: 100%;
-            background: #111;
-            border: 1px solid #222;
-            padding: 14px 16px;
-            border-radius: 14px;
-            color: white;
-            margin-bottom: 20px;
-            font-size: 14px;
-            transition: 0.3s;
-            outline: none;
+            width: 100% !important;
+            background: #111 !important;
+            border: 1px solid #222 !important;
+            padding: 14px 16px !important;
+            border-radius: 14px !important;
+            color: white !important;
+            margin-bottom: 20px !important;
+            font-size: 14px !important;
+            outline: none !important;
+            height: auto !important;
+            line-height: normal !important;
+            box-shadow: none !important;
         }
 
-        input:focus {
-            border-color: #7c3aed;
-            background: #15101a;
+        input:focus { border-color: #7c3aed !important; background: #15101a !important; }
+
+        /* --- SWITCHES (CORREÇÃO) --- */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #111;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #222;
+            width: 100%;
         }
+        
+        .switch-label-text { font-size: 13px; font-weight: 600; color: #ddd; }
+
+        /* Toggle Container */
+        .toggle-switch {
+            position: relative;
+            width: 44px; height: 24px;
+            display: inline-block;
+            margin: 0;
+        }
+
+        /* Esconder checkbox original */
+        .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+
+        /* O slider (fundo do botão) */
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        /* A bolinha */
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px; width: 18px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            border-radius: 50%;
+        }
+
+        /* Estado Ligado */
+        input:checked + .slider { background-color: #7c3aed; }
+        input:checked + .slider:before { transform: translateX(20px); }
 
         /* --- BOTÃO INJECT --- */
         #btn-activate {
@@ -166,199 +202,110 @@
             color: white;
             font-weight: 800;
             cursor: pointer;
-            transition: 0.3s;
-            font-size: 14px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            text-align: center;
-        }
-        #btn-activate:hover {
-            background: #6d28d9;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(124, 58, 237, 0.3);
-        }
-
-        /* --- PREVIEW --- */
-        .preview-container {
-            display: flex;
-            justify-content: space-around;
-            align-items: flex-start;
-            margin-top: 30px;
-            flex: 1;
-        }
-
-        .preview-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .preview-label {
-            font-size: 10px;
-            font-weight: 800;
-            color: #7c3aed;
-            margin-bottom: 15px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            background: rgba(124, 58, 237, 0.1);
-            padding: 4px 8px;
-            border-radius: 6px;
-        }
-
-        .skin-circle {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 3px solid #7c3aed;
-            overflow: hidden;
-            background: #050505;
-            box-shadow: 0 0 30px rgba(124,58,237,0.2);
-            position: relative;
-        }
-
-        .skin-circle img {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0;
-            transition: 0.3s;
+            text-transform: uppercase;
         }
+        #btn-activate:hover { background: #6d28d9; }
 
-        .skin-circle img.loaded { opacity: 1; }
-
-        /* --- SWITCHES (CORREÇÃO VISUAL) --- */
-        /* Adiciona este estilo para os teus toggles no HTML */
-        .switch-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #111;
-            padding: 12px 16px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            border: 1px solid #222;
+        /* --- PREVIEW BOX --- */
+        .preview-container { display: flex; justify-content: space-around; margin-top: 30px; }
+        .preview-box { display: flex; flex-direction: column; align-items: center; }
+        .preview-label {
+            font-size: 10px; font-weight: 800; color: #7c3aed;
+            margin-bottom: 15px; background: rgba(124, 58, 237, 0.1);
+            padding: 4px 8px; border-radius: 6px;
         }
-        
-        .switch-label-text {
-            font-size: 13px;
-            font-weight: 600;
-            color: #ddd;
+        .skin-circle {
+            width: 100px; height: 100px; border-radius: 50%;
+            border: 3px solid #7c3aed; overflow: hidden; background: #000;
         }
-
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 24px;
-        }
-
-        .toggle-switch input { 
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #333;
-            transition: .4s;
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .3s cubic-bezier(0.4, 0.0, 0.2, 1);
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: #7c3aed;
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(20px);
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .skin-circle img { width: 100%; height: 100%; object-fit: cover; }
     </style>
 </head>
 <body>
-<div id="eclipse-dashboard">
-    <div class="side-bar">
-        <div class="logo">
-            <div class="logo-icon">E</div>
-            <span class="logo-text">ECLIPSE</span>
-        </div>
-        <nav>
-            <div class="nav-item active" onclick="window.eclipseTab('player', this)">PLAYER</div>
-            <div class="nav-item" onclick="window.eclipseTab('dual', this)">DUAL</div>
-            <div class="nav-item" onclick="window.eclipseTab('visuals', this)">VISUALS</div>
-            <div class="nav-item hidden" id="nav-skin-tab" onclick="window.eclipseTab('skin-preview', this)">PREVIEW</div>
-        </nav>
-    </div>
-    <div class="main-content">
-        <div id="tab-player" class="tab-page active">
-            <h2>Player Config</h2>
-            <label>Main Nickname</label>
-            <input type="text" id="main-nick" placeholder="Enter Nickname..." spellcheck="false">
-            <label>Skin Asset URL</label>
-            <input type="text" id="main-skin" placeholder="Paste Skin URL..." oninput="window.checkSkin(this.value, 'main')" spellcheck="false">
+
+<div id="eclipse-wrapper">
+    <div id="eclipse-dashboard">
+        
+        <div class="side-bar">
+            <div class="logo">
+                <div class="logo-icon">E</div>
+                <span class="logo-text">ECLIPSE</span>
+            </div>
+            <nav>
+                <div class="nav-item active" onclick="window.eclipseTab('player', this)">PLAYER</div>
+                <div class="nav-item" onclick="window.eclipseTab('dual', this)">DUAL</div>
+                <div class="nav-item" onclick="window.eclipseTab('visuals', this)">VISUALS</div>
+                <div class="nav-item hidden" id="nav-skin-tab" onclick="window.eclipseTab('skin-preview', this)">PREVIEW</div>
+            </nav>
         </div>
 
-        <div id="tab-dual" class="tab-page">
-            <h2>Dual Identity</h2>
-            <label>Minion Nickname</label>
-            <input type="text" id="dual-nick" placeholder="Dual Nickname..." spellcheck="false">
-            <label>Minion Skin Asset</label>
-            <input type="text" id="dual-skin" placeholder="Dual Skin URL..." oninput="window.checkSkin(this.value, 'dual')" spellcheck="false">
-        </div>
-
-        <div id="tab-visuals" class="tab-page">
-            <h2>Visuals</h2>
+        <div class="main-content">
             
-            <div class="switch-container">
-                <span class="switch-label-text">Glass Mode</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" checked>
-                    <span class="slider"></span>
-                </label>
+            <div id="tab-player" class="tab-page active">
+                <h2>Player Config</h2>
+                <label>Main Nickname</label>
+                <input type="text" id="main-nick" placeholder="Enter Nickname..." spellcheck="false">
+                
+                <label>Skin Asset URL</label>
+                <input type="text" id="main-skin" placeholder="Paste Skin URL..." oninput="window.checkSkin(this.value, 'main')" spellcheck="false">
             </div>
 
-            <div class="switch-container">
-                <span class="switch-label-text">Hide Chat</span>
-                <label class="toggle-switch">
-                    <input type="checkbox">
-                    <span class="slider"></span>
-                </label>
+            <div id="tab-dual" class="tab-page">
+                <h2>Dual Identity</h2>
+                <label>Minion Nickname</label>
+                <input type="text" id="dual-nick" placeholder="Dual Nickname..." spellcheck="false">
+                
+                <label>Minion Skin Asset</label>
+                <input type="text" id="dual-skin" placeholder="Dual Skin URL..." oninput="window.checkSkin(this.value, 'dual')" spellcheck="false">
             </div>
-            
-            <p style="color:#666; font-size:12px; margin-top: 15px;">Overlay styling applied successfully.</p>
-        </div>
 
-        <div id="tab-skin-preview" class="tab-page">
-            <h2>Asset Previews</h2>
-            <div class="preview-container">
-                <div class="preview-box">
-                    <span class="preview-label">MAIN</span>
-                    <div class="skin-circle"><img id="preview-main-img" src=""></div>
+            <div id="tab-visuals" class="tab-page">
+                <h2>Visuals</h2>
+                
+                <div class="switch-container">
+                    <span class="switch-label-text">Glass Mode</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="setting-glass" checked>
+                        <span class="slider"></span>
+                    </label>
                 </div>
-                <div class="preview-box">
-                    <span class="preview-label">DUAL</span>
-                    <div class="skin-circle"><img id="preview-dual-img" src=""></div>
+
+                <div class="switch-container">
+                    <span class="switch-label-text">Hide Chat</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="setting-chat">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="switch-container">
+                    <span class="switch-label-text">FPS Boost</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="setting-fps">
+                        <span class="slider"></span>
+                    </label>
                 </div>
             </div>
-        </div>
 
-        <button id="btn-activate">INJECT SYSTEM</button>
+            <div id="tab-skin-preview" class="tab-page">
+                <h2>Asset Previews</h2>
+                <div class="preview-container">
+                    <div class="preview-box">
+                        <span class="preview-label">MAIN</span>
+                        <div class="skin-circle"><img id="preview-main-img" src=""></div>
+                    </div>
+                    <div class="preview-box">
+                        <span class="preview-label">DUAL</span>
+                        <div class="skin-circle"><img id="preview-dual-img" src=""></div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="btn-activate">INJECT SYSTEM</button>
+        </div>
     </div>
 </div>
+
 </body>
 </html>
