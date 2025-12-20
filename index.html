@@ -1,108 +1,120 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
+    <meta charset="UTF-8">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap');
 
-        /* Centralização total */
-        #eclipse-main-wrapper {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+        /* Overlay para bloquear o jogo enquanto o menu está aberto */
+        #eclipse-launcher {
+            position: fixed !important;
+            top: 0; left: 0; width: 100vw; height: 100vh;
             display: flex; align-items: center; justify-content: center;
-            z-index: 1000000;
-            background: rgba(0,0,0,0.5);
-            font-family: 'Outfit', sans-serif;
+            z-index: 1000000 !important;
+            background: rgba(0,0,0,0.6);
+            font-family: 'Outfit', sans-serif !important;
         }
 
         #eclipse-dashboard {
-            display: flex;
+            display: flex !important;
             width: 750px; height: 520px;
             background: #08080a;
             border-radius: 28px;
             border: 1px solid #7c3aed;
             overflow: hidden;
-            color: white;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            box-shadow: 0 0 50px rgba(0,0,0,1);
         }
 
-        /* CORREÇÃO DAS LETRAS (Reset de linha) */
-        #eclipse-dashboard * {
-            box-sizing: border-box;
-            line-height: 1.2 !important;
-            text-transform: none !important;
+        #eclipse-dashboard * { box-sizing: border-box; line-height: 1.2 !important; }
+
+        /* Sidebar */
+        .side-bar { width: 220px; background: #0c0c0e; border-right: 1px solid #1a1a1f; padding: 30px; display: flex; flex-direction: column; }
+        .logo-text { font-weight: 800; font-size: 22px; color: #7c3aed; margin-bottom: 30px; text-align: center; }
+
+        .nav-item { 
+            padding: 14px; cursor: pointer; color: #666; font-weight: 600; 
+            margin-bottom: 8px; border-radius: 12px; transition: 0.3s;
         }
-
-        .side-bar { width: 220px; background: #0c0c0e; border-right: 1px solid #1a1a1f; padding: 30px; }
-        .main-content { flex: 1; padding: 40px; background: #08080a; }
-
-        .nav-item { padding: 12px; cursor: pointer; color: #666; font-weight: 600; margin-bottom: 5px; border-radius: 10px; }
         .nav-item.active { background: #7c3aed; color: white; }
 
-        .tab-page { display: none; flex-direction: column; }
-        .tab-page.active { display: flex; }
+        /* Conteúdo */
+        .main-content { flex: 1; padding: 40px; display: flex; flex-direction: column; position: relative; }
+        .tab-page { display: none; flex-direction: column; height: 100%; }
+        .tab-page.active { display: flex !important; }
 
-        input {
-            width: 100%; background: #121215; border: 1px solid #222;
-            padding: 12px; border-radius: 10px; color: white; margin-bottom: 15px;
-            outline: none;
+        h2 { margin-top: 0; font-weight: 800; color: white; }
+        label { color: #7c3aed; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; display: block; }
+
+        /* Inputs - IDs corretos para o main.js */
+        input[type="text"] {
+            width: 100% !important; background: #121215 !important; border: 1px solid #222 !important;
+            padding: 14px !important; border-radius: 12px !important; color: white !important;
+            margin-bottom: 20px !important; outline: none !important;
         }
 
-        /* CORREÇÃO DOS SWITCHES */
-        .switch-row {
-            display: flex; align-items: center; justify-content: space-between;
-            background: #121215; padding: 12px; border-radius: 12px; margin-bottom: 8px;
-        }
-
-        .toggle {
-            position: relative; display: inline-block; width: 40px; height: 20px;
-        }
-
-        .toggle input { opacity: 0; width: 0; height: 0; }
-
-        .slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #333; transition: .3s; border-radius: 20px;
-        }
-
-        .slider:before {
-            position: absolute; content: ""; height: 14px; width: 14px;
-            left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%;
-        }
-
-        input:checked + .slider { background-color: #7c3aed; }
-        input:checked + .slider:before { transform: translateX(20px); }
-
+        /* Botão Inject - ID tem de ser btn-activate */
         #btn-activate {
-            margin-top: auto; padding: 15px; background: #7c3aed;
-            border: none; border-radius: 12px; color: white; font-weight: 800; cursor: pointer;
+            margin-top: auto; padding: 18px; background: #7c3aed;
+            border: none; border-radius: 16px; color: white;
+            font-weight: 800; cursor: pointer; text-transform: uppercase;
+            transition: 0.3s;
         }
+        #btn-activate:hover { background: #6d28d9; transform: scale(1.02); }
+
+        /* Switches */
+        .switch-row { 
+            display: flex; align-items: center; justify-content: space-between; 
+            background: #111; padding: 12px; border-radius: 12px; margin-bottom: 10px;
+        }
+        .toggle { position: relative; width: 40px; height: 20px; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #333; border-radius: 20px; transition: .3s; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: .3s; }
+        input:checked + .slider { background: #7c3aed; }
+        input:checked + .slider:before { transform: translateX(20px); }
     </style>
 </head>
 <body>
-    <div id="eclipse-dashboard">
-        <div class="side-bar">
-            <h2 style="color:#7c3aed">ECLIPSE</h2>
-            <div class="nav-item active" onclick="window.eclipseTab('player', this)">Player</div>
-            <div class="nav-item" onclick="window.eclipseTab('visuals', this)">Visuals</div>
-        </div>
-        <div class="main-content">
-            <div id="tab-player" class="tab-page active">
-                <label>Nickname</label>
-                <input type="text" id="main-nick" placeholder="Nome...">
-                <label>Skin URL</label>
-                <input type="text" id="main-skin" placeholder="http://...">
+    <div id="eclipse-launcher">
+        <div id="eclipse-dashboard">
+            <div class="side-bar">
+                <div class="logo-text">ECLIPSE</div>
+                <div class="nav-item active" onclick="window.eclipseTab('player', this)">Player</div>
+                <div class="nav-item" onclick="window.eclipseTab('dual', this)">Dual</div>
+                <div class="nav-item" onclick="window.eclipseTab('visuals', this)">Visuals</div>
             </div>
-            <div id="tab-visuals" class="tab-page">
-                <div class="switch-row">
-                    <span>Espinhos Roxos</span>
-                    <label class="toggle"><input type="checkbox"><span class="slider"></span></label>
+
+            <div class="main-content">
+                <div id="tab-player" class="tab-page active">
+                    <h2>Player Settings</h2>
+                    <label>Main Nickname</label>
+                    <input type="text" id="main-nick" placeholder="Nickname...">
+                    <label>Skin URL</label>
+                    <input type="text" id="main-skin" placeholder="http://...">
                 </div>
-                <div class="switch-row">
-                    <span>Dual Ativo</span>
-                    <label class="toggle"><input type="checkbox"><span class="slider"></span></label>
+
+                <div id="tab-dual" class="tab-page">
+                    <h2>Dual Identity</h2>
+                    <label>Minion Nick</label>
+                    <input type="text" id="dual-nick" placeholder="Minion...">
+                    <label>Minion Skin</label>
+                    <input type="text" id="dual-skin" placeholder="http://...">
                 </div>
+
+                <div id="tab-visuals" class="tab-page">
+                    <h2>Visuals</h2>
+                    <div class="switch-row">
+                        <span style="color: #ccc; font-size: 14px;">Glass Mode</span>
+                        <label class="toggle"><input type="checkbox" id="setting-glass" checked><span class="slider"></span></label>
+                    </div>
+                    <div class="switch-row">
+                        <span style="color: #ccc; font-size: 14px;">Show Mass</span>
+                        <label class="toggle"><input type="checkbox" id="setting-mass"><span class="slider"></span></label>
+                    </div>
+                </div>
+
+                <button id="btn-activate">INJECT SYSTEM</button>
             </div>
-            <button id="btn-activate">INJECT SYSTEM</button>
         </div>
     </div>
 </body>
