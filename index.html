@@ -3,62 +3,346 @@
 <head>
     <meta charset="UTF-8">
     <style>
+        /* Importar fonte */
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap');
-        body { margin: 0; padding: 0; font-family: 'Outfit', sans-serif; background: transparent; overflow: hidden; }
-        #eclipse-dashboard { display: flex; width: 750px; height: 520px; background: #08080a; border-radius: 28px; border: 1px solid rgba(124, 58, 237, 0.3); overflow: hidden; color: white; box-shadow: 0 50px 100px rgba(0,0,0,0.9); }
-        .side-bar { width: 220px; background: rgba(124, 58, 237, 0.02); border-right: 1px solid #1a1a1f; padding: 40px 25px; display: flex; flex-direction: column; }
-        .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 45px; }
-        .logo-icon { width: 36px; height: 36px; background: #7c3aed; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; }
-        .nav-item { padding: 14px 18px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; color: #666; font-weight: 600; font-size: 13px; transition: 0.3s; letter-spacing: 0.5px; }
-        .nav-item.active { background: rgba(124, 58, 237, 0.1); color: #7c3aed; }
+
+        /* --- ISOLAMENTO DO DASHBOARD --- */
+        /* Isto impede que o CSS do Aetlis estrague o teu menu */
+        #eclipse-dashboard {
+            all: initial; /* Reseta todas as propriedades herdadas */
+            display: flex;
+            width: 750px;
+            height: 520px;
+            background: #08080a;
+            border-radius: 28px;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            overflow: hidden;
+            color: white;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.9);
+            font-family: 'Outfit', sans-serif; /* Reaplica a fonte */
+            position: relative;
+            z-index: 99999;
+            box-sizing: border-box;
+            line-height: normal;
+        }
+
+        /* Garante que tudo dentro do dashboard use o box-model correto e fonte certa */
+        #eclipse-dashboard * {
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            text-transform: none;
+            text-decoration: none;
+            line-height: 1.5;
+        }
+
+        /* --- SIDEBAR --- */
+        .side-bar {
+            width: 220px;
+            background: rgba(124, 58, 237, 0.02);
+            border-right: 1px solid #1a1a1f;
+            padding: 40px 25px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 45px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: #7c3aed;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+            color: white;
+        }
+
+        .logo-text {
+            font-weight: 800;
+            font-size: 20px;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+
+        /* --- NAVEGAÇÃO --- */
+        .nav-item {
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            color: #888;
+            font-weight: 600;
+            font-size: 13px;
+            transition: 0.2s;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-item:hover {
+            color: white;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .nav-item.active {
+            background: rgba(124, 58, 237, 0.1);
+            color: #7c3aed;
+            font-weight: 800;
+        }
+
         .nav-item.hidden { display: none; }
-        .main-content { flex: 1; padding: 45px; position: relative; display: flex; flex-direction: column; }
-        .tab-page { display: none; animation: fadeIn 0.3s ease; flex-direction: column; height: 100%; }
+
+        /* --- CONTEÚDO PRINCIPAL --- */
+        .main-content {
+            flex: 1;
+            padding: 45px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .tab-page {
+            display: none;
+            animation: fadeIn 0.3s ease;
+            flex-direction: column;
+            height: 100%;
+        }
+
         .tab-page.active { display: flex; }
-        h2 { margin: 0 0 25px 0; font-weight: 800; font-size: 28px; letter-spacing: -1px; }
-        label { font-size: 10px; color: #7c3aed; font-weight: 800; display: block; margin-bottom: 8px; letter-spacing: 1.5px; text-transform: uppercase; }
-        input { width: 100%; background: #111; border: 1px solid #222; padding: 16px; border-radius: 14px; color: white; margin-bottom: 20px; box-sizing: border-box; font-family: inherit; font-size: 14px; transition: 0.3s; }
-        input:focus { border-color: #7c3aed; background: #15101a; outline: none; }
-        #btn-activate { margin-top: auto; padding: 20px; background: #7c3aed; border: none; border-radius: 16px; color: white; font-weight: 800; cursor: pointer; transition: 0.3s; font-size: 14px; letter-spacing: 1px; }
-        .preview-container { display: flex; justify-content: space-around; align-items: flex-start; margin-top: 30px; flex: 1; }
-        .preview-box { display: flex; flex-direction: column; align-items: center; }
-        .preview-label { font-size: 12px; font-weight: 800; color: #7c3aed; margin-bottom: 15px; letter-spacing: 2px; text-transform: uppercase; }
-        .skin-circle { width: 130px; height: 130px; border-radius: 50%; border: 3px solid #7c3aed; overflow: hidden; background: #000; box-shadow: 0 0 30px rgba(124,58,237,0.2); }
-        .skin-circle img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: 0.3s; }
+
+        h2 {
+            margin: 0 0 25px 0;
+            font-weight: 800;
+            font-size: 28px;
+            letter-spacing: -1px;
+            color: white;
+        }
+
+        /* --- INPUTS E LABELS --- */
+        label {
+            font-size: 11px;
+            color: #7c3aed;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 8px;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            background: #111;
+            border: 1px solid #222;
+            padding: 14px 16px;
+            border-radius: 14px;
+            color: white;
+            margin-bottom: 20px;
+            font-size: 14px;
+            transition: 0.3s;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #7c3aed;
+            background: #15101a;
+        }
+
+        /* --- BOTÃO INJECT --- */
+        #btn-activate {
+            margin-top: auto;
+            padding: 18px;
+            background: #7c3aed;
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 14px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        #btn-activate:hover {
+            background: #6d28d9;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(124, 58, 237, 0.3);
+        }
+
+        /* --- PREVIEW --- */
+        .preview-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            margin-top: 30px;
+            flex: 1;
+        }
+
+        .preview-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .preview-label {
+            font-size: 10px;
+            font-weight: 800;
+            color: #7c3aed;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: rgba(124, 58, 237, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .skin-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #7c3aed;
+            overflow: hidden;
+            background: #050505;
+            box-shadow: 0 0 30px rgba(124,58,237,0.2);
+            position: relative;
+        }
+
+        .skin-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
         .skin-circle img.loaded { opacity: 1; }
+
+        /* --- SWITCHES (CORREÇÃO VISUAL) --- */
+        /* Adiciona este estilo para os teus toggles no HTML */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #111;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #222;
+        }
+        
+        .switch-label-text {
+            font-size: 13px;
+            font-weight: 600;
+            color: #ddd;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #7c3aed;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 <div id="eclipse-dashboard">
     <div class="side-bar">
-        <div class="logo"><div class="logo-icon">E</div><span>ECLIPSE</span></div>
+        <div class="logo">
+            <div class="logo-icon">E</div>
+            <span class="logo-text">ECLIPSE</span>
+        </div>
         <nav>
             <div class="nav-item active" onclick="window.eclipseTab('player', this)">PLAYER</div>
             <div class="nav-item" onclick="window.eclipseTab('dual', this)">DUAL</div>
             <div class="nav-item" onclick="window.eclipseTab('visuals', this)">VISUALS</div>
-            <div class="nav-item hidden" id="nav-skin-tab" onclick="window.eclipseTab('skin-preview', this)">SKIN PREVIEW</div>
+            <div class="nav-item hidden" id="nav-skin-tab" onclick="window.eclipseTab('skin-preview', this)">PREVIEW</div>
         </nav>
     </div>
     <div class="main-content">
         <div id="tab-player" class="tab-page active">
             <h2>Player Config</h2>
             <label>Main Nickname</label>
-            <input type="text" id="main-nick" placeholder="Enter Nickname...">
+            <input type="text" id="main-nick" placeholder="Enter Nickname..." spellcheck="false">
             <label>Skin Asset URL</label>
-            <input type="text" id="main-skin" placeholder="Paste Skin URL..." oninput="window.checkSkin(this.value, 'main')">
+            <input type="text" id="main-skin" placeholder="Paste Skin URL..." oninput="window.checkSkin(this.value, 'main')" spellcheck="false">
         </div>
+
         <div id="tab-dual" class="tab-page">
             <h2>Dual Identity</h2>
             <label>Minion Nickname</label>
-            <input type="text" id="dual-nick" placeholder="Dual Nickname...">
+            <input type="text" id="dual-nick" placeholder="Dual Nickname..." spellcheck="false">
             <label>Minion Skin Asset</label>
-            <input type="text" id="dual-skin" placeholder="Dual Skin URL..." oninput="window.checkSkin(this.value, 'dual')">
+            <input type="text" id="dual-skin" placeholder="Dual Skin URL..." oninput="window.checkSkin(this.value, 'dual')" spellcheck="false">
         </div>
+
         <div id="tab-visuals" class="tab-page">
-            <h2>Visuals v32.1</h2>
-            <p style="color:#666; font-size:14px;">Glass containers & Modal fixes active.</p>
+            <h2>Visuals</h2>
+            
+            <div class="switch-container">
+                <span class="switch-label-text">Glass Mode</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="switch-container">
+                <span class="switch-label-text">Hide Chat</span>
+                <label class="toggle-switch">
+                    <input type="checkbox">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <p style="color:#666; font-size:12px; margin-top: 15px;">Overlay styling applied successfully.</p>
         </div>
+
         <div id="tab-skin-preview" class="tab-page">
             <h2>Asset Previews</h2>
             <div class="preview-container">
@@ -72,6 +356,7 @@
                 </div>
             </div>
         </div>
+
         <button id="btn-activate">INJECT SYSTEM</button>
     </div>
 </div>
