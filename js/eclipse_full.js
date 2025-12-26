@@ -1,4 +1,7 @@
-!function(T) {
+
+try {
+    console.log("[Eclipse] Loading Original Core...");
+    !function(T) {
     var j = (function() {
         var g = !![];
         return function(K, O) {
@@ -13756,14 +13759,17 @@ function X(h) {
             T(0x0);
     } catch (L) {}
 }
-\n\n/* --- ECLIPSE MODIFICATIONS START --- */\n
-// ==UserScript==
-// @name         Eclipse Obsidian Flux - v40.3.7 (Skin Persistence Fix)
-// @version      40.3.7
-// @match        *://aetlis.io/*
-// @grant        none
-// ==/UserScript==
 
+    console.log("[Eclipse] Original Core Loaded.");
+} catch (e) {
+    console.error("[Eclipse] Error in Original Core:", e);
+}
+
+// Separação garantida
+;(function() {
+    try {
+        console.log("[Eclipse] Loading Modifications...");
+        
 (function() {
     'use strict';
 
@@ -14288,4 +14294,9 @@ function X(h) {
         setTimeout(openEclipseMenu, 1000);
     };
     init();
-})();\n/* --- ECLIPSE MODIFICATIONS END --- */
+})();
+        console.log("[Eclipse] Modifications Loaded.");
+    } catch (e) {
+        console.error("[Eclipse] Error in Modifications:", e);
+    }
+})();
