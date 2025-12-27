@@ -1,7 +1,6 @@
 
-(async function() {
-    'use strict';
-    
+/* Eclipse Module Version */
+
 
 (function() {
     'use strict';
@@ -618,5 +617,4 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
         setTimeout(openEclipseMenu, 1000);
     };
     init();
-})();
 })();
