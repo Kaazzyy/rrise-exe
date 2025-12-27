@@ -1,40 +1,7 @@
 
-(function() {
+(async function() {
     'use strict';
-    console.log("[ECLIPSE] Inicializando Versão Shadow...");
-
     
-    window.openEclipseMenu = function() {
-        console.log("[ECLIPSE] Abrindo menu via Shadow DOM...");
-        var hostId = 'eclipse-shadow-host';
-        var host = document.getElementById(hostId);
-        if (host) host.remove();
-        
-        host = document.createElement('div');
-        host.id = hostId;
-        host.style.cssText = "position:fixed; inset:0; z-index:2147483647; pointer-events:none;";
-        document.body.appendChild(host);
-        
-        // Criar Shadow Root FECHADO (O jogo não consegue ver o que está aqui dentro)
-        var shadow = host.attachShadow({mode: 'closed'});
-        
-        var wrap = document.createElement('div');
-        wrap.style.cssText = "position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.8); pointer-events:auto;";
-        wrap.innerHTML = atob('bWFpbi5qczoxIE1peGVkIENvbnRlbnQ6IFRoZSBwYWdlIGF0ICdodHRwczovL2FldGxpcy5pby8nIHdhcyBsb2FkZWQgb3ZlciBIVFRQUywgYnV0IHJlcXVlc3RlZCBhbiBpbnNlY3VyZSBzY3JpcHQgJ2h0dHA6Ly9hcGkuYWRpbnBsYXkuY29tL2xpYnMvYWlwdGFnL3B1Yi9WQU4vYWV0bGlzLmlvL3RhZy5taW4uanMnLiBUaGlzIHJlcXVlc3QgaGFzIGJlZW4gYmxvY2tlZDsgdGhlIGNvbnRlbnQgbXVzdCBiZSBzZXJ2ZWQgb3ZlciBIVFRQUy4KbG9hZEFkaW5wbGF5IEAgbWFpbi5qczoxCnVzZXJzY3JpcHQuaHRtbD9uYW1lPUVjbGlwc2UtQmV0YS1PZmZpY2lhbC1Mb2FkZXIudXNlci5qcyZpZD1kNzAwOTQwOC1mODlkLTRmMjEtYWNjZi1hNzMwMDgyNWFhZTY6MTUgW0VDTElQU0VdIEFndWFyZGFuZG8gaW5pY2lhbGl6YcOnw6NvIGRvIGpvZ28uLi4Kd3d3LmdzdGF0aWMuY29tL3JlY2FwdGNoYS9yZWxlYXNlcy8yTWZ5a3dsMm1sdnlRWlEzUEVnb0g3MTAvcmVjYXB0Y2hhX19lbi5qczoxICBGYWlsZWQgdG8gbG9hZCByZXNvdXJjZTogdGhlIHNlcnZlciByZXNwb25kZWQgd2l0aCBhIHN0YXR1cyBvZiA0MDQgKCkKKGluZGV4KToxIFJlZnVzZWQgdG8gZXhlY3V0ZSBzY3JpcHQgZnJvbSAnaHR0cHM6Ly93d3cuZ3N0YXRpYy5jb20vcmVjYXB0Y2hhL3JlbGVhc2VzLzJNZnlrd2wybWx2eVFaUTNQRWdvSDcxMC9yZWNhcHRjaGFfX2VuLmpzJyBiZWNhdXNlIGl0cyBNSU1FIHR5cGUgKCd0ZXh0L2h0bWwnKSBpcyBub3QgZXhlY3V0YWJsZSwgYW5kIHN0cmljdCBNSU1FIHR5cGUgY2hlY2tpbmcgaXMgZW5hYmxlZC4KL2Fkcy5jc3M6MSAgRmFpbGVkIHRvIGxvYWQgcmVzb3VyY2U6IHRoZSBzZXJ2ZXIgcmVzcG9uZGVkIHdpdGggYSBzdGF0dXMgb2YgNDA0ICgpCnVzZXJzY3JpcHQuaHRtbD9uYW1lPUVjbGlwc2UtQmV0YS1PZmZpY2lhbC1Mb2FkZXIudXNlci5qcyZpZD1kNzAwOTQwOC1mODlkLTRmMjEtYWNjZi1hNzMwMDgyNWFhZTY6MjIgW0VDTElQU0VdIEpvZ28gZGV0ZXRhZG8uIEluamV0YW5kbyBtb2RzLi4uClZNNjc6NDMyIFVuY2F1Z2h0IFN5bnRheEVycm9yOiBGYWlsZWQgdG8gZXhlY3V0ZSAnYXBwZW5kQ2hpbGQnIG9uICdOb2RlJzogYXdhaXQgaXMgb25seSB2YWxpZCBpbiBhc3luYyBmdW5jdGlvbnMgYW5kIHRoZSB0b3AgbGV2ZWwgYm9kaWVzIG9mIG1vZHVsZXMKICAgIGF0IE9iamVjdC5vbmxvYWQgKHVzZXJzY3JpcHQuaHRtbD9uYW1lPUVjbGlwc2UtQmV0YS1PZmZpY2lhbC1Mb2FkZXIudXNlci5qcyZpZD1kNzAwOTQwOC1mODlkLTRmMjEtYWNjZi1hNzMwMDgyNWFhZTY6MzU6NjUpCiAgICBhdCBQdCAoPGFub255bW91cz46MTA6ODkpCiAgICBhdCA8YW5vbnltb3VzPjo0NjoyMjQKICAgIGF0IFB0ICg8YW5vbnltb3VzPjoxMDo4OSkKICAgIGF0IHIgKDxhbm9ueW1vdXM+OjMyOjQ4NCkKICAgIGF0IDxhbm9ueW1vdXM+OjMzOjExMgogICAgYXQgPGFub255bW91cz46MjI6MzAwCiAgICBhdCBfICg8YW5vbnltb3VzPjoyMjozMTkpCm9ubG9hZCBAIHVzZXJzY3JpcHQuaHRtbD9uYW1lPUVjbGlwc2UtQmV0YS1PZmZpY2lhbC1Mb2FkZXIudXNlci5qcyZpZD1kNzAwOTQwOC1mODlkLTRmMjEtYWNjZi1hNzMwMDgyNWFhZTY6MzUKUHQgQCBWTTI2OjEwCihhbm9ueW1vdXMpIEAgVk0yNjo0NgpQdCBAIFZNMjY6MTAKciBAIFZNMjY6MzIKKGFub255bW91cykgQCBWTTI2OjMzCihhbm9ueW1vdXMpIEAgVk0yNjoyMgpfIEAgVk0yNjoyMgpzZXRUaW1lb3V0CnNldFRpbWVvdXQgQCBjb250ZW50LmpzOjUxCnByb2Nlc3NNZXNzYWdlIEAgY29udGVudC5qczo1NAooYW5vbnltb3VzKSBAIGNvbnRlbnQuanM6ODMKdiBAIGNvbnRlbnQuanM6NjIKUHQgQCBWTTI2OjEwCm0gQCBWTTI2OjIxCmMgQCBWTTI2OjI0Cihhbm9ueW1vdXMpIEAgVk0yNjoyNApvbyBAIFZNMjY6MTgKc2VuZCBAIFZNMjY6MjQKWG8gQCBWTTI2OjMzCldvIEAgVk0yNjozMwpjIEAgVk0yNjo0NgooYW5vbnltb3VzKSBAIFZNMjY6NTUKUHQgQCBWTTI2OjEwCnQgQCBWTTI2OjEwCnQgQCBWTTI2OjEKaSBAIFZNMjY6MQpQcm9taXNlLnRoZW4KUHQgQCBWTTI2OjEwCnQgQCBWTTI2OjEwCnQgQCBWTTI2OjEKaSBAIFZNMjY6MQooYW5vbnltb3VzKSBAIFZNMjY6MQpuIEAgVk0yNjoxClB0IEAgVk0yNjoxMAooYW5vbnltb3VzKSBAIFZNMjY6MQooYW5vbnltb3VzKSBAIFZNMjY6NTYKKGFub255bW91cykgQCBWTTI2OjU3Cihhbm9ueW1vdXMpIEAgVk0yNjo1NApQdCBAIFZNMjY6MTAKdCBAIFZNMjY6MTAKdCBAIFZNMjY6MQppIEAgVk0yNjoxCihhbm9ueW1vdXMpIEAgVk0yNjoxCm4gQCBWTTI2OjEKUHQgQCBWTTI2OjEwCihhbm9ueW1vdXMpIEAgVk0yNjoxCihhbm9ueW1vdXMpIEAgVk0yNjo1NAooYW5vbnltb3VzKSBAIFZNMjY6NTcKKGFub255bW91cykgQCBWTTI2OjI3ClB0IEAgVk0yNjoxMAp0IEAgVk0yNjoxMAptZXNzYWdlIEAgVk0yNjoyNwptZXNzYWdlIEAgVk0yNjoyOAooYW5vbnltb3VzKSBAIFZNMjY6ODcKXyBAIFZNMjY6MjIKUHQgQCBjb250ZW50LmpzOjkKaCBAIGNvbnRlbnQuanM6NjEKZCBAIGNvbnRlbnQuanM6NjQKKGFub255bW91cykgQCBjb250ZW50LmpzOjY0CmpuIEAgY29udGVudC5qczoxNQpzZW5kIEAgY29udGVudC5qczo2NApnIEAgY29udGVudC5qczoxNgptIEAgY29udGVudC5qczoxNgooYW5vbnltb3VzKSBAIGNvbnRlbnQuanM6NDcKKGFub255bW91cykgQCBjb250ZW50LmpzOjQ0ClB0IEAgY29udGVudC5qczo5CnQgQCBjb250ZW50LmpzOjEwCmUgQCBjb250ZW50LmpzOjEKaSBAIGNvbnRlbnQuanM6MQooYW5vbnltb3VzKSBAIGNvbnRlbnQuanM6MQpuIEAgY29udGVudC5qczoxClB0IEAgY29udGVudC5qczo5Cihhbm9ueW1vdXMpIEAgY29udGVudC5qczoxCihhbm9ueW1vdXMpIEAgY29udGVudC5qczo0NAooYW5vbnltb3VzKSBAIGNvbnRlbnQuanM6NDUKdXNlcnNjcmlwdC5odG1sP25hbWU9RWNsaXBzZS1CZXRhLU9mZmljaWFsLUxvYWRlci51c2VyLmpzJmlkPWQ3MDA5NDA4LWY4OWQtNGYyMS1hY2NmLWE3MzAwODI1YWFlNjozNiBbRUNMSVBTRV0gTW9kaWZpY2HDp8O1ZXMgY2FycmVnYWRhcyBjb20gc3VjZXNzbyEK');
-        shadow.appendChild(wrap);
-        
-        setTimeout(function() {
-            var injectBtn = wrap.querySelector('#btn-inject');
-            if(injectBtn) injectBtn.onclick = window.eclipseInjectSystem;
-            var closeBtn = wrap.querySelector('#btn-activate');
-            if(closeBtn) closeBtn.onclick = function() { host.remove(); };
-            console.log("[ECLIPSE] Menu injetado no Shadow DOM.");
-        }, 200);
-    };
-
-
-    try {
-        
 
 (function() {
     'use strict';
@@ -339,7 +306,7 @@
 
         const ghostMsg = { name: pName || "Player", pid: pid, message: ".", isGhost: true, time: Date.now() };
         vm[msgArrayKey].push(ghostMsg);
-        new Promise(r => setTimeout(r, 50));
+        await new Promise(r => setTimeout(r, 50));
         const clicked = simulateContext(pid);
         if (clicked) {
             const idx = vm[msgArrayKey].indexOf(ghostMsg);
@@ -351,7 +318,7 @@
     const openProfileMenu = async (pid, pName) => {
         if (simulateContext(pid)) { showToast("Menu Opened (Chat)"); return; }
         showToast("Injecting Menu...", false);
-        const success = injectSystemMessage(pid, pName);
+        const success = await injectSystemMessage(pid, pName);
         if (success) showToast("Menu Opened ✨");
         else showToast("Could not open menu", true);
     };
@@ -432,18 +399,109 @@
         });
     };
 
-    /* ... */
+    const openEclipseMenu = async () => {
         if(document.getElementById('eclipse-main-wrap')) return;
         showToast("Loading Eclipse Menu...");
-        try {
-            const res = fetch(`${GITHUB_URL}?t=${Date.now()}`);
-            const html = res.text();
-            
-            let wrap = document.createElement('div');
-            wrap.id = "eclipse-main-wrap";
-            wrap.style.cssText = "position:fixed; inset:0; z-index:9999999; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.8);";
-            if (!wrap.parentElement) document.body.appendChild(wrap);
-            wrap.innerHTML = html;
+        const html = `main.js:1 Mixed Content: The page at 'https://aetlis.io/' was loaded over HTTPS, but requested an insecure script 'http://api.adinplay.com/libs/aiptag/pub/VAN/aetlis.io/tag.min.js'. This request has been blocked; the content must be served over HTTPS.
+loadAdinplay @ main.js:1
+userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-accf-a7300825aae6:15 [ECLIPSE] Aguardando inicialização do jogo...
+www.gstatic.com/recaptcha/releases/2Mfykwl2mlvyQZQ3PEgoH710/recaptcha__en.js:1  Failed to load resource: the server responded with a status of 404 ()
+(index):1 Refused to execute script from 'https://www.gstatic.com/recaptcha/releases/2Mfykwl2mlvyQZQ3PEgoH710/recaptcha__en.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+/ads.css:1  Failed to load resource: the server responded with a status of 404 ()
+userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-accf-a7300825aae6:22 [ECLIPSE] Jogo detetado. Injetando mods...
+VM67:432 Uncaught SyntaxError: Failed to execute 'appendChild' on 'Node': await is only valid in async functions and the top level bodies of modules
+    at Object.onload (userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-accf-a7300825aae6:35:65)
+    at Pt (<anonymous>:10:89)
+    at <anonymous>:46:224
+    at Pt (<anonymous>:10:89)
+    at r (<anonymous>:32:484)
+    at <anonymous>:33:112
+    at <anonymous>:22:300
+    at _ (<anonymous>:22:319)
+onload @ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-accf-a7300825aae6:35
+Pt @ VM26:10
+(anonymous) @ VM26:46
+Pt @ VM26:10
+r @ VM26:32
+(anonymous) @ VM26:33
+(anonymous) @ VM26:22
+_ @ VM26:22
+setTimeout
+setTimeout @ content.js:51
+processMessage @ content.js:54
+(anonymous) @ content.js:83
+v @ content.js:62
+Pt @ VM26:10
+m @ VM26:21
+c @ VM26:24
+(anonymous) @ VM26:24
+oo @ VM26:18
+send @ VM26:24
+Xo @ VM26:33
+Wo @ VM26:33
+c @ VM26:46
+(anonymous) @ VM26:55
+Pt @ VM26:10
+t @ VM26:10
+t @ VM26:1
+i @ VM26:1
+Promise.then
+Pt @ VM26:10
+t @ VM26:10
+t @ VM26:1
+i @ VM26:1
+(anonymous) @ VM26:1
+n @ VM26:1
+Pt @ VM26:10
+(anonymous) @ VM26:1
+(anonymous) @ VM26:56
+(anonymous) @ VM26:57
+(anonymous) @ VM26:54
+Pt @ VM26:10
+t @ VM26:10
+t @ VM26:1
+i @ VM26:1
+(anonymous) @ VM26:1
+n @ VM26:1
+Pt @ VM26:10
+(anonymous) @ VM26:1
+(anonymous) @ VM26:54
+(anonymous) @ VM26:57
+(anonymous) @ VM26:27
+Pt @ VM26:10
+t @ VM26:10
+message @ VM26:27
+message @ VM26:28
+(anonymous) @ VM26:87
+_ @ VM26:22
+Pt @ content.js:9
+h @ content.js:61
+d @ content.js:64
+(anonymous) @ content.js:64
+jn @ content.js:15
+send @ content.js:64
+g @ content.js:16
+m @ content.js:16
+(anonymous) @ content.js:47
+(anonymous) @ content.js:44
+Pt @ content.js:9
+t @ content.js:10
+e @ content.js:1
+i @ content.js:1
+(anonymous) @ content.js:1
+n @ content.js:1
+Pt @ content.js:9
+(anonymous) @ content.js:1
+(anonymous) @ content.js:44
+(anonymous) @ content.js:45
+userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-accf-a7300825aae6:36 [ECLIPSE] Modificações carregadas com sucesso!
+`;
+        
+        let wrap = document.createElement('div');
+        wrap.id = "eclipse-main-wrap";
+        wrap.style.cssText = "position:fixed; inset:0; z-index:9999999; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.8);";
+        if (!wrap.parentElement) document.body.appendChild(wrap);
+        wrap.innerHTML = html;
 
             setTimeout(() => {
                 window.eclipseTab('player');
@@ -561,22 +619,4 @@
     };
     init();
 })();
-    } catch(e) {
-        console.error("[ECLIPSE] Erro interno:", e);
-    }
-
-    // Botão de ativação (Também no Shadow DOM para segurança)
-    var btnHost = document.createElement('div');
-    btnHost.style.cssText = "position:fixed; top:20px; right:20px; z-index:1000000;";
-    document.body.appendChild(btnHost);
-    var btnShadow = btnHost.attachShadow({mode: 'closed'});
-    var trig = document.createElement('div');
-    trig.style.cssText = "width:45px; height:45px; background:#7c3aed; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; box-shadow:0 0 15px rgba(124,58,237,0.5);";
-    trig.innerHTML = "E";
-    trig.onclick = window.openEclipseMenu;
-    btnShadow.appendChild(trig);
-
-    // Auto-abertura
-    setTimeout(window.openEclipseMenu, 2000);
-    console.log("[ECLIPSE] Sistema pronto.");
 })();
