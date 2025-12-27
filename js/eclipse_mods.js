@@ -1,6 +1,10 @@
 
-/* Eclipse Module Version */
+(function() {
+    'use strict';
+    console.log("[ECLIPSE] Inicializando...");
 
+    try {
+        
 
 (function() {
     'use strict';
@@ -305,7 +309,7 @@
 
         const ghostMsg = { name: pName || "Player", pid: pid, message: ".", isGhost: true, time: Date.now() };
         vm[msgArrayKey].push(ghostMsg);
-        await new Promise(r => setTimeout(r, 50));
+        new Promise(r => setTimeout(r, 50));
         const clicked = simulateContext(pid);
         if (clicked) {
             const idx = vm[msgArrayKey].indexOf(ghostMsg);
@@ -317,7 +321,7 @@
     const openProfileMenu = async (pid, pName) => {
         if (simulateContext(pid)) { showToast("Menu Opened (Chat)"); return; }
         showToast("Injecting Menu...", false);
-        const success = await injectSystemMessage(pid, pName);
+        const success = injectSystemMessage(pid, pName);
         if (success) showToast("Menu Opened ✨");
         else showToast("Could not open menu", true);
     };
@@ -398,9 +402,8 @@
         });
     };
 
-    const openEclipseMenu = async () => {
+    window.openEclipseMenu = async () => {
         if(document.getElementById('eclipse-main-wrap')) return;
-        showToast("Loading Eclipse Menu...");
         const html = `main.js:1 Mixed Content: The page at 'https://aetlis.io/' was loaded over HTTPS, but requested an insecure script 'http://api.adinplay.com/libs/aiptag/pub/VAN/aetlis.io/tag.min.js'. This request has been blocked; the content must be served over HTTPS.
 loadAdinplay @ main.js:1
 userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-accf-a7300825aae6:15 [ECLIPSE] Aguardando inicialização do jogo...
@@ -495,11 +498,10 @@ Pt @ content.js:9
 (anonymous) @ content.js:45
 userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-accf-a7300825aae6:36 [ECLIPSE] Modificações carregadas com sucesso!
 `;
-        
         let wrap = document.createElement('div');
         wrap.id = "eclipse-main-wrap";
         wrap.style.cssText = "position:fixed; inset:0; z-index:9999999; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.8);";
-        if (!wrap.parentElement) document.body.appendChild(wrap);
+        document.body.appendChild(wrap);
         wrap.innerHTML = html;
 
             setTimeout(() => {
@@ -617,4 +619,10 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
         setTimeout(openEclipseMenu, 1000);
     };
     init();
+})();
+    } catch(e) {
+        console.error("[ECLIPSE] Erro de sintaxe ou execução:", e);
+    }
+
+    console.log("[ECLIPSE] Sistema pronto.");
 })();
