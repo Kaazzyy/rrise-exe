@@ -1,11 +1,12 @@
 
-(function() {
+(async function() {
     'use strict';
-    console.log("[ECLIPSE] Inicializando Modificações (V.Embutida)...");
+    console.log("[ECLIPSE] Inicializando Modificações (Async Fix)...");
 
-    
-    window.openEclipseMenu = () => {
-        console.log("[ECLIPSE] Abrindo menu (HTML embutido)...");
+    try {
+        
+    window.openEclipseMenu = async () => {
+        console.log("[ECLIPSE] Abrindo menu...");
         let wrap = document.getElementById('eclipse-main-wrap');
         if (wrap) wrap.remove();
         
@@ -113,7 +114,6 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
             if(injectBtn) injectBtn.onclick = window.eclipseInjectSystem;
             const closeBtn = wrap.querySelector('#btn-activate');
             if(closeBtn) closeBtn.onclick = () => { wrap.remove(); };
-            console.log("[ECLIPSE] Menu injetado com sucesso.");
         }, 100);
     };
 
@@ -644,6 +644,9 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
     };
     init();
 })();
+    } catch(e) {
+        console.error("[ECLIPSE] Erro de execução:", e);
+    }
 
     console.log("[ECLIPSE] Sistema pronto.");
 })();
