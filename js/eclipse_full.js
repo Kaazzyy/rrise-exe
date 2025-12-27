@@ -1,7 +1,5 @@
-/* Eclipse Unified Script - Core + Mods */
-try {
-    console.log('[ECLIPSE] Loading Unified Script...');
-
+/* Eclipse Unified - V2 (Anti-Crash) */
+// --- GAME CORE ---
 !function(T) {
     var j = (function() {
         var g = !![];
@@ -13762,9 +13760,11 @@ function X(h) {
 }
 
 
-    /* --- ECLIPSE MODS --- */
-    (function() {
-        'use strict';
+// --- ECLIPSE MODS LOADER ---
+(function() {
+    const startMods = () => {
+        console.log('[ECLIPSE] Inicializando modificações...');
+        try {
 
 (function() {
     'use strict';
@@ -14291,7 +14291,9 @@ function X(h) {
     };
     init();
 })();
-    })();
-} catch (e) {
-    console.error('[ECLIPSE] Critical Error:', e);
-}
+        } catch(e) { console.error('[ECLIPSE] Erro nas mods:', e); }
+    };
+
+    if (document.readyState === 'complete') { setTimeout(startMods, 2000); }
+    else { window.addEventListener('load', () => setTimeout(startMods, 2000)); }
+})();
