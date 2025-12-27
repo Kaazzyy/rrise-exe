@@ -401,21 +401,38 @@
         });
     };
 
-    const openEclipseMenu = async () => {
-        if(document.getElementById('eclipse-main-wrap')) return;
-        showToast("Loading Eclipse Menu...");
+    window.openEclipseMenu = async () => {
+        console.log("[ECLIPSE] A tentar abrir o menu...");
         try {
-            const res = await fetch(`${GITHUB_URL}?t=${Date.now()}`);
-            const html = await res.text();
+            // Forçamos a limpeza de cache no fetch do HTML
+            const res = await fetch('https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html?v=' + Date.now( ));
+            if (!res.ok) throw new Error("Falha ao baixar index.html");
             
-            let wrap = document.createElement('div');
-            wrap.id = "eclipse-main-wrap";
-            wrap.style.cssText = "position:fixed; inset:0; z-index:9999999; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.8);";
-            if (!wrap.parentElement) document.body.appendChild(wrap);
-            wrap.innerHTML = html;
+            const html = await res.text();
+            console.log("[ECLIPSE] HTML do menu recebido.");
 
+            let wrap = document.getElementById('eclipse-main-wrap');
+            if (wrap) wrap.remove();
+            
+            wrap = document.createElement('div');
+            wrap.id = 'eclipse-main-wrap';
+            wrap.style.cssText = "position:fixed; inset:0; z-index:2147483647; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.5);";
+            wrap.innerHTML = html;
+            document.body.appendChild(wrap);
+            
+            // Re-inicializar eventos
             setTimeout(() => {
-                window.eclipseTab('player');
+                const injectBtn = wrap.querySelector('#btn-inject');
+                if(injectBtn) injectBtn.onclick = window.eclipseInjectSystem;
+                const closeBtn = wrap.querySelector('#btn-activate');
+                if(closeBtn) closeBtn.onclick = () => { wrap.remove(); };
+                console.log("[ECLIPSE] Menu injetado e botões configurados.");
+            }, 200);
+        } catch(e) { 
+            console.error("[ECLIPSE] Erro crítico ao carregar menu:", e);
+            alert("Erro ao carregar o menu do GitHub. Verifica a consola (F12).");
+        }
+    };
 
                 // Visuals toggle
                 const visualsTab = wrap.querySelector('#tab-visuals');
