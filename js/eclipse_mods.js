@@ -1,11 +1,10 @@
 
-(async function() {
+(function() {
     'use strict';
-    console.log("[ECLIPSE] Inicializando...");
+    console.log("[ECLIPSE] Injetando código limpo...");
 
-    try {
-        
-    window.openEclipseMenu = async function() {
+    
+    window.openEclipseMenu = function() {
         console.log("[ECLIPSE] Abrindo menu...");
         var wrap = document.getElementById('eclipse-main-wrap');
         if (wrap) wrap.remove();
@@ -118,6 +117,8 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
     };
 
 
+    try {
+        
 
 (function() {
     'use strict';
@@ -422,7 +423,7 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
 
         const ghostMsg = { name: pName || "Player", pid: pid, message: ".", isGhost: true, time: Date.now() };
         vm[msgArrayKey].push(ghostMsg);
-        await new Promise(r => setTimeout(r, 50));
+        new Promise(r => setTimeout(r, 50));
         const clicked = simulateContext(pid);
         if (clicked) {
             const idx = vm[msgArrayKey].indexOf(ghostMsg);
@@ -434,7 +435,7 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
     const openProfileMenu = async (pid, pName) => {
         if (simulateContext(pid)) { showToast("Menu Opened (Chat)"); return; }
         showToast("Injecting Menu...", false);
-        const success = await injectSystemMessage(pid, pName);
+        const success = injectSystemMessage(pid, pName);
         if (success) showToast("Menu Opened ✨");
         else showToast("Could not open menu", true);
     };
@@ -515,12 +516,12 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
         });
     };
 
-    /* Função substituída */
+    window.openEclipseMenu = function() {
         if(document.getElementById('eclipse-main-wrap')) return;
         showToast("Loading Eclipse Menu...");
         try {
-            const res = await fetch(`${GITHUB_URL}?t=${Date.now()}`);
-            const html = await res.text();
+            const res = fetch(`${GITHUB_URL}?t=${Date.now()}`);
+            const html = res.text();
             
             let wrap = document.createElement('div');
             wrap.id = "eclipse-main-wrap";
@@ -645,8 +646,8 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
     init();
 })();
     } catch(e) {
-        console.error("[ECLIPSE] Erro fatal:", e);
+        console.error("[ECLIPSE] Erro:", e);
     }
 
-    console.log("[ECLIPSE] Sistema carregado.");
+    console.log("[ECLIPSE] Pronto.");
 })();
