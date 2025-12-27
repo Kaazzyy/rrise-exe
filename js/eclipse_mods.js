@@ -5,107 +5,14 @@
 
     
     window.openEclipseMenu = function() {
-        console.log("[ECLIPSE] Abrindo menu local...");
+        console.log("[ECLIPSE] Abrindo menu...");
         var wrap = document.getElementById('eclipse-main-wrap');
         if (wrap) wrap.remove();
         
         wrap = document.createElement('div');
         wrap.id = 'eclipse-main-wrap';
-        wrap.style.cssText = "position:fixed; inset:0; z-index:2147483647; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.5);";
-        wrap.innerHTML = `main.js:1 Mixed Content: The page at 'https://aetlis.io/' was loaded over HTTPS, but requested an insecure script 'http://api.adinplay.com/libs/aiptag/pub/VAN/aetlis.io/tag.min.js'. This request has been blocked; the content must be served over HTTPS.
-loadAdinplay @ main.js:1
-userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-accf-a7300825aae6:15 [ECLIPSE] Aguardando inicialização do jogo...
-www.gstatic.com/recaptcha/releases/2Mfykwl2mlvyQZQ3PEgoH710/recaptcha__en.js:1  Failed to load resource: the server responded with a status of 404 ()
-(index):1 Refused to execute script from 'https://www.gstatic.com/recaptcha/releases/2Mfykwl2mlvyQZQ3PEgoH710/recaptcha__en.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
-/ads.css:1  Failed to load resource: the server responded with a status of 404 ()
-userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-accf-a7300825aae6:22 [ECLIPSE] Jogo detetado. Injetando mods...
-VM67:432 Uncaught SyntaxError: Failed to execute 'appendChild' on 'Node': await is only valid in async functions and the top level bodies of modules
-    at Object.onload (userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-accf-a7300825aae6:35:65)
-    at Pt (<anonymous>:10:89)
-    at <anonymous>:46:224
-    at Pt (<anonymous>:10:89)
-    at r (<anonymous>:32:484)
-    at <anonymous>:33:112
-    at <anonymous>:22:300
-    at _ (<anonymous>:22:319)
-onload @ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-accf-a7300825aae6:35
-Pt @ VM26:10
-(anonymous) @ VM26:46
-Pt @ VM26:10
-r @ VM26:32
-(anonymous) @ VM26:33
-(anonymous) @ VM26:22
-_ @ VM26:22
-setTimeout
-setTimeout @ content.js:51
-processMessage @ content.js:54
-(anonymous) @ content.js:83
-v @ content.js:62
-Pt @ VM26:10
-m @ VM26:21
-c @ VM26:24
-(anonymous) @ VM26:24
-oo @ VM26:18
-send @ VM26:24
-Xo @ VM26:33
-Wo @ VM26:33
-c @ VM26:46
-(anonymous) @ VM26:55
-Pt @ VM26:10
-t @ VM26:10
-t @ VM26:1
-i @ VM26:1
-Promise.then
-Pt @ VM26:10
-t @ VM26:10
-t @ VM26:1
-i @ VM26:1
-(anonymous) @ VM26:1
-n @ VM26:1
-Pt @ VM26:10
-(anonymous) @ VM26:1
-(anonymous) @ VM26:56
-(anonymous) @ VM26:57
-(anonymous) @ VM26:54
-Pt @ VM26:10
-t @ VM26:10
-t @ VM26:1
-i @ VM26:1
-(anonymous) @ VM26:1
-n @ VM26:1
-Pt @ VM26:10
-(anonymous) @ VM26:1
-(anonymous) @ VM26:54
-(anonymous) @ VM26:57
-(anonymous) @ VM26:27
-Pt @ VM26:10
-t @ VM26:10
-message @ VM26:27
-message @ VM26:28
-(anonymous) @ VM26:87
-_ @ VM26:22
-Pt @ content.js:9
-h @ content.js:61
-d @ content.js:64
-(anonymous) @ content.js:64
-jn @ content.js:15
-send @ content.js:64
-g @ content.js:16
-m @ content.js:16
-(anonymous) @ content.js:47
-(anonymous) @ content.js:44
-Pt @ content.js:9
-t @ content.js:10
-e @ content.js:1
-i @ content.js:1
-(anonymous) @ content.js:1
-n @ content.js:1
-Pt @ content.js:9
-(anonymous) @ content.js:1
-(anonymous) @ content.js:44
-(anonymous) @ content.js:45
-userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-accf-a7300825aae6:36 [ECLIPSE] Modificações carregadas com sucesso!
-`;
+        wrap.style.cssText = "position:fixed; inset:0; z-index:2147483647; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.8);";
+        wrap.innerHTML = `main.js:1 Mixed Content: The page at 'https://aetlis.io/' was loaded over HTTPS, but requested an insecure script 'http://api.adinplay.com/libs/aiptag/pub/VAN/aetlis.io/tag.min.js'. This request has been blocked; the content must be served over HTTPS. loadAdinplay @ main.js:1 userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-accf-a7300825aae6:15 [ECLIPSE] Aguardando inicialização do jogo... www.gstatic.com/recaptcha/releases/2Mfykwl2mlvyQZQ3PEgoH710/recaptcha__en.js:1  Failed to load resource: the server responded with a status of 404 () (index):1 Refused to execute script from 'https://www.gstatic.com/recaptcha/releases/2Mfykwl2mlvyQZQ3PEgoH710/recaptcha__en.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled. /ads.css:1  Failed to load resource: the server responded with a status of 404 () userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-accf-a7300825aae6:22 [ECLIPSE] Jogo detetado. Injetando mods... VM67:432 Uncaught SyntaxError: Failed to execute 'appendChild' on 'Node': await is only valid in async functions and the top level bodies of modules     at Object.onload (userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-accf-a7300825aae6:35:65)     at Pt (<anonymous>:10:89)     at <anonymous>:46:224     at Pt (<anonymous>:10:89)     at r (<anonymous>:32:484)     at <anonymous>:33:112     at <anonymous>:22:300     at _ (<anonymous>:22:319) onload @ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-accf-a7300825aae6:35 Pt @ VM26:10 (anonymous) @ VM26:46 Pt @ VM26:10 r @ VM26:32 (anonymous) @ VM26:33 (anonymous) @ VM26:22 _ @ VM26:22 setTimeout setTimeout @ content.js:51 processMessage @ content.js:54 (anonymous) @ content.js:83 v @ content.js:62 Pt @ VM26:10 m @ VM26:21 c @ VM26:24 (anonymous) @ VM26:24 oo @ VM26:18 send @ VM26:24 Xo @ VM26:33 Wo @ VM26:33 c @ VM26:46 (anonymous) @ VM26:55 Pt @ VM26:10 t @ VM26:10 t @ VM26:1 i @ VM26:1 Promise.then Pt @ VM26:10 t @ VM26:10 t @ VM26:1 i @ VM26:1 (anonymous) @ VM26:1 n @ VM26:1 Pt @ VM26:10 (anonymous) @ VM26:1 (anonymous) @ VM26:56 (anonymous) @ VM26:57 (anonymous) @ VM26:54 Pt @ VM26:10 t @ VM26:10 t @ VM26:1 i @ VM26:1 (anonymous) @ VM26:1 n @ VM26:1 Pt @ VM26:10 (anonymous) @ VM26:1 (anonymous) @ VM26:54 (anonymous) @ VM26:57 (anonymous) @ VM26:27 Pt @ VM26:10 t @ VM26:10 message @ VM26:27 message @ VM26:28 (anonymous) @ VM26:87 _ @ VM26:22 Pt @ content.js:9 h @ content.js:61 d @ content.js:64 (anonymous) @ content.js:64 jn @ content.js:15 send @ content.js:64 g @ content.js:16 m @ content.js:16 (anonymous) @ content.js:47 (anonymous) @ content.js:44 Pt @ content.js:9 t @ content.js:10 e @ content.js:1 i @ content.js:1 (anonymous) @ content.js:1 n @ content.js:1 Pt @ content.js:9 (anonymous) @ content.js:1 (anonymous) @ content.js:44 (anonymous) @ content.js:45 userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-accf-a7300825aae6:36 [ECLIPSE] Modificações carregadas com sucesso! `;
         document.body.appendChild(wrap);
         
         setTimeout(function() {
@@ -113,8 +20,8 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
             if(injectBtn) injectBtn.onclick = window.eclipseInjectSystem;
             var closeBtn = wrap.querySelector('#btn-activate');
             if(closeBtn) closeBtn.onclick = function() { wrap.remove(); };
-            console.log("[ECLIPSE] Menu aberto com sucesso.");
-        }, 100);
+            console.log("[ECLIPSE] Menu aberto.");
+        }, 200);
     };
 
 
@@ -424,7 +331,7 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
 
         const ghostMsg = { name: pName || "Player", pid: pid, message: ".", isGhost: true, time: Date.now() };
         vm[msgArrayKey].push(ghostMsg);
-        await new Promise(r => setTimeout(r, 50));
+        new Promise(r => setTimeout(r, 50));
         const clicked = simulateContext(pid);
         if (clicked) {
             const idx = vm[msgArrayKey].indexOf(ghostMsg);
@@ -436,7 +343,7 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
     const openProfileMenu = async (pid, pName) => {
         if (simulateContext(pid)) { showToast("Menu Opened (Chat)"); return; }
         showToast("Injecting Menu...", false);
-        const success = await injectSystemMessage(pid, pName);
+        const success = injectSystemMessage(pid, pName);
         if (success) showToast("Menu Opened ✨");
         else showToast("Could not open menu", true);
     };
@@ -517,12 +424,12 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
         });
     };
 
-    /* Removido */
+    /* ... */
         if(document.getElementById('eclipse-main-wrap')) return;
         showToast("Loading Eclipse Menu...");
         try {
-            const res = // fetch removido(`${GITHUB_URL}?t=${Date.now()}`);
-            const html = await res.text();
+            const res = // ...(`${GITHUB_URL}?t=${Date.now()}`);
+            const html = res.text();
             
             let wrap = document.createElement('div');
             wrap.id = "eclipse-main-wrap";
@@ -650,7 +557,15 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
         console.error("[ECLIPSE] Erro:", e);
     }
 
-    // Forçar a abertura do menu após 1.5s
-    setTimeout(window.openEclipseMenu, 1500);
-    console.log("[ECLIPSE] Pronto.");
+    // Botão flutuante visível para teste
+    var trig = document.createElement('div');
+    trig.id = 'eclipse-trigger';
+    trig.style.cssText = "position:fixed; top:20px; right:20px; z-index:1000000; width:45px; height:45px; background:#7c3aed; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; box-shadow:0 0 15px rgba(124,58,237,0.5);";
+    trig.innerHTML = "E";
+    trig.onclick = window.openEclipseMenu;
+    document.body.appendChild(trig);
+
+    // Auto-abertura
+    setTimeout(window.openEclipseMenu, 2000);
+    console.log("[ECLIPSE] Sistema pronto.");
 })();
