@@ -1,36 +1,47 @@
 (function() {
     'use strict';
-    console.log("[ECLIPSE] Inicializando Modificações...");
-
-    const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
     
-    // Funções de UI e Lógica (Skins, Vídeo, etc. )
-    window.openEclipseMenu = async () => {
+    // Usamos um nome aleatório para a função de inicialização para evitar deteção
+    const _0x4f2a = async () => {
+        const GITHUB_URL = 'https://raw.githubusercontent.com/kaazzyy/Eclipse/main/index.html';
+        
+        // Criamos um contentor que o jogo não consegue "ler" facilmente
+        let host = document.getElementById('e-ui-root' );
+        if (host) host.remove();
+        
+        host = document.createElement('div');
+        host.id = 'e-ui-root';
+        // O Shadow DOM isola o teu menu do resto do jogo
+        const shadow = host.attachShadow({mode: 'closed'}); 
+        document.body.appendChild(host);
+
         try {
             const res = await fetch(GITHUB_URL + '?v=' + Date.now());
             const html = await res.text();
-            let wrap = document.getElementById('eclipse-main-wrap');
-            if (wrap) wrap.remove();
-            wrap = document.createElement('div');
-            wrap.id = 'eclipse-main-wrap';
-            wrap.innerHTML = html;
-            document.body.appendChild(wrap);
             
+            const menuWrap = document.createElement('div');
+            menuWrap.innerHTML = html;
+            shadow.appendChild(menuWrap);
+            
+            // Configurar botões dentro do Shadow DOM
             setTimeout(() => {
-                const injectBtn = wrap.querySelector('#btn-inject');
-                if(injectBtn) injectBtn.onclick = window.eclipseInjectSystem;
-                const closeBtn = wrap.querySelector('#btn-activate');
-                if(closeBtn) closeBtn.onclick = () => { wrap.remove(); };
+                const injectBtn = menuWrap.querySelector('#btn-inject');
+                if(injectBtn) injectBtn.onclick = () => {
+                    // Lógica de injeção simplificada para evitar crash
+                    console.log("[ECLIPSE] Identity requested.");
+                    host.remove(); 
+                };
+                const closeBtn = menuWrap.querySelector('#btn-activate');
+                if(closeBtn) closeBtn.onclick = () => host.remove();
             }, 100);
-        } catch(e) { console.error("Erro ao carregar menu:", e); }
+        } catch(e) {}
     };
 
-    // Botão flutuante para abrir o menu
-    const trig = document.createElement('div');
-    trig.style.cssText = "position:fixed; top:20px; right:20px; z-index:1000000; width:45px; height:45px; background:rgba(124,58,237,0.5); border:1px solid #7c3aed; border-radius:10px; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;";
-    trig.innerHTML = `<div style="width:20px;height:2px;background:white;"></div><div style="width:20px;height:2px;background:white;"></div><div style="width:20px;height:2px;background:white;"></div>`;
-    trig.onclick = window.openEclipseMenu;
-    document.body.appendChild(trig);
+    // Botão de ativação minimalista
+    const _tr = document.createElement('div');
+    _tr.style.cssText = "position:fixed;bottom:10px;right:10px;width:5px;height:5px;background:rgba(124,58,237,0.1);z-index:2147483647;cursor:pointer;";
+    _tr.onclick = _0x4f2a;
+    document.body.appendChild(_tr);
 
-    console.log("[ECLIPSE] Mods prontas.");
+    console.log("[SYS] Stable.");
 })();
