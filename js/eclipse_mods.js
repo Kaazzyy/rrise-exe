@@ -3,8 +3,6 @@
     'use strict';
     console.log("[ECLIPSE] Inicializando Modificações Completas...");
 
-    
-
 (function() {
     'use strict';
 
@@ -401,162 +399,11 @@
         });
     };
 
-    const openEclipseMenu = async () => {
-        if(document.getElementById("eclipse-main-wrap")) return;
-        const html = `<style>/* ============================== */ /* GLOBAL PAGE STYLE */ /* ============================== */
-body {
-    margin: 0;
-    padding: 0;
-    font-family:'Inter', sans-serif;
-    background: radial-gradient(circle at top, #1a1a1a, #000000);
-    color: #fff;
-    overflow: hidden;
-}
-/* Smooth fade-in animation */
-.fade-in {
-    animation: fadeIn 0.5s ease-out forwards;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px);
-         } to { opacity: 1; transform: translateY(0);
-              }
-}
-/* ============================== */
-/* MAIN CONTAINER */
-/* ============================== */
-
-.launcher-box {
-    width: 100%;
-    max-width: 520px;
-    padding: 40px;
-    background: rgba(20, 20, 20, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    backdrop-filter: blur(22px);
-    border-radius: 18px;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.55);
-    animation: fadeIn 0.8s ease-out forwards;
-}
-/* ============================== */
-/* INPUTS */
-/* ============================== */ 
-.launcher-input {
-    width: 100%;
-    padding: 13px 15px;
-    border-radius: 10px;
-    border: 1px solid #2b2b2b;
-    background: rgba(15, 15, 15, 0.85);
-    color: #fff;
-    font-size: 15px;
-    margin-top: 6px;
-    transition: border 0.2s ease, background 0.2s ease;
-}
-.launcher-input:focus {
-    outline: none;
-    border-color: #6366f1;
-    /* Indigo highlight */
-    background: rgba(30, 30, 30, 0.95);
-}
-/* ============================== */
-/* BUTTON */
-/* ============================== */
-.play-btn {
-    width: 100%;
-    padding: 15px;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(to right, #6366f1, #4f46e5);
-    color: #fff;
-    font-weight: 600;
-    font-size: 18px;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-.play-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
-}
-.play-btn:active {
-    transform: scale(0.98);
-}
-/* ============================== */
-/* FOOTER TEXT */
-/* ============================== */
-.footer-text {
-    text-align: center;
-    margin-top: 25px;
-    color: #aaa;
-    font-size: 13px;
-    opacity: 0.7; 
-}</style>
-<div class="launcher-box fade-in">
-    <h1 style="text-align: center; color: #fff; font-family: 'Outfit', sans-serif; margin-bottom: 20px;">Eclipse Obsidian</h1>
-    
-    <div style="margin-bottom: 15px;">
-        <label style="color: #aaa; font-size: 12px;">MAIN NICKNAME</label>
-        <input type="text" id="e_main_nick" class="launcher-input" placeholder="Your Nickname...">
-    </div>
-    
-    <div style="margin-bottom: 15px;">
-        <label style="color: #aaa; font-size: 12px;">MAIN SKIN URL</label>
-        <input type="text" id="e_main_skin" class="launcher-input" placeholder="https://skins.aetlis.io/s/...">
-    </div>
-    
-    <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0; padding-top: 20px;">
-        <label style="color: #aaa; font-size: 12px;">DUAL NICKNAME</label>
-        <input type="text" id="e_dual_nick" class="launcher-input" placeholder="Dual Nickname...">
-    </div>
-    
-    <div style="margin-bottom: 25px;">
-        <label style="color: #aaa; font-size: 12px;">DUAL SKIN URL</label>
-        <input type="text" id="e_dual_skin" class="launcher-input" placeholder="https://skins.aetlis.io/s/...">
-    </div>
-    
-    <button id="btn-inject" class="play-btn" onclick="window.eclipseInjectSystem()">INJECT IDENTITY</button>
-    <button id="btn-activate" class="play-btn" style="background: #333; margin-top: 10px;">CLOSE MENU</button>
-    
-    <div style="margin-top: 20px; display: flex; justify-content: center; gap: 15px;">
-        <div onclick="window.eclipseTab('player')" style="cursor:pointer; color:#7c3aed;">Player</div>
-        <div onclick="window.eclipseTab('visuals')" style="cursor:pointer; color:#aaa;">Visuals</div>
-        <div onclick="window.eclipseTab('dual')" style="cursor:pointer; color:#aaa;">Dual</div>
-        <div onclick="window.eclipseTab('settings')" style="cursor:pointer; color:#aaa;">Settings</div>
-    </div>
-    
-    <div id="tab-visuals" style="display:none; margin-top: 15px;"></div>
-</div>
-`;
-        
-        let wrap = document.createElement("div");
-        wrap.id = "eclipse-main-wrap";
-        wrap.style.cssText = "position:fixed; inset:0; z-index:2147483647; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.8);";
-        if (!wrap.parentElement) document.body.appendChild(wrap);
-        wrap.innerHTML = html;
-
-            setTimeout(() => {
-                window.eclipseTab('player');
-
-                // Visuals toggle
-                const visualsTab = wrap.querySelector('#tab-visuals');
-                if(visualsTab && !document.getElementById('eclipse-lines-toggle')) {
-                     const div = document.createElement('div');
-                     div.innerHTML = `<br><label style="color:white;"><input type="checkbox" id="eclipse-lines-toggle" checked> Show Lines</label>`;
-                     visualsTab.appendChild(div);
-                     document.getElementById('eclipse-lines-toggle').onchange = (e) => window.eclipse_showLines = e.target.checked;
-                }
-
-                // Bind Buttons com a nova função segura
-                const buttons = wrap.querySelectorAll('button, .btn, .vanis-button');
-                buttons.forEach(btn => {
-                    const txt = btn.innerText.toLowerCase();
-                    if(txt.includes("inject") || txt.includes("apply") || btn.id.includes("inject")) {
-                        btn.onclick = window.eclipseInjectSystem;
-                    }
-                });
-            }, 100);
-
-            const closeBtn = wrap.querySelector('#btn-activate');
-            if(closeBtn) closeBtn.onclick = () => { wrap.remove(); };
+    const openEclipseMenu = async () => { if(document.getElementById("eclipse-main-wrap")) return; let wrap = document.createElement("div"); wrap.id = "eclipse-main-wrap"; wrap.style.cssText = "position:fixed; inset:0; z-index:2147483647; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); backdrop-filter:blur(5px);"; wrap.innerHTML = r"""<div id="eclipse-launcher-container" style="background: rgba(10, 10, 15, 0.98); border: 2px solid #7c3aed; border-radius: 20px; padding: 30px; width: 450px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); font-family: 'Outfit', 'Inter', sans-serif; color: white; position: relative; animation: eclipseFadeIn 0.4s ease-out; z-index: 2147483647;"><style>@keyframes eclipseFadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }.eclipse-input-group { margin-bottom: 15px; }.eclipse-label { display: block; color: #aaa; font-size: 11px; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }.eclipse-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(124,58,237,0.3); border-radius: 10px; padding: 12px; color: white; font-size: 14px; outline: none; transition: 0.3s; }.eclipse-input:focus { border-color: #7c3aed; background: rgba(124,58,237,0.1); }.eclipse-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; cursor: pointer; font-weight: bold; font-size: 15px; transition: 0.3s; margin-top: 10px; }.eclipse-btn-primary { background: #7c3aed; color: white; box-shadow: 0 5px 15px rgba(124,58,237,0.4); }.eclipse-btn-primary:hover { background: #6d28d9; transform: translateY(-2px); }.eclipse-btn-secondary { background: #222; color: #aaa; margin-top: 15px; }.eclipse-btn-secondary:hover { background: #333; color: white; }.eclipse-tabs { display: flex; justify-content: center; gap: 20px; margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }.eclipse-tab-link { cursor: pointer; color: #666; font-size: 13px; font-weight: bold; transition: 0.3s; }.eclipse-tab-link.active { color: #7c3aed; }.eclipse-tab-link:hover { color: #7c3aed; }</style><h2 style="text-align: center; margin-top: 0; margin-bottom: 25px; color: #7c3aed; letter-spacing: 2px;">ECLIPSE OBSIDIAN</h2><div id="tab-player"><div class="eclipse-input-group"><label class="eclipse-label">Main Nickname</label><input type="text" id="e_main_nick" class="eclipse-input" placeholder="Enter nickname..."></div><div class="eclipse-input-group"><label class="eclipse-label">Main Skin URL</label><input type="text" id="e_main_skin" class="eclipse-input" placeholder="https://skins.aetlis.io/s/..."></div><div style="height: 10px;"></div><div class="eclipse-input-group"><label class="eclipse-label">Dual Nickname</label><input type="text" id="e_dual_nick" class="eclipse-input" placeholder="Enter dual nickname..."></div><div class="eclipse-input-group"><label class="eclipse-label">Dual Skin URL</label><input type="text" id="e_dual_skin" class="eclipse-input" placeholder="https://skins.aetlis.io/s/..."></div></div><div id="tab-visuals" style="display:none;"><p style="text-align:center; color:#666; font-size:14px;">Visual settings will appear here.</p></div><div id="tab-dual" style="display:none;"></div><div id="tab-settings" style="display:none;"></div><button class="eclipse-btn eclipse-btn-primary" onclick="window.eclipseInjectSystem()">INJECT IDENTITY</button><button id="btn-activate" class="eclipse-btn eclipse-btn-secondary">CLOSE LAUNCHER</button><div class="eclipse-tabs"><span class="eclipse-tab-link active" onclick="window.eclipseTab('player')">Player</span><span class="eclipse-tab-link" onclick="window.eclipseTab('visuals')">Visuals</span><span class="eclipse-tab-link" onclick="window.eclipseTab('dual')">Dual</span><span class="eclipse-tab-link" onclick="window.eclipseTab('settings')">Settings</span></div></div>
+"""; document.body.appendChild(wrap); setTimeout(() => { window.eclipseTab('player'); const closeBtn = wrap.querySelector("#btn-activate"); if(closeBtn) closeBtn.onclick = () => { wrap.remove(); }; const buttons = wrap.querySelectorAll('button'); buttons.forEach(btn => { if(btn.innerText.includes("INJECT")) btn.onclick = window.eclipseInjectSystem; }); }, 100); };
+        } catch(e) {
+            showToast("Failed to load menu", true);
+        }
     };
 
     const setupLines = () => {
