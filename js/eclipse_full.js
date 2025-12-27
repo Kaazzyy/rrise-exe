@@ -1,7 +1,8 @@
-
+/* Eclipse Unified Script - Core + Mods */
 try {
-    console.log("[Eclipse] Loading Original Core...");
-    !function(T) {
+    console.log('[ECLIPSE] Loading Unified Script...');
+
+!function(T) {
     var j = (function() {
         var g = !![];
         return function(K, O) {
@@ -13760,16 +13761,11 @@ function X(h) {
     } catch (L) {}
 }
 
-    console.log("[Eclipse] Original Core Loaded.");
-} catch (e) {
-    console.error("[Eclipse] Error in Original Core:", e);
-}
 
-// Separação garantida
-;(function() {
-    try {
-        console.log("[Eclipse] Loading Modifications...");
-        
+    /* --- ECLIPSE MODS --- */
+    (function() {
+        'use strict';
+
 (function() {
     'use strict';
 
@@ -14295,8 +14291,7 @@ function X(h) {
     };
     init();
 })();
-        console.log("[Eclipse] Modifications Loaded.");
-    } catch (e) {
-        console.error("[Eclipse] Error in Modifications:", e);
-    }
-})();
+    })();
+} catch (e) {
+    console.error('[ECLIPSE] Critical Error:', e);
+}
