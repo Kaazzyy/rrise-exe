@@ -1,11 +1,11 @@
 
 (function() {
     'use strict';
-    console.log("[ECLIPSE] Injetando código limpo...");
+    console.log("[ECLIPSE] Inicializando...");
 
     
     window.openEclipseMenu = function() {
-        console.log("[ECLIPSE] Abrindo menu...");
+        console.log("[ECLIPSE] Abrindo menu local...");
         var wrap = document.getElementById('eclipse-main-wrap');
         if (wrap) wrap.remove();
         
@@ -113,7 +113,8 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
             if(injectBtn) injectBtn.onclick = window.eclipseInjectSystem;
             var closeBtn = wrap.querySelector('#btn-activate');
             if(closeBtn) closeBtn.onclick = function() { wrap.remove(); };
-        }, 200);
+            console.log("[ECLIPSE] Menu aberto com sucesso.");
+        }, 100);
     };
 
 
@@ -423,7 +424,7 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
 
         const ghostMsg = { name: pName || "Player", pid: pid, message: ".", isGhost: true, time: Date.now() };
         vm[msgArrayKey].push(ghostMsg);
-        new Promise(r => setTimeout(r, 50));
+        await new Promise(r => setTimeout(r, 50));
         const clicked = simulateContext(pid);
         if (clicked) {
             const idx = vm[msgArrayKey].indexOf(ghostMsg);
@@ -435,7 +436,7 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
     const openProfileMenu = async (pid, pName) => {
         if (simulateContext(pid)) { showToast("Menu Opened (Chat)"); return; }
         showToast("Injecting Menu...", false);
-        const success = injectSystemMessage(pid, pName);
+        const success = await injectSystemMessage(pid, pName);
         if (success) showToast("Menu Opened ✨");
         else showToast("Could not open menu", true);
     };
@@ -516,12 +517,12 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
         });
     };
 
-    window.openEclipseMenu = function() {
+    /* Removido */
         if(document.getElementById('eclipse-main-wrap')) return;
         showToast("Loading Eclipse Menu...");
         try {
-            const res = fetch(`${GITHUB_URL}?t=${Date.now()}`);
-            const html = res.text();
+            const res = // fetch removido(`${GITHUB_URL}?t=${Date.now()}`);
+            const html = await res.text();
             
             let wrap = document.createElement('div');
             wrap.id = "eclipse-main-wrap";
@@ -649,5 +650,7 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
         console.error("[ECLIPSE] Erro:", e);
     }
 
+    // Forçar a abertura do menu após 1.5s
+    setTimeout(window.openEclipseMenu, 1500);
     console.log("[ECLIPSE] Pronto.");
 })();
