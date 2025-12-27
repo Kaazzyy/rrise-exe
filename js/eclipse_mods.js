@@ -1,10 +1,9 @@
 
-(async function() {
-    'use strict';
-    console.log("[ECLIPSE] Inicializando Modificações (Async Fix)...");
+/* Eclipse Module - Stealth Version */
+console.log("[ECLIPSE] Inicializando Módulo...");
 
-    try {
-        
+try {
+    
     window.openEclipseMenu = async () => {
         console.log("[ECLIPSE] Abrindo menu...");
         let wrap = document.getElementById('eclipse-main-wrap');
@@ -644,9 +643,7 @@ userscript.html?name=Eclipse-Beta-Official-Loader.user.js&id=d7009408-f89d-4f21-
     };
     init();
 })();
-    } catch(e) {
-        console.error("[ECLIPSE] Erro de execução:", e);
-    }
-
     console.log("[ECLIPSE] Sistema pronto.");
-})();
+} catch(e) {
+    console.error("[ECLIPSE] Erro no módulo:", e);
+}
